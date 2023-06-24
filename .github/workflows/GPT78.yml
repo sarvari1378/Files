@@ -21,13 +21,13 @@ jobs:
             ((counter++))
             # Print the modified line
             echo "$new_line"
-        done < links.txt > new_links-$counter
+        done < links.txt > new_links-
 
     - name: Commit and push changes
       run: |
         git config --global user.name 'sajed sarvari'
         git config --global user.email 'ms.sarvari1378@gmail.com'
-        git add new_links-$counter
+        git add new_links-
         git commit -m "Add output file"
         git push
 
