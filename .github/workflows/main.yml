@@ -1,28 +1,24 @@
-name: "CONFIG COLLECTOR"
-
+name: Get VLESS links
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '*/20 * * * *'
-    
+  push:
+    branches:
+      - main
 jobs:
-  build:
+  get-links:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v2
-      
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '7.4'
-          
-      - name: Execute PHP script
+      - name: Get VLESS links
         run: |
-          php collect.php
-          git config --global user.email "yebekhe@gmail.com"
-          git config --global user.name "yebekhe"
-          git config credential.helper store
-          git add -A
-          git commit -m "🚀 Servers Updated - $(TZ='Asia/Tehran' date '+%Y-%m-%d %H:%M:%S')"
-          git push
+          wget -qO- https://raw.githubusercontent.com/yebekhe/TelegramV2rayCollector/main/sub/reality | grep -oE 'vless://[^ ]+' > links.txt
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add links.txt
+          git commit -m "Update VLESS links"
+          git remote set-url origin https://github.com/sarvari1378/SUB-Repository.git
+          git push --set-upstream origin main
+        env:
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
