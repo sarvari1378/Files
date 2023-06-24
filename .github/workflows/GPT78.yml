@@ -6,6 +6,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.ACCESS_TOKEN }}
     - name: Run script
       run: |
         #!/bin/bash
@@ -21,13 +23,13 @@ jobs:
             ((counter++))
             # Print the modified line
             echo "$new_line"
-        done < links.txt > new_links-
+        done < links.txt > new_links-$counter
 
     - name: Commit and push changes
       run: |
-        git config --global user.name 'sajed sarvari'
-        git config --global user.email 'ms.sarvari1378@gmail.com'
-        git add new_links-
+        git config --global user.name 'Your Name'
+        git config --global user.email 'your-email@example.com'
+        git add new_links-$counter
         git commit -m "Add output file"
         git push
 
