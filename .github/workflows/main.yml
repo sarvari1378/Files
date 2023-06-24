@@ -1,24 +1,7 @@
-name: Get VLESS links
-on:
-  push:
-    branches:
-      - main
 jobs:
-  get-links:
+  runscript:
+    name: Example
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Get VLESS links
-        run: |
-          wget -qO- https://raw.githubusercontent.com/yebekhe/TelegramV2rayCollector/main/sub/reality | grep -oE 'vless://[^ ]+' > links.txt
-      - name: Commit and push changes
-        run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          git add links.txt
-          git commit -m "Update VLESS links"
-          git remote set-url origin https://github.com/sarvari1378/SUB-Repository.git
-          git push --set-upstream origin main
-        env:
-          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Call a Bash Script
+        run: bash ${{GITHUB_WORKSPACE}}/scripts/example.sh
