@@ -27,8 +27,8 @@ jobs:
 
     - name: Commit and push changes
       run: |
-        git config --global user.name 'Your Name'
-        git config --global user.email 'your-email@example.com'
+        git config --global user.name 'sajed'
+        git config --global user.email 'ms.sarvari1378@gmail.com'
         git add new_links-$counter
         git commit -m "Add output file"
         git push
