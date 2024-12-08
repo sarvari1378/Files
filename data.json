@@ -1,34 +1,40 @@
 {
   "categories": [
     {
-      "id": "category1",
       "name": "Category 1",
       "image": "https://example.com/category1.jpg",
-      "posts": [
+      "text": "Description for Category 1",
+      "items": [
         {
-          "title": "Post 1 in Category 1",
-          "image": "https://example.com/post1.jpg",
-          "text": "Description of Post 1",
-          "price": "$100"
+          "name": "Item 1.1",
+          "image": "https://example.com/item1.1.jpg",
+          "description": "Description for Item 1.1",
+          "price": "$10"
         },
         {
-          "title": "Post 2 in Category 1",
-          "image": "https://example.com/post2.jpg",
-          "text": "Description of Post 2",
-          "price": "$150"
+          "name": "Item 1.2",
+          "image": "https://example.com/item1.2.jpg",
+          "description": "Description for Item 1.2",
+          "price": "$15"
         }
       ]
     },
     {
-      "id": "category2",
       "name": "Category 2",
       "image": "https://example.com/category2.jpg",
-      "posts": [
+      "text": "Description for Category 2",
+      "items": [
         {
-          "title": "Post 1 in Category 2",
-          "image": "https://example.com/post1.jpg",
-          "text": "Description of Post 1",
-          "price": "$200"
+          "name": "Item 2.1",
+          "image": "https://example.com/item2.1.jpg",
+          "description": "Description for Item 2.1",
+          "price": "$20"
+        },
+        {
+          "name": "Item 2.2",
+          "image": "https://example.com/item2.2.jpg",
+          "description": "Description for Item 2.2",
+          "price": "$25"
         }
       ]
     }
