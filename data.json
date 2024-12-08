@@ -12,29 +12,366 @@
           "price": "10.000.000 تومان"
         },
         {
-          "name": "Item 1.2",
+          "name": "آب میوه پرتقال",
           "image": "https://example.com/item1.2.jpg",
-          "description": "Description for Item 1.2",
-          "price": "$15"
+          "description": "آب میوه پرتقال تازه",
+          "price": "8.000.000 تومان"
+        },
+        {
+          "name": "آب میوه سیب",
+          "image": "https://example.com/item1.3.jpg",
+          "description": "آب میوه سیب طبیعی",
+          "price": "9.000.000 تومان"
         }
       ]
     },
     {
-      "name": "Category 2",
+      "name": "دسرها",
       "image": "https://example.com/category2.jpg",
-      "text": "Description for Category 2",
+      "text": "دسرهای خوشمزه",
       "items": [
         {
-          "name": "Item 2.1",
+          "name": "پودینگ شکلاتی",
           "image": "https://example.com/item2.1.jpg",
-          "description": "Description for Item 2.1",
-          "price": "$20"
+          "description": "پودینگ شکلاتی خوشمزه",
+          "price": "12.000.000 تومان"
         },
         {
-          "name": "Item 2.2",
+          "name": "کیک میوه‌ای",
           "image": "https://example.com/item2.2.jpg",
-          "description": "Description for Item 2.2",
-          "price": "$25"
+          "description": "کیک میوه‌ای تازه",
+          "price": "15.000.000 تومان"
+        },
+        {
+          "name": "تارت توت فرنگی",
+          "image": "https://example.com/item2.3.jpg",
+          "description": "تارت توت فرنگی لذیذ",
+          "price": "18.000.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "شیرینی جات",
+      "image": "https://example.com/category3.jpg",
+      "text": "شیرینی‌های خوشمزه",
+      "items": [
+        {
+          "name": "بیسکوییت کرمدار",
+          "image": "https://example.com/item3.1.jpg",
+          "description": "بیسکوییت با کرم خوشمزه",
+          "price": "5.000.000 تومان"
+        },
+        {
+          "name": "کیک اسفنجی",
+          "image": "https://example.com/item3.2.jpg",
+          "description": "کیک اسفنجی نرم",
+          "price": "7.000.000 تومان"
+        },
+        {
+          "name": "کاپ کیک وانیلی",
+          "image": "https://example.com/item3.3.jpg",
+          "description": "کاپ کیک با طعم وانیل",
+          "price": "6.500.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "فست فود",
+      "image": "https://example.com/category4.jpg",
+      "text": "فست فودهای لذیذ",
+      "items": [
+        {
+          "name": "برگر گوشت",
+          "image": "https://example.com/item4.1.jpg",
+          "description": "برگر گوشت تازه",
+          "price": "20.000.000 تومان"
+        },
+        {
+          "name": "پیتزا مارگاریتا",
+          "image": "https://example.com/item4.2.jpg",
+          "description": "پیتزا مارگاریتا ساده",
+          "price": "18.000.000 تومان"
+        },
+        {
+          "name": "سیب‌زمینی سرخ کرده",
+          "image": "https://example.com/item4.3.jpg",
+          "description": "سیب‌زمینی سرخ کرده ترد",
+          "price": "8.000.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "سالاد",
+      "image": "https://example.com/category5.jpg",
+      "text": "سالادهای سالم",
+      "items": [
+        {
+          "name": "سالاد سزار",
+          "image": "https://example.com/item5.1.jpg",
+          "description": "سالاد سزار خوشمزه",
+          "price": "14.000.000 تومان"
+        },
+        {
+          "name": "سالاد فصل",
+          "image": "https://example.com/item5.2.jpg",
+          "description": "سالاد فصل تازه",
+          "price": "10.000.000 تومان"
+        },
+        {
+          "name": "سالاد میوه",
+          "image": "https://example.com/item5.3.jpg",
+          "description": "سالاد میوه خوشمزه",
+          "price": "12.000.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "پیش غذا",
+      "image": "https://example.com/category6.jpg",
+      "text": "پیش غذاهای لذیذ",
+      "items": [
+        {
+          "name": "سوپ جو",
+          "image": "https://example.com/item6.1.jpg",
+          "description": "سوپ جو داغ",
+          "price": "7.000.000 تومان"
+        },
+        {
+          "name": "فرانسه",
+          "image": "https://example.com/item6.2.jpg",
+          "description": "فرانسه خوشمزه",
+          "price": "9.000.000 تومان"
+        },
+        {
+          "name": "سالاد توت فرنگی",
+          "image": "https://example.com/item6.3.jpg",
+          "description": "سالاد توت فرنگی تازه",
+          "price": "11.000.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "چای و دمنوش",
+      "image": "https://example.com/category7.jpg",
+      "text": "چای‌های خوشمزه",
+      "items": [
+        {
+          "name": "چای سبز",
+          "image": "https://example.com/item7.1.jpg",
+          "description": "چای سبز طبیعی",
+          "price": "5.000.000 تومان"
+        },
+        {
+          "name": "چای سیاه",
+          "image": "https://example.com/item7.2.jpg",
+          "description": "چای سیاه مرغوب",
+          "price": "6.000.000 تومان"
+        },
+        {
+          "name": "دمنوش گیاهی",
+          "image": "https://example.com/item7.3.jpg",
+          "description": "دمنوش گیاهی آرامبخش",
+          "price": "7.000.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "شکلات و تنقلات",
+      "image": "https://example.com/category8.jpg",
+      "text": "شکلات‌های خوشمزه",
+      "items": [
+        {
+          "name": "شکلات تلخ",
+          "image": "https://example.com/item8.1.jpg",
+          "description": "شکلات تلخ با درصد کاکائو بالا",
+          "price": "5.000.000 تومان"
+        },
+        {
+          "name": "آجیل مخلوط",
+          "image": "https://example.com/item8.2.jpg",
+          "description": "آجیل مخلوط تازه",
+          "price": "8.000.000 تومان"
+        },
+        {
+          "name": "پاستیل",
+          "image": "https://example.com/item8.3.jpg",
+          "description": "پاستیل‌های رنگی",
+          "price": "4.000.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "غذاهای سنتی",
+      "image": "https://example.com/category9.jpg",
+      "text": "غذاهای سنتی ایرانی",
+      "items": [
+        {
+          "name": "قورمه سبزی",
+          "image": "https://example.com/item9.1.jpg",
+          "description": "قورمه سبزی لذیذ",
+          "price": "25.000.000 تومان"
+        },
+        {
+          "name": "کباب کوبیده",
+          "image": "https://example.com/item9.2.jpg",
+          "description": "کباب کوبیده تازه",
+          "price": "30.000.000 تومان"
+        },
+        {
+          "name": "فسنجان",
+          "image": "https://example.com/item9.3.jpg",
+          "description": "فسنجان مرغ",
+          "price": "28.000.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "نوشیدنی‌های گرم",
+      "image": "https://example.com/category10.jpg",
+      "text": "نوشیدنی‌های گرم خوشمزه",
+      "items": [
+        {
+          "name": "قهوه اسپرسو",
+          "image": "https://example.com/item10.1.jpg",
+          "description": "قهوه اسپرسو غلیظ",
+          "price": "12.000.000 تومان"
+        },
+        {
+          "name": "چای نعنا",
+          "image": "https://example.com/item10.2.jpg",
+          "description": "چای نعنا تازه",
+          "price": "7.000.000 تومان"
+        },
+        {
+          "name": "کاکائو داغ",
+          "image": "https://example.com/item10.3.jpg",
+          "description": "کاکائو داغ لذیذ",
+          "price": "10.000.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "غذاهای خارجی",
+      "image": "https://example.com/category11.jpg",
+      "text": "غذاهای بین‌المللی",
+      "items": [
+        {
+          "name": "پاستا آل فرنی",
+          "image": "https://example.com/item11.1.jpg",
+          "description": "پاستا با سس آلفردو",
+          "price": "18.000.000 تومان"
+        },
+        {
+          "name": "پیتزا پپرونی",
+          "image": "https://example.com/item11.2.jpg",
+          "description": "پیتزا با پپرونی",
+          "price": "22.000.000 تومان"
+        },
+        {
+          "name": "تاکو مکزیکی",
+          "image": "https://example.com/item11.3.jpg",
+          "description": "تاکو مکزیکی با گوشت چرخ کرده",
+          "price": "20.000.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "غذاهای گیاهی",
+      "image": "https://example.com/category12.jpg",
+      "text": "غذاهای گیاهی و سالم",
+      "items": [
+        {
+          "name": "بورانی اسفناج",
+          "image": "https://example.com/item12.1.jpg",
+          "description": "بورانی اسفناج خوشمزه",
+          "price": "15.000.000 تومان"
+        },
+        {
+          "name": "کوفته سبزی",
+          "image": "https://example.com/item12.2.jpg",
+          "description": "کوفته سبزی تازه",
+          "price": "16.000.000 تومان"
+        },
+        {
+          "name": "خورش قیمه",
+          "image": "https://example.com/item12.3.jpg",
+          "description": "خورش قیمه گیاهی",
+          "price": "18.000.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "پیتزا",
+      "image": "https://example.com/category13.jpg",
+      "text": "پیتزاهای لذیذ",
+      "items": [
+        {
+          "name": "پیتزا قارچ",
+          "image": "https://example.com/item13.1.jpg",
+          "description": "پیتزا با قارچ تازه",
+          "price": "15.000.000 تومان"
+        },
+        {
+          "name": "پیتزا هات داگ",
+          "image": "https://example.com/item13.2.jpg",
+          "description": "پیتزا هات داگ خوشمزه",
+          "price": "17.000.000 تومان"
+        },
+        {
+          "name": "پیتزا مرغ",
+          "image": "https://example.com/item13.3.jpg",
+          "description": "پیتزا با مرغ گریل شده",
+          "price": "18.000.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "دمنوش‌های خاص",
+      "image": "https://example.com/category14.jpg",
+      "text": "دمنوش‌های گیاهی خاص",
+      "items": [
+        {
+          "name": "دمنوش بابونه",
+          "image": "https://example.com/item14.1.jpg",
+          "description": "دمنوش بابونه آرامبخش",
+          "price": "6.000.000 تومان"
+        },
+        {
+          "name": "دمنوش گل گاو زبان",
+          "image": "https://example.com/item14.2.jpg",
+          "description": "دمنوش گل گاو زبان آرامش‌بخش",
+          "price": "7.000.000 تومان"
+        },
+        {
+          "name": "دمنوش چای ترش",
+          "image": "https://example.com/item14.3.jpg",
+          "description": "دمنوش چای ترش طبیعی",
+          "price": "5.500.000 تومان"
+        }
+      ]
+    },
+    {
+      "name": "غذاهای دریایی",
+      "image": "https://example.com/category15.jpg",
+      "text": "غذاهای دریایی تازه",
+      "items": [
+        {
+          "name": "ماهی قزل‌آلا",
+          "image": "https://example.com/item15.1.jpg",
+          "description": "ماهی قزل‌آلا تازه",
+          "price": "35.000.000 تومان"
+        },
+        {
+          "name": "میگو سوخاری",
+          "image": "https://example.com/item15.2.jpg",
+          "description": "میگو سوخاری ترد",
+          "price": "40.000.000 تومان"
+        },
+        {
+          "name": "خرچنگ",
+          "image": "https://example.com/item15.3.jpg",
+          "description": "خرچنگ تازه",
+          "price": "50.000.000 تومان"
         }
       ]
     }
