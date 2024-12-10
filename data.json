@@ -1,18 +1,18 @@
 {
   "categories": [
     {
-      "name": "آب میوه",
+      "name": "نوشیدنی",
       "image": "https://api.snapp.market/uploads/images/mobile-sliders/66cd9362e8939.png",
-      "text": "آب میوه‌های مختلف",
+      "text": "نوشیدنی",
       "items": [
         {
-          "name": "آب میوه سنیچ",
+          "name": "تنقلات",
           "image": "https://example.com/item1.1.jpg",
-          "description": "آب میوه سنیج",
+          "description": "تنقلات",
           "price": "10.000.000 تومان"
         },
         {
-          "name": "آب میوه پرتقال",
+          "name": "لبنیات و بستی",
           "image": "https://example.com/item1.2.jpg",
           "description": "آب میوه پرتقال تازه",
           "price": "8.000.000 تومان"
@@ -26,9 +26,9 @@
       ]
     },
     {
-      "name": "دسرها",
+      "name": "تنقلات",
       "image": "https://example.com/category2.jpg",
-      "text": "دسرهای خوشمزه",
+      "text": "تنقلات",
       "items": [
         {
           "name": "پودینگ شکلاتی",
@@ -51,9 +51,9 @@
       ]
     },
     {
-      "name": "شیرینی جات",
+      "name": "لبنیات و بستنی",
       "image": "https://example.com/category3.jpg",
-      "text": "شیرینی‌های خوشمزه",
+      "text": "لبنیات و بستنی",
       "items": [
         {
           "name": "بیسکوییت کرمدار",
@@ -76,9 +76,9 @@
       ]
     },
     {
-      "name": "فست فود",
+      "name": "آرایشی و بهداشتی",
       "image": "https://example.com/category4.jpg",
-      "text": "فست فودهای لذیذ",
+      "text": "آرایشی و بهداشتی",
       "items": [
         {
           "name": "برگر گوشت",
@@ -101,9 +101,9 @@
       ]
     },
     {
-      "name": "سالاد",
+      "name": "میوه و سبزیجات",
       "image": "https://example.com/category5.jpg",
-      "text": "سالادهای سالم",
+      "text": "میوه و سبزیجات",
       "items": [
         {
           "name": "سالاد سزار",
