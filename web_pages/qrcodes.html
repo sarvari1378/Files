@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <h2>QR Code Generator for Sadaf Jewellery</h2>
+    <div id="qr-codes"></div>
+
+    <script>
+        const baseUrl = "https://sadafjewellery.org/item_";
+        const container = document.getElementById('qr-codes');
+
+        for (let i = 0; i <= 100; i++) {
+            const url = `${baseUrl}${i}`;
+            const div = document.createElement('div');
+            div.style.margin = '20px';
+
+            const label = document.createElement('p');
+            label.textContent = url;
+            div.appendChild(label);
+
+            const qrDiv = document.createElement('div');
+            const qrCode = new QRCode(qrDiv, {
+                text: url,
+                width: 128,
+                height: 128
+            });
+            div.appendChild(qrDiv);
+
+            const downloadButton = document.createElement('button');
+            downloadButton.textContent = 'Download QR Code';
+            downloadButton.style.marginTop = '10px';
+            downloadButton.onclick = () => {
+                const canvas = qrDiv.querySelector('canvas');
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `item_${i}.png`;
+                link.click();
+            };
+            div.appendChild(downloadButton);
+
+            container.appendChild(div);
+        }
+    </script>
+</body>
+</html>")
+    }
+  ]
+}
