@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <title>مدیریت کارهای روزمره</title>
+  <style>
+    @import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
+
+    body {
+      font-family: 'Vazir', sans-serif;
+      direction: rtl;
+      margin: 0; padding: 0;
+      background: #f0f8f5;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2e7d32;
+      margin: 25px 0;
+      font-weight: 700;
+    }
+
+    /* کانتینر اصلی */
+    .container {
+      flex-grow: 1;
+      padding: 0 20px 70px; /* پایین جا برای نوار تب */
+      max-width: 900px;
+      margin: 0 auto;
+      overflow-y: auto;
+    }
+
+    /* بخش تسک‌ها */
+    .tasks-section {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(46, 125, 50, 0.1);
+      padding: 20px;
+      min-height: 500px;
+      display: none; /* همه مخفی اول */
+      flex-direction: column;
+    }
+
+    .tasks-section.active {
+      display: flex;
+    }
+
+    .tasks-section h2 {
+      margin-top: 0;
+      color: #2e7d32;
+      border-bottom: 2px solid #2e7d32;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    /* کارت تسک */
+    .task {
+      background: #e8f5e9;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 14px rgba(46, 125, 50, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .task:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 30px rgba(46, 125, 50, 0.3);
+    }
+
+    .task strong {
+      font-size: 1.2rem;
+      color: #2e7d32;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .task p {
+      margin: 8px 0 12px;
+      color: #388e3c;
+      font-size: 0.95rem;
+      min-height: 32px;
+    }
+
+    /* لیست مراحل */
+    .workflow-list {
+      margin: 0 0 12px 0;
+      padding-inline-start: 20px;
+      color: #4caf50;
+      font-size: 0.9rem;
+    }
+
+    /* دکمه‌ها */
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: background-color 0.25s ease;
+    }
+
+    button.delete {
+      background: #c62828;
+    }
+    button.delete:hover {
+      background: #8e1c1c;
+    }
+
+    button.archive {
+      background: #388e3c;
+    }
+    button.archive:hover {
+      background: #2e7d32;
+    }
+
+    button.restore {
+      background: #43a047;
+    }
+    button.restore:hover {
+      background: #2e7d32;
+    }
+
+    button.add-step-btn {
+      background: #4caf50;
+      padding: 8px 16px;
+    }
+    button.add-step-btn:hover {
+      background: #388e3c;
+    }
+
+    input.new-step-input {
+      flex: 1;
+      padding: 7px 12px;
+      font-size: 0.9rem;
+      border: 1.8px solid #81c784;
+      border-radius: 8px;
+      color: #2e7d32;
+      outline-color: #a5d6a7;
+    }
+
+    /* فرم اضافه کردن تسک جدید */
+    form#task-form {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(46, 125, 50, 0.1);
+      margin: 20px auto 10px;
+      max-width: 900px;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    form#task-form input[type="text"] {
+      flex: 1 1 200px;
+      padding: 10px 15px;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: 1.8px solid #81c784;
+      color: #2e7d32;
+      outline-color: #a5d6a7;
+    }
+
+    form#task-form button {
+      background-color: #388e3c;
+      padding: 12px 24px;
+      font-weight: 700;
+      border-radius: 12px;
+      color: white;
+    }
+
+    form#task-form button:hover {
+      background-color: #2e7d32;
+    }
+
+    /* برای بهتر بودن اسکرول */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #a5d6a7;
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #e8f5e9;
+      border-radius: 8px;
+    }
+
+    /* پیام خالی بودن لیست */
+    .empty-msg {
+      color: #a5d6a7;
+      font-style: italic;
+      padding: 15px 0;
+      text-align: center;
+    }
+
+    /* نوار تب پایین */
+    .bottom-tabs {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+
+    .tab-btn {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #388e3c;
+      background: transparent;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      box-shadow: 0 0 0 transparent;
+    }
+
+    .tab-btn.active,
+    .tab-btn:hover {
+      background-color: #388e3c;
+      color: white;
+      box-shadow: 0 3px 8px rgba(56, 142, 60, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <h1>مدیریت کارهای روزمره</h1>
+
+  <form id="task-form">
+    <input type="text" id="title" placeholder="عنوان کار" required />
+    <input type="text" id="description" placeholder="توضیح (اختیاری)" />
+    <button type="submit">➕ افزودن تسک</button>
+  </form>
+
+  <div class="container">
+    <section id="active-tasks-section" class="tasks-section active">
+      <h2>تسک‌های فعال</h2>
+      <div id="active-tasks"></div>
+      <div id="active-empty" class="empty-msg" style="display:none;">تسکی وجود ندارد</div>
+    </section>
+
+    <section id="archived-tasks-section" class="tasks-section">
+      <h2>آرشیو تسک‌ها</h2>
+      <div id="archived-tasks"></div>
+      <div id="archived-empty" class="empty-msg" style="display:none;">آرشیو خالی است</div>
+    </section>
+  </div>
+
+  <div class="bottom-tabs">
+    <button class="tab-btn active" data-target="active-tasks-section">کارهای در حال انجام</button>
+    <button class="tab-btn" data-target="archived-tasks-section">آرشیو</button>
+  </div>
+
+<script>
+  const API_URL = 'https://dailytasks.wegom17380.workers.dev/tasks';
+
+  const activeContainer = document.getElementById('active-tasks');
+  const archivedContainer = document.getElementById('archived-tasks');
+  const activeEmpty = document.getElementById('active-empty');
+  const archivedEmpty = document.getElementById('archived-empty');
+
+  // تب‌ها و سوئیچ
+  const tabs = document.querySelectorAll('.tab-btn');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // حذف active از همه تب‌ها
+      tabs.forEach(t => t.classList.remove('active'));
+      // اضافه کردن به تب کلیک شده
+      tab.classList.add('active');
+      // نمایش درست بخش
+      const targetId = tab.getAttribute('data-target');
+      document.querySelectorAll('.tasks-section').forEach(section => {
+        if(section.id === targetId) section.classList.add('active');
+        else section.classList.remove('active');
+      });
+    });
+  });
+
+  // فرار دادن متن (XSS محافظت)
+  function escapeHtml(text) {
+    if (!text) return '';
+    return text.replace(/[&<>"']/g, function(m) {
+      switch (m) {
+        case '&': return '&amp;';
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '"': return '&quot;';
+        case "'": return '&#39;';
+        default: return m;
+      }
+    });
+  }
+
+  // دریافت و نمایش تسک‌ها
+  async function fetchAndRender() {
+    try {
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error('خطا در دریافت داده‌ها');
+      const tasks = await res.json();
+
+      const activeTasks = tasks.filter(t => !t.archived);
+      const archivedTasks = tasks.filter(t => t.archived);
+
+      renderTasks(activeTasks, activeContainer, false);
+      renderTasks(archivedTasks, archivedContainer, true);
+
+      activeEmpty.style.display = activeTasks.length === 0 ? 'block' : 'none';
+      archivedEmpty.style.display = archivedTasks.length === 0 ? 'block' : 'none';
+
+    } catch(e) {
+      alert(e.message);
+    }
+  }
+
+  // رندر تسک‌ها داخل کانتینر
+  function renderTasks(tasks, container, isArchived) {
+    container.innerHTML = '';
+    if (tasks.length === 0) return;
+
+    tasks.forEach(task => addTaskToDOM(task, container, isArchived));
+  }
+
+  // اضافه کردن کارت تسک به DOM
+  function addTaskToDOM(task, container, isArchived) {
+    const div = document.createElement('div');
+    div.className = 'task';
+
+    div.innerHTML = `
+      <strong>${escapeHtml(task.title)}</strong>
+      <p>${escapeHtml(task.description)}</p>
+      <ul class="workflow-list">${(task.workflow || []).map(step => `<li>${escapeHtml(step)}</li>`).join('')}</ul>
+
+      <div class="actions">
+        ${
+          !isArchived
+            ? `
+              <div style="display:flex; gap:8px; margin-bottom:8px;">
+                <input type="text" class="new-step-input" placeholder="نام مرحله جدید..." style="flex:1; padding:6px; font-size:0.9rem; border-radius:6px; border:1px solid #ccc;" />
+                <button class="add-step-btn">➕ مرحله</button>
+              </div>
+              <button class="archive">آرشیو</button>
+              <button class="delete">حذف</button>
+            `
+            : `
+              <button class="restore">بازگردانی</button>
+              <button class="delete">حذف</button>
+            `
+        }
+      </div>
+    `;
+
+    if (!isArchived) {
+      const input = div.querySelector('.new-step-input');
+      const addStepBtn = div.querySelector('.add-step-btn');
+
+      addStepBtn.onclick = async () => {
+        const stepName = input.value.trim();
+        if (!stepName) {
+          alert('نام مرحله نمی‌تواند خالی باشد.');
+          return;
+        }
+        try {
+          const res = await fetch(`${API_URL}/${task.id}/workflow`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ step: stepName }),
+          });
+          if (!res.ok) throw new Error('خطا در افزودن مرحله');
+          input.value = '';
+          await fetchAndRender();
+        } catch (err) {
+          alert(err.message);
+        }
+      };
+
+      div.querySelector('.archive').onclick = async () => {
+        try {
+          const res = await fetch(`${API_URL}/${task.id}/archive`, { method: 'POST' });
+          if (!res.ok) throw new Error('خطا در آرشیو کردن');
+          await fetchAndRender();
+        } catch (err) {
+          alert(err.message);
+        }
+      };
+
+      div.querySelector('.delete').onclick = async () => {
+        if (!confirm('آیا مطمئنید می‌خواهید این تسک را حذف کنید؟')) return;
+        try {
+          const res = await fetch(`${API_URL}/${task.id}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error('خطا در حذف تسک');
+          await fetchAndRender();
+        } catch (err) {
+          alert(err.message);
+        }
+      };
+
+    } else {
+      div.querySelector('.restore').onclick = async () => {
+        try {
+          const res = await fetch(`${API_URL}/${task.id}/restore`, { method: 'POST' });
+          if (!res.ok) throw new Error('خطا در بازگردانی تسک');
+          await fetchAndRender();
+        } catch (err) {
+          alert(err.message);
+        }
+      };
+
+      div.querySelector('.delete').onclick = async () => {
+        if (!confirm('آیا مطمئنید می‌خواهید این تسک را حذف کنید؟')) return;
+        try {
+          const res = await fetch(`${API_URL}/${task.id}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error('خطا در حذف تسک');
+          await fetchAndRender();
+        } catch (err) {
+          alert(err.message);
+        }
+      };
+    }
+
+    container.appendChild(div);
+  }
+
+  // افزودن تسک جدید
+  document.getElementById('task-form').onsubmit = async e => {
+    e.preventDefault();
+    const title = e.target.title.value.trim();
+    const description = e.target.description.value.trim();
+
+    if (!title) {
+      alert('عنوان نمی‌تواند خالی باشد.');
+      return;
+    }
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({title, description, workflow: []}),
+      });
+      if (!res.ok) throw new Error('خطا در افزودن تسک');
+      e.target.reset();
+      await fetchAndRender();
+    } catch(err) {
+      alert(err.message);
+    }
+  };
+
+  fetchAndRender();
+</script>
+</body>
+</html>
