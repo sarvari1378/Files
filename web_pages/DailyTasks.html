@@ -2,248 +2,303 @@
 <html lang="fa">
 <head>
   <meta charset="UTF-8" />
+  <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
   <title>مدیریت کارهای روزمره</title>
-  <style>
-    @import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
+<style>
+  @import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
 
-    body {
-      font-family: 'Vazir', sans-serif;
-      direction: rtl;
-      margin: 0; padding: 0;
-      background: #f0f8f5;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+  :root {
+    --green-dark: #2e7d32;
+    --green: #43a047;
+    --green-light: #66bb6a;
+    --green-bg: #e8f5e9;
+    --gray-light: #f5f5f5;
+    --text-light: #4caf50;
+  }
 
-    h1 {
-      text-align: center;
-      color: #2e7d32;
-      margin: 25px 0;
-      font-weight: 700;
-    }
+  body {
+    font-family: 'Vazir', sans-serif;
+    direction: rtl;
+    margin: 0; padding: 0;
+    background: var(--gray-light);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
 
-    /* کانتینر اصلی */
-    .container {
-      flex-grow: 1;
-      padding: 0 20px 70px; /* پایین جا برای نوار تب */
-      max-width: 900px;
-      margin: 0 auto;
-      overflow-y: auto;
-    }
+  h1 {
+    text-align: center;
+    color: var(--green-dark);
+    margin: 25px 0;
+    font-weight: 900;
+  }
 
-    /* بخش تسک‌ها */
-    .tasks-section {
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 6px 20px rgba(46, 125, 50, 0.1);
-      padding: 20px;
-      min-height: 500px;
-      display: none; /* همه مخفی اول */
-      flex-direction: column;
-    }
+  .container {
+    flex-grow: 1;
+    padding: 0 20px 70px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
 
-    .tasks-section.active {
-      display: flex;
-    }
+  .tasks-section {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(46, 125, 50, 0.08);
+    padding: 25px;
+    display: none;
+    flex-direction: column;
+  }
 
-    .tasks-section h2 {
-      margin-top: 0;
-      color: #2e7d32;
-      border-bottom: 2px solid #2e7d32;
-      padding-bottom: 8px;
-      margin-bottom: 20px;
-      font-weight: 700;
-    }
+  .tasks-section.active {
+    display: flex;
+  }
 
-    /* کارت تسک */
-    .task {
-      background: #e8f5e9;
-      border-radius: 12px;
-      padding: 15px 20px;
-      margin-bottom: 18px;
-      box-shadow: 0 4px 14px rgba(46, 125, 50, 0.15);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+  .tasks-section h2 {
+    color: var(--green-dark);
+    border-bottom: 2px solid var(--green-light);
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    font-size: 1.4rem;
+  }
 
-    .task:hover {
-      transform: scale(1.02);
-      box-shadow: 0 8px 30px rgba(46, 125, 50, 0.3);
-    }
+  .task {
+    position: relative;
+    background: var(--green-bg);
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 14px rgba(46, 125, 50, 0.1);
+    transition: all 0.3s ease;
+  }
 
-    .task strong {
-      font-size: 1.2rem;
-      color: #2e7d32;
-      display: block;
-      margin-bottom: 6px;
-    }
+  .task:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(46, 125, 50, 0.25);
+  }
 
-    .task p {
-      margin: 8px 0 12px;
-      color: #388e3c;
-      font-size: 0.95rem;
-      min-height: 32px;
-    }
+  .task strong {
+    font-size: 1.2rem;
+    color: var(--green-dark);
+    margin-bottom: 6px;
+    display: block;
+  }
 
-    /* لیست مراحل */
-    .workflow-list {
-      margin: 0 0 12px 0;
-      padding-inline-start: 20px;
-      color: #4caf50;
-      font-size: 0.9rem;
-    }
+  .task p {
+    margin: 6px 0 10px;
+    font-size: 0.95rem;
+    color: #388e3c;
+  }
 
-    /* دکمه‌ها */
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: flex-start;
-      align-items: center;
-    }
+  .workflow-list {
+    margin: 0 0 10px;
+    padding-inline-start: 18px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+  }
 
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 14px;
-      color: white;
-      font-weight: 600;
-      font-size: 0.9rem;
-      transition: background-color 0.25s ease;
-    }
+  .task-date {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background-color: #c8e6c9;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: #2e7d32;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
 
-    button.delete {
-      background: #c62828;
-    }
-    button.delete:hover {
-      background: #8e1c1c;
-    }
 
-    button.archive {
-      background: #388e3c;
-    }
-    button.archive:hover {
-      background: #2e7d32;
-    }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 
-    button.restore {
-      background: #43a047;
-    }
-    button.restore:hover {
-      background: #2e7d32;
-    }
+  button {
+    font-family: 'Vazir', sans-serif;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
 
-    button.add-step-btn {
-      background: #4caf50;
-      padding: 8px 16px;
-    }
-    button.add-step-btn:hover {
-      background: #388e3c;
-    }
+  button.delete {
+    background: #e53935;
+    color: white;
+  }
 
-    input.new-step-input {
-      flex: 1;
-      padding: 7px 12px;
-      font-size: 0.9rem;
-      border: 1.8px solid #81c784;
-      border-radius: 8px;
-      color: #2e7d32;
-      outline-color: #a5d6a7;
-    }
+  button.delete:hover {
+    background: #c62828;
+  }
 
-    /* فرم اضافه کردن تسک جدید */
-    form#task-form {
-      background: white;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 6px 20px rgba(46, 125, 50, 0.1);
-      margin: 20px auto 10px;
-      max-width: 900px;
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
+  button.archive {
+    background: #66bb6a;
+    color: white;
+  }
 
-    form#task-form input[type="text"] {
-      flex: 1 1 200px;
-      padding: 10px 15px;
-      font-size: 1rem;
-      border-radius: 10px;
-      border: 1.8px solid #81c784;
-      color: #2e7d32;
-      outline-color: #a5d6a7;
-    }
+  button.archive:hover {
+    background: #388e3c;
+  }
 
-    form#task-form button {
-      background-color: #388e3c;
-      padding: 12px 24px;
-      font-weight: 700;
-      border-radius: 12px;
-      color: white;
-    }
+  button.restore {
+    background: #43a047;
+    color: white;
+  }
 
-    form#task-form button:hover {
-      background-color: #2e7d32;
-    }
+  button.restore:hover {
+    background: #2e7d32;
+  }
 
-    /* برای بهتر بودن اسکرول */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #a5d6a7;
-      border-radius: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #e8f5e9;
-      border-radius: 8px;
-    }
+  button.workflow {
+    background: #388e3c;
+    color: white;
+  }
 
-    /* پیام خالی بودن لیست */
-    .empty-msg {
-      color: #a5d6a7;
-      font-style: italic;
-      padding: 15px 0;
-      text-align: center;
-    }
+  button.workflow:hover {
+    background: #2e7d32;
+  }
 
-    /* نوار تب پایین */
-    .bottom-tabs {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      padding: 10px 0;
-      z-index: 1000;
-    }
+  input.new-step-input {
+    flex: 1;
+    padding: 7px 12px;
+    border: 1.5px solid #81c784;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline-color: #a5d6a7;
+  }
 
-    .tab-btn {
-      font-weight: 700;
-      font-size: 1rem;
-      color: #388e3c;
-      background: transparent;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease;
-      box-shadow: 0 0 0 transparent;
-    }
+  form#task-form {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.08);
+    margin: 25px auto 10px;
+    max-width: 900px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
 
-    .tab-btn.active,
-    .tab-btn:hover {
-      background-color: #388e3c;
-      color: white;
-      box-shadow: 0 3px 8px rgba(56, 142, 60, 0.5);
-    }
-  </style>
+  form#task-form input[type="text"] {
+    flex: 1 1 200px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 1.5px solid #81c784;
+    outline-color: #a5d6a7;
+  }
+
+  form#task-form button {
+    background-color: var(--green-dark);
+    color: white;
+    padding: 12px 22px;
+    border-radius: 12px;
+  }
+
+  form#task-form button:hover {
+    background-color: #1b5e20;
+  }
+
+  .bottom-tabs {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.07);
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 12px 0;
+    z-index: 1000;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    font-family: 'Vazir', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 10px 25px;
+    border-radius: 30px;
+    cursor: pointer;
+    color: var(--green-dark);
+    transition: 0.3s;
+  }
+
+  .tab-btn.active,
+  .tab-btn:hover {
+    background-color: var(--green-dark);
+    color: white;
+    box-shadow: 0 4px 12px rgba(56, 142, 60, 0.4);
+  }
+
+  .empty-msg {
+    text-align: center;
+    font-style: italic;
+    color: #a5d6a7;
+    margin-top: 20px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #b2dfdb;
+    border-radius: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #e0f2f1;
+    border-radius: 8px;
+  }
+
+@media (max-width: 768px) {
+  form#task-form {
+    display: flex;
+    flex-direction: column;  /* فرم به صورت ستون */
+    gap: 6px;                /* فاصله خیلی کم بین آیتم‌ها */
+    padding: 10px 10px;      /* padding کمی از دو طرف */
+  }
+
+  form#task-form input[type="text"],
+  form#task-form textarea,
+  form#task-form button {
+    flex: 1 1;
+    width: 100%;             /* تمام عرض */
+    padding: 8px 12px;       /* padding مناسب برای ارتفاع کمتر */
+    font-size: 1rem;         /* سایز فونت متناسب */
+    border-radius: 8px;      /* گوشه‌ها گرد */
+    box-sizing: border-box;  /* محاسبه padding در عرض */
+  }
+
+  form#task-form button {
+    background-color: var(--green-dark);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+
+  form#task-form button:hover {
+    background-color: #1b5e20;
+  }
+}
+
+
+
+
+</style>
+
 </head>
 <body>
   <h1>مدیریت کارهای روزمره</h1>
@@ -345,6 +400,7 @@
   // اضافه کردن کارت تسک به DOM
   function addTaskToDOM(task, container, isArchived) {
     const div = document.createElement('div');
+    const shamsiDate = new persianDate(task.createdAt).format('YYYY/MM/DD HH:mm');
     div.className = 'task';
 
     div.innerHTML = `
@@ -357,11 +413,13 @@
           !isArchived
             ? `
               <div style="display:flex; gap:8px; margin-bottom:8px;">
+
                 <input type="text" class="new-step-input" placeholder="نام مرحله جدید..." style="flex:1; padding:6px; font-size:0.9rem; border-radius:6px; border:1px solid #ccc;" />
                 <button class="add-step-btn">➕ مرحله</button>
               </div>
               <button class="archive">آرشیو</button>
               <button class="delete">حذف</button>
+              <p class="task-date">${shamsiDate}</p>
             `
             : `
               <button class="restore">بازگردانی</button>
