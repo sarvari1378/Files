@@ -262,7 +262,7 @@
     border-radius: 8px;
   }
 
-@media (max-width: 768px) {
+@media (max-width: 1000px) {
   form#task-form {
     display: flex;
     flex-direction: column;  /* فرم به صورت ستون */
@@ -293,6 +293,52 @@
     background-color: #1b5e20;
   }
 }
+
+.task-details {
+  display: none;
+  transition: all 0.3s ease;
+}
+.task-container.expanded .task-details {
+  display: block;
+}
+
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #e9f5ee; /* سبز خیلی روشن برای پس‌زمینه */
+  border-radius: 12px;
+  border: 1px solid #cde7d8; /* سبز ملایم برای خط دور */
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  direction: rtl;
+}
+
+.task-header:hover {
+  background-color: #d3efdd; /* کمی پررنگ‌تر هنگام hover */
+}
+
+.task-header strong {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2e7d32; /* سبز اصلی (شبیه سبز متریال دیزاین) */
+  max-width: 70%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+}
+
+.task-header .task-date {
+  font-size: 0.85rem;
+  color: #4caf50; /* سبز ملایم برای تاریخ */
+  white-space: nowrap;
+}
+
 
 
 
@@ -403,31 +449,56 @@
     const shamsiDate = new persianDate(task.createdAt).format('YYYY/MM/DD HH:mm');
     div.className = 'task';
 
-    div.innerHTML = `
-      <strong>${escapeHtml(task.title)}</strong>
-      <p>${escapeHtml(task.description)}</p>
-      <ul class="workflow-list">${(task.workflow || []).map(step => `<li>${escapeHtml(step)}</li>`).join('')}</ul>
-
-      <div class="actions">
-        ${
-          !isArchived
-            ? `
-              <div style="display:flex; gap:8px; margin-bottom:8px;">
-
-                <input type="text" class="new-step-input" placeholder="نام مرحله جدید..." style="flex:1; padding:6px; font-size:0.9rem; border-radius:6px; border:1px solid #ccc;" />
-                <button class="add-step-btn">➕ مرحله</button>
-              </div>
-              <button class="archive">آرشیو</button>
-              <button class="delete">حذف</button>
-              <p class="task-date">${shamsiDate}</p>
-            `
-            : `
-              <button class="restore">بازگردانی</button>
-              <button class="delete">حذف</button>
-            `
-        }
+div.innerHTML = `
+    <div class="task-container">
+      <div class="task-header" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <strong
+          style="max-width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: rtl;"
+          title="${escapeHtml(task.title)}"
+        >
+          ${escapeHtml(task.title)}
+        </strong>
+        <p class="task-date" style="color:#666; font-size:0.85rem;">${shamsiDate}</p>
       </div>
-    `;
+
+      <div class="task-details" style="display:none;">
+        <p>${escapeHtml(task.description)}</p>
+        <ul class="workflow-list">
+          ${(task.workflow || []).map(step => `<li>${escapeHtml(step)}</li>`).join('')}
+        </ul>
+
+        <div class="actions">
+          ${
+            !isArchived
+              ? `
+                <div style="display:flex; gap:8px; margin-bottom:8px;">
+                  <input type="text" class="new-step-input" placeholder="نام مرحله جدید..." style="flex:1; padding:6px; font-size:0.9rem; border-radius:6px; border:1px solid #ccc;" />
+                  <button class="add-step-btn">➕ مرحله</button>
+                </div>
+                <button class="archive">آرشیو</button>
+                <button class="delete">حذف</button>
+              `
+              : `
+                <button class="restore">بازگردانی</button>
+                <button class="delete">حذف</button>
+              `
+          }
+        </div>
+      </div>
+    </div>
+  `;
+const taskContainer = div.querySelector('.task-container');
+const header = taskContainer.querySelector('.task-header');
+const details = taskContainer.querySelector('.task-details');
+
+header.addEventListener('click', () => {
+  if (details.style.display === 'none') {
+    details.style.display = 'block';
+  } else {
+    details.style.display = 'none';
+  }
+});
+
 
     if (!isArchived) {
       const input = div.querySelector('.new-step-input');
