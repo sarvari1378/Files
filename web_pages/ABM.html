@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>فرم شناور با انیمیشن حرفه‌ای - Anime.js اصلاح شده</title>
+  <style>
+    @import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
+
+    body {
+      margin: 0;
+      font-family: 'Vazir', sans-serif;
+      background-color: #f1f8e9;
+      overflow-x: hidden;
+      height: 100vh;
+      position: relative;
+    }
+
+    #fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #43a047;
+      color: white;
+      border: none;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    #form-wrapper {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 60px;
+      height: 60px;
+      background-color: white;
+      border-radius: 50%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      /* transform حذف شد */
+      opacity: 0;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      will-change: width, height, border-radius, opacity, transform, translateX, translateY, scale;
+    }
+
+    form {
+      width: 100%;
+      height: 100%;
+      padding: 30px 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+    }
+
+    form.active {
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    form h2 {
+      margin: 0 0 15px;
+      color: #2e7d32;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    form input[type="text"] {
+      padding: 10px 14px;
+      border: 1.5px solid #81c784;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    form button[type="submit"] {
+      background-color: #388e3c;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    form button[type="submit"]:hover {
+      background-color: #2e7d32;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      color: #666;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      #form-wrapper.expanded {
+        height: 360px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- دکمه شناور -->
+  <button id="fab">✏️</button>
+
+  <!-- فرم -->
+  <div id="form-wrapper">
+    <form id="taskForm">
+      <button class="close-btn" type="button">&times;</button>
+      <h2>افزودن وظیفه جدید</h2>
+      <input type="text" placeholder="عنوان وظیفه..." required />
+      <button type="submit">ذخیره وظیفه</button>
+    </form>
+  </div>
+
+  <!-- اضافه کردن Anime.js از CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <script>
+    const fab = document.getElementById("fab");
+    const wrapper = document.getElementById("form-wrapper");
+    const form = document.getElementById("taskForm");
+    const closeBtn = document.querySelector(".close-btn");
+
+    let isOpen = false;
+
+    function openForm() {
+      if (isOpen) return;
+      isOpen = true;
+
+      // مخفی کردن دکمه شناور
+      anime({
+        targets: fab,
+        scale: 0.4,
+        opacity: 0,
+        duration: 250,
+        easing: 'easeOutQuad',
+        complete: () => {
+          fab.style.display = 'none';
+        }
+      });
+
+      // نمایش فرم و انیمیشن باز شدن
+      wrapper.style.display = 'flex';
+      anime({
+        targets: wrapper,
+        width: ['60px', '90%'],
+        maxWidth: ['60px', '500px'],
+        height: ['60px', window.innerWidth <= 600 ? '360px' : '320px'],
+        borderRadius: ['50%', '20px'],
+        opacity: [0, 1],
+        translateX: ['-50%', '-50%'], // مقدار ثابت
+        translateY: ['-50%', '-50%'], // مقدار ثابت
+        scale: [0.8, 1],
+        easing: 'easeOutElastic(1, .6)',
+        duration: 700,
+        begin: () => {
+          form.style.opacity = 100;
+        },
+        
+      });
+    }
+
+function closeForm() {
+  if (!isOpen) return;
+  isOpen = false;
+
+  // محو کردن محتوای فرم
+  anime({
+    targets: form,
+    opacity: [1, 0],
+    duration: 200,
+    easing: 'linear',
+    complete: () => {
+      form.classList.remove('active');
+    }
+  });
+
+  // فقط scale رو کم کن، عرض و ارتفاع ثابت بمونه
+  anime({
+    targets: wrapper,
+    scale: [1, 0.8],
+    opacity: [1, 0],
+    easing: 'easeInBack',
+    duration: 400,
+    complete: () => {
+      wrapper.style.display = 'none';
+      // نمایش مجدد دکمه شناور
+      fab.style.display = 'flex';
+      anime({
+        targets: fab,
+        scale: 1,
+        opacity: 1,
+        duration: 350,
+        easing: 'easeOutQuad'
+      });
+    }
+  });
+}
+
+    fab.addEventListener('click', openForm);
+    closeBtn.addEventListener('click', closeForm);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      form.reset();
+      closeForm();
+    });
+  </script>
+</body>
+</html>
