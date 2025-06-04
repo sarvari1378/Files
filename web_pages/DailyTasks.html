@@ -4,346 +4,331 @@
   <meta charset="UTF-8" />
   <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
   <title>مدیریت کارهای روزمره</title>
-<style>
-  @import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
+<Style>
+  /* سبک بازنویسی‌شده به‌صورت Mobile-First، با استفاده از clamp(), rem و ساختار واکنش‌گرا */
 
-  :root {
-    --green-dark: #2e7d32;
-    --green: #43a047;
-    --green-light: #66bb6a;
-    --green-bg: #e8f5e9;
-    --gray-light: #f5f5f5;
-    --text-light: #4caf50;
-  }
+@import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
 
-  body {
-    font-family: 'Vazir', sans-serif;
-    direction: rtl;
-    margin: 0; padding: 0;
-    background: var(--gray-light);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
+:root {
+  --green-dark: #2e7d32;
+  --green: #43a047;
+  --green-light: #66bb6a;
+  --green-bg: #e8f5e9;
+  --gray-light: #f5f5f5;
+  --text-light: #4caf50;
+}
 
-  h1 {
-    text-align: center;
-    color: var(--green-dark);
-    margin: 25px 0;
-    font-weight: 900;
-  }
+html {
+  font-size: 16px;
+}
 
-  .container {
-    flex-grow: 1;
-    padding: 0 20px 70px;
-    max-width: 900px;
-    margin: 0 auto;
-  }
+body {
+  font-family: 'Vazir', sans-serif;
+  direction: rtl;
+  margin: 0;
+  padding: 0;
+  background: var(--gray-light);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-size: clamp(0.875rem, 2vw, 1rem);
+}
 
-  .tasks-section {
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 8px 30px rgba(46, 125, 50, 0.08);
-    padding: 25px;
-    display: none;
-    flex-direction: column;
-  }
+h1 {
+  text-align: center;
+  color: var(--green-dark);
+  margin: 1.5rem 0;
+  font-weight: 900;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
 
-  .tasks-section.active {
-    display: flex;
-  }
+.container {
+  flex-grow: 1;
+  padding: 0 5vw 4rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
 
-  .tasks-section h2 {
-    color: var(--green-dark);
-    border-bottom: 2px solid var(--green-light);
-    padding-bottom: 10px;
-    margin-bottom: 25px;
-    font-size: 1.4rem;
-  }
+.tasks-section {
+  background: white;
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 30px rgba(46, 125, 50, 0.08);
+  padding: 1.5rem;
+  display: none;
+  flex-direction: column;
+}
 
-  .task {
-    position: relative;
-    background: var(--green-bg);
-    border-radius: 16px;
-    padding: 18px 22px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 14px rgba(46, 125, 50, 0.1);
-    transition: all 0.3s ease;
-  }
+.tasks-section.active {
+  display: flex;
+}
 
-  .task:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(46, 125, 50, 0.25);
-  }
+.tasks-section h2 {
+  color: var(--green-dark);
+  border-bottom: 2px solid var(--green-light);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+}
 
-  .task strong {
-    font-size: 1.2rem;
-    color: var(--green-dark);
-    margin-bottom: 6px;
-    display: block;
-  }
+.task {
+  position: relative;
+  background: var(--green-bg);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.1);
+  transition: all 0.3s ease;
+}
 
-  .task p {
-    margin: 6px 0 10px;
-    font-size: 0.95rem;
-    color: #388e3c;
-  }
+.task:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(46, 125, 50, 0.25);
+}
 
-  .workflow-list {
-    margin: 0 0 10px;
-    padding-inline-start: 18px;
-    color: var(--text-light);
-    font-size: 0.9rem;
-  }
+.task strong {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--green-dark);
+  margin-bottom: 0.5rem;
+  display: block;
+}
 
-  .task-date {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background-color: #c8e6c9;
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    color: #2e7d32;
-    font-weight: 600;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
+.task p {
+  margin: 0.4rem 0 0.6rem;
+  font-size: clamp(0.9rem, 1.6vw, 1rem);
+  color: #388e3c;
+}
 
+.workflow-list {
+  padding-inline-start: 1.25rem;
+  color: var(--text-light);
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+  margin-bottom: 0.75rem;
+}
 
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
+.task-date {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background-color: #c8e6c9;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: #2e7d32;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
 
-  button {
-    font-family: 'Vazir', sans-serif;
-    border: none;
-    border-radius: 8px;
-    padding: 9px 14px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.25s ease;
-  }
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+}
 
-  button.delete {
-    background: #e53935;
-    color: white;
-  }
+button {
+  font-family: 'Vazir', sans-serif;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
 
-  button.delete:hover {
-    background: #c62828;
-  }
+button.delete {
+  background: #e53935;
+  color: white;
+}
 
-  button.archive {
-    background: #66bb6a;
-    color: white;
-  }
+button.delete:hover {
+  background: #c62828;
+}
 
-  button.archive:hover {
-    background: #388e3c;
-  }
+button.archive {
+  background: #66bb6a;
+  color: white;
+}
 
-  button.restore {
-    background: #43a047;
-    color: white;
-  }
+button.archive:hover {
+  background: #388e3c;
+}
 
-  button.restore:hover {
-    background: #2e7d32;
-  }
+button.restore {
+  background: #43a047;
+  color: white;
+}
 
-  button.workflow {
-    background: #388e3c;
-    color: white;
-  }
+button.restore:hover {
+  background: #2e7d32;
+}
 
-  button.workflow:hover {
-    background: #2e7d32;
-  }
+button.workflow {
+  background: #388e3c;
+  color: white;
+}
 
-  input.new-step-input {
-    flex: 1;
-    padding: 7px 12px;
-    border: 1.5px solid #81c784;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    outline-color: #a5d6a7;
-  }
+button.workflow:hover {
+  background: #2e7d32;
+}
 
-  form#task-form {
-    background: white;
-    padding: 25px;
-    border-radius: 20px;
-    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.08);
-    margin: 25px auto 10px;
-    max-width: 900px;
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
+input.new-step-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid #81c784;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  outline-color: #a5d6a7;
+  box-sizing: border-box;
+}
 
-  form#task-form input[type="text"] {
-    flex: 1 1 200px;
-    padding: 10px 15px;
-    font-size: 1rem;
-    border-radius: 12px;
-    border: 1.5px solid #81c784;
-    outline-color: #a5d6a7;
-  }
+form#task-form {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.08);
+  margin: 1.5rem auto 0.75rem;
+  max-width: 900px;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
 
-  form#task-form button {
-    background-color: var(--green-dark);
-    color: white;
-    padding: 12px 22px;
-    border-radius: 12px;
-  }
+form#task-form input[type="text"] {
+  flex: 1 1 200px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.75rem;
+  border: 1.5px solid #81c784;
+  outline-color: #a5d6a7;
+}
 
-  form#task-form button:hover {
-    background-color: #1b5e20;
-  }
+form#task-form button {
+  background-color: var(--green-dark);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+}
 
-  .bottom-tabs {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.07);
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    padding: 12px 0;
-    z-index: 1000;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-  }
+form#task-form button:hover {
+  background-color: #1b5e20;
+}
 
-  .tab-btn {
-    background: transparent;
-    border: none;
-    font-family: 'Vazir', sans-serif;
-    font-weight: 700;
-    font-size: 1rem;
-    padding: 10px 25px;
-    border-radius: 30px;
-    cursor: pointer;
-    color: var(--green-dark);
-    transition: 0.3s;
-  }
+.bottom-tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.07);
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  z-index: 1000;
+  border-top-left-radius: 1.25rem;
+  border-top-right-radius: 1.25rem;
+}
 
-  .tab-btn.active,
-  .tab-btn:hover {
-    background-color: var(--green-dark);
-    color: white;
-    box-shadow: 0 4px 12px rgba(56, 142, 60, 0.4);
-  }
+.tab-btn {
+  background: transparent;
+  border: none;
+  font-family: 'Vazir', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.6rem 1.5rem;
+  border-radius: 30px;
+  cursor: pointer;
+  color: var(--green-dark);
+  transition: 0.3s;
+}
 
-  .empty-msg {
-    text-align: center;
-    font-style: italic;
-    color: #a5d6a7;
-    margin-top: 20px;
-  }
+.tab-btn.active,
+.tab-btn:hover {
+  background-color: var(--green-dark);
+  color: white;
+  box-shadow: 0 4px 12px rgba(56, 142, 60, 0.4);
+}
 
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
+.empty-msg {
+  text-align: center;
+  font-style: italic;
+  color: #a5d6a7;
+  margin-top: 1.25rem;
+}
 
-  ::-webkit-scrollbar-thumb {
-    background: #b2dfdb;
-    border-radius: 8px;
-  }
+::-webkit-scrollbar {
+  width: 8px;
+}
 
-  ::-webkit-scrollbar-track {
-    background: #e0f2f1;
-    border-radius: 8px;
-  }
+::-webkit-scrollbar-thumb {
+  background: #b2dfdb;
+  border-radius: 8px;
+}
 
-@media (max-width: 1000px) {
-  form#task-form {
-    display: flex;
-    flex-direction: column;  /* فرم به صورت ستون */
-    gap: 6px;                /* فاصله خیلی کم بین آیتم‌ها */
-    padding: 10px 10px;      /* padding کمی از دو طرف */
-  }
-
-  form#task-form input[type="text"],
-  form#task-form textarea,
-  form#task-form button {
-    flex: 1 1;
-    width: 100%;             /* تمام عرض */
-    padding: 8px 12px;       /* padding مناسب برای ارتفاع کمتر */
-    font-size: 1rem;         /* سایز فونت متناسب */
-    border-radius: 8px;      /* گوشه‌ها گرد */
-    box-sizing: border-box;  /* محاسبه padding در عرض */
-  }
-
-  form#task-form button {
-    background-color: var(--green-dark);
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.25s ease;
-  }
-
-  form#task-form button:hover {
-    background-color: #1b5e20;
-  }
+::-webkit-scrollbar-track {
+  background: #e0f2f1;
+  border-radius: 8px;
 }
 
 .task-details {
   display: none;
   transition: all 0.3s ease;
 }
+
 .task-container.expanded .task-details {
   display: block;
 }
-
 
 .task-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background-color: #e9f5ee; /* سبز خیلی روشن برای پس‌زمینه */
-  border-radius: 12px;
-  border: 1px solid #cde7d8; /* سبز ملایم برای خط دور */
-  margin-bottom: 12px;
+  padding: 0.75rem 1rem;
+  background-color: #e9f5ee;
+  border-radius: 0.75rem;
+  border: 1px solid #cde7d8;
+  margin-bottom: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   cursor: pointer;
   transition: background-color 0.2s ease;
-  direction: rtl;
 }
 
 .task-header:hover {
-  background-color: #d3efdd; /* کمی پررنگ‌تر هنگام hover */
+  background-color: #d3efdd;
 }
 
 .task-header strong {
   font-size: 1rem;
   font-weight: 600;
-  color: #2e7d32; /* سبز اصلی (شبیه سبز متریال دیزاین) */
+  color: #2e7d32;
   max-width: 70%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  direction: rtl;
 }
 
 .task-header .task-date {
   font-size: 0.85rem;
-  color: #4caf50; /* سبز ملایم برای تاریخ */
+  color: #4caf50;
   white-space: nowrap;
 }
 
+/* Media Queries */
+@media (min-width: 768px) {
+  html { font-size: 16px; }
+}
+
+@media (min-width: 992px) {
+  html { font-size: 17px; }
+}
+
+@media (min-width: 1200px) {
+  html { font-size: 18px; }
+}
 
 
-
-
-</style>
+</Style>
 
 </head>
 <body>
