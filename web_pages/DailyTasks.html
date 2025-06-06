@@ -190,30 +190,12 @@ form#task-form {
   margin: 1.5rem auto 0.75rem;
   max-width: 900px;
   display: flex;
+  flex-direction: column;
   gap: 1rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
 }
 
-form#task-form input[type="text"] {
-  flex: 1 1 200px;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border-radius: 0.75rem;
-  border: 1.5px solid #81c784;
-  outline-color: #a5d6a7;
-}
-
-form#task-form button {
-  background-color: var(--green-dark);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-}
-
-form#task-form button:hover {
-  background-color: #1b5e20;
-}
 
 .bottom-tabs {
   position: fixed;
@@ -341,10 +323,9 @@ form#task-form button:hover {
       background-color: #f1f8e9;
       overflow-x: hidden;
       height: 100vh;
-      position: relative;
     }
 
-    #fab {
+    .custom-floating-form__fab {
       position: fixed;
       bottom: 90px;
       right: 20px;
@@ -363,7 +344,7 @@ form#task-form button:hover {
       z-index: 1000;
     }
 
-    #overlay {
+    .custom-floating-form__overlay {
       position: fixed;
       top: 0;
       left: 0;
@@ -376,12 +357,12 @@ form#task-form button:hover {
       transition: opacity 0.3s ease;
     }
 
-    #overlay.active {
+    .custom-floating-form__overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
 
-    #form-wrapper {
+    .custom-floating-form {
       position: fixed;
       top: 50%;
       left: 50%;
@@ -391,16 +372,15 @@ form#task-form button:hover {
       border-radius: 50%;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       overflow: hidden;
-      opacity: 0;
+      opacity: 1;
       z-index: 999;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
-      will-change: width, height, border-radius, opacity, transform, translateX, translateY, scale;
       transform: translate(-50%, -50%);
     }
 
-    form#taskForm {
+    .custom-floating-form__form {
       width: 100%;
       height: 100%;
       padding: 30px 20px;
@@ -408,30 +388,31 @@ form#task-form button:hover {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      opacity: 0;
+      opacity: 1;
     }
 
-    form#taskForm.active {
+    .custom-floating-form__form.active {
       opacity: 1;
       transition: opacity 0.3s ease;
     }
 
-    form#taskForm h2 {
+    .custom-floating-form__title {
       margin: 0 0 15px;
       color: #2e7d32;
       font-size: 1.2rem;
       text-align: center;
     }
 
-    form#taskForm input[type="text"] {
+    .custom-floating-form__input {
       padding: 10px 14px;
       border: 1.5px solid #81c784;
       border-radius: 10px;
       font-size: 1rem;
       outline: none;
+      margin-bottom: 10px;
     }
 
-    form#taskForm button[type="submit"] {
+    .custom-floating-form__submit {
       background-color: #388e3c;
       color: white;
       border: none;
@@ -442,11 +423,11 @@ form#task-form button:hover {
       transition: background-color 0.3s;
     }
 
-    form#taskForm button[type="submit"]:hover {
+    .custom-floating-form__submit:hover {
       background-color: #2e7d32;
     }
 
-    .close-btn {
+    .custom-floating-form__close-btn {
       position: absolute;
       top: 12px;
       left: 12px;
@@ -458,11 +439,12 @@ form#task-form button:hover {
     }
 
     @media (max-width: 600px) {
-      #form-wrapper.expanded {
+      .custom-floating-form.expanded {
         height: 360px !important;
       }
     }
   </style>
+
 
 
 
@@ -471,21 +453,23 @@ form#task-form button:hover {
   <h1>مدیریت کارهای روزمره</h1>
 
     <!-- دکمه شناور -->
-  <button id="fab">✏️</button>
+   <!-- دکمه شناور -->
+  <button class="custom-floating-form__fab">✏️</button>
 
-  <!-- لایه تیره Overlay -->
-  <div id="overlay"></div>
+  <!-- لایه تیره -->
+  <div class="custom-floating-form__overlay"></div>
 
-  <!-- فرم -->
-  <div id="form-wrapper">
-    <form id="task-form">
-      <button class="close-btn" type="button">&times;</button>
-      <h2>افزودن وظیفه جدید</h2>
-      <input type="text" id="title" placeholder="عنوان کار" required />
-      <input type="text" id="description" placeholder="توضیح (اختیاری)" />
-      <button type="submit">افزودن</button>
+  <!-- فرم شناور -->
+  <div class="custom-floating-form">
+    <form id="custom-floating-form__form" class="custom-floating-form__form">
+      <button class="custom-floating-form__close-btn" type="button">&times;</button>
+      <h2 class="custom-floating-form__title">افزودن وظیفه جدید</h2>
+      <input type="text" name="title" placeholder="عنوان کار" required class="custom-floating-form__input" />
+      <input type="text" name="description" placeholder="توضیح (اختیاری)" class="custom-floating-form__input" />
+      <button type="submit" class="custom-floating-form__submit">افزودن</button>
     </form>
   </div>
+
 
   <div class="container">
     <section id="active-tasks-section" class="tasks-section active">
@@ -700,11 +684,12 @@ header.addEventListener('click', () => {
       };
     }
 
-    container.appendChild(div);
+    container.prepend(div);
   }
 
-  // افزودن تسک جدید
-  document.getElementById('task-form').onsubmit = async e => {
+  document.addEventListener('DOMContentLoaded', () => {
+  // کد اصلی شما اینجاست
+  document.getElementById('custom-floating-form__form').onsubmit = async e => {
     e.preventDefault();
     const title = e.target.title.value.trim();
     const description = e.target.description.value.trim();
@@ -729,100 +714,94 @@ header.addEventListener('click', () => {
   };
 
   fetchAndRender();
+});
+
 </script>
 
-  <!-- اضافه کردن Anime.js -->
+
+
+  <!-- انیمیشن Anime.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <script>
-    const fab = document.getElementById("fab");
-    const wrapper = document.getElementById("form-wrapper");
-    const form = document.getElementById("task-form");
-    const closeBtn = document.querySelector(".close-btn");
-    const overlay = document.getElementById("overlay");
+    document.addEventListener("DOMContentLoaded", () => {
+      const fab = document.querySelector(".custom-floating-form__fab");
+      const wrapper = document.querySelector(".custom-floating-form");
+      const form = wrapper.querySelector(".custom-floating-form__form");
+      const closeBtn = wrapper.querySelector(".custom-floating-form__close-btn");
+      const overlay = document.querySelector(".custom-floating-form__overlay");
 
-    let isOpen = false;
+      let isOpen = false;
 
-    function openForm() {
-      if (isOpen) return;
-      isOpen = true;
+      function openForm() {
+        if (isOpen) return;
+        isOpen = true;
 
-      overlay.classList.add('active');
+        overlay.classList.add('active');
 
-      anime({
-        targets: fab,
-        scale: 0.4,
-        opacity: 0,
-        duration: 250,
-        easing: 'easeOutQuad',
-        complete: () => {
-          fab.style.display = 'none';
-        }
+        anime({
+          targets: fab,
+          scale: 0.4,
+          duration: 250,
+          easing: 'easeOutQuad',
+          complete: () => {
+            fab.style.display = 'none';
+          }
+        });
+
+        wrapper.style.display = 'flex';
+
+        anime({
+          targets: wrapper,
+          width: ['60px', '90%'],
+          maxWidth: ['60px', '500px'],
+          height: ['60px', window.innerWidth <= 600 ? '360px' : '320px'],
+          borderRadius: ['50%', '20px'],
+          translateX: ['-50%', '-50%'],
+          translateY: ['-50%', '-50%'],
+          scale: [0.8, 1],
+          easing: 'easeOutElastic(1, .6)',
+          duration: 700,
+          begin: () => {
+            form.classList.add("active");
+          }
+        });
+      }
+
+      function closeForm() {
+        if (!isOpen) return;
+        isOpen = false;
+
+        form.classList.remove("active");
+
+        anime({
+          targets: wrapper,
+          scale: [1, 0.8],
+          easing: 'easeInBack',
+          duration: 400,
+          complete: () => {
+            wrapper.style.display = 'none';
+            overlay.classList.remove('active');
+
+            fab.style.display = 'flex';
+            anime({
+              targets: fab,
+              scale: 1,
+              duration: 350,
+              easing: 'easeOutQuad'
+            });
+          }
+        });
+      }
+
+      fab.addEventListener('click', openForm);
+      closeBtn.addEventListener('click', closeForm);
+      overlay.addEventListener('click', closeForm);
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        form.reset();
+        closeForm();
       });
-
-      wrapper.style.display = 'flex';
-
-      anime({
-        targets: wrapper,
-        width: ['60px', '90%'],
-        maxWidth: ['60px', '500px'],
-        height: ['60px', window.innerWidth <= 600 ? '360px' : '320px'],
-        borderRadius: ['50%', '20px'],
-        opacity: [0, 1],
-        translateX: ['-50%', '-50%'],
-        translateY: ['-50%', '-50%'],
-        scale: [0.8, 1],
-        easing: 'easeOutElastic(1, .6)',
-        duration: 700,
-        begin: () => {
-          form.style.opacity = 1;
-        }
-      });
-    }
-
-    function closeForm() {
-      if (!isOpen) return;
-      isOpen = false;
-
-      anime({
-        targets: form,
-        opacity: [1, 0],
-        duration: 200,
-        easing: 'linear',
-        complete: () => {
-          form.classList.remove('active');
-        }
-      });
-
-      anime({
-        targets: wrapper,
-        scale: [1, 0.8],
-        opacity: [1, 0],
-        easing: 'easeInBack',
-        duration: 400,
-        complete: () => {
-          wrapper.style.display = 'none';
-          overlay.classList.remove('active');
-
-          fab.style.display = 'flex';
-          anime({
-            targets: fab,
-            scale: 1,
-            opacity: 1,
-            duration: 350,
-            easing: 'easeOutQuad'
-          });
-        }
-      });
-    }
-
-    fab.addEventListener('click', openForm);
-    closeBtn.addEventListener('click', closeForm);
-    overlay.addEventListener('click', closeForm);
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      form.reset();
-      closeForm();
     });
   </script>
 
