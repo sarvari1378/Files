@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
+  <title>مدیریت کارهای روزمره</title>
+
+  <!-- کتابخانه آیکون Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- فونت وزیر -->
+  <link rel="stylesheet" href="https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css">
+
+  <style>
+    /* === ROOT VARIABLES === */
+    :root {
+      --green-dark: #2e7d32;
+      --green: #43a047;
+      --green-light: #66bb6a;
+      --green-bg: #e8f5e9;
+      --gray-light: #f7f9fc;
+      --gray-border: #e0e0e0;
+      --text-dark: #333;
+      --text-light: #555;
+      --danger-red: #e53935;
+      --danger-red-hover: #c62828;
+      --white: #ffffff;
+      --shadow-color: rgba(46, 125, 50, 0.1);
+      --shadow-color-light: rgba(46, 125, 50, 0.05);
+    }
+
+    /* === GLOBAL STYLES === */
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Vazir', sans-serif;
+      direction: rtl;
+      margin: 0;
+      padding: 0 0 100px 0; /* Padding for bottom tabs */
+      background-color: var(--gray-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    h1, h2 {
+      font-weight: 700;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--green-dark);
+      margin: 2rem 0;
+      font-size: clamp(1.75rem, 5vw, 2.25rem);
+    }
+
+    .container {
+      padding: 0 clamp(1rem, 5vw, 2rem);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    /* === BUTTONS === */
+    button {
+      font-family: 'Vazir', sans-serif;
+      border: none;
+      border-radius: 0.75rem;
+      padding: 0.6rem 1rem;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    button.delete { background: var(--danger-red); color: white; }
+    button.delete:hover { background: var(--danger-red-hover); }
+    button.archive { background: var(--green-light); color: white; }
+    button.archive:hover { background: var(--green); }
+    button.restore { background: var(--green); color: white; }
+    button.restore:hover { background: var(--green-dark); }
+    
+    /* === TASK SECTIONS === */
+    .tasks-section {
+      display: none;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .tasks-section.active {
+      display: flex;
+    }
+
+    .tasks-section h2 {
+      color: var(--green-dark);
+      border-bottom: 2px solid var(--green-light);
+      padding-bottom: 0.75rem;
+      margin: 0;
+      font-size: clamp(1.25rem, 4vw, 1.5rem);
+    }
+
+    /* === TASK CARD === */
+    .task {
+      background: var(--white);
+      border-radius: 1rem;
+      box-shadow: 0 4px 15px var(--shadow-color-light);
+      transition: all 0.3s ease;
+      border: 1px solid #e8f5e9;
+    }
+
+    .task:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px var(--shadow-color);
+    }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+    }
+    
+    .task-header strong {
+      font-size: clamp(1rem, 3vw, 1.1rem);
+      color: var(--green-dark);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-date {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      background-color: var(--green-bg);
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .task-details {
+      display: none;
+      padding: 0 1.25rem 1.25rem;
+      border-top: 1px solid var(--gray-border);
+      margin-top: 1rem;
+    }
+
+    .task-details p {
+      margin: 1rem 0;
+      color: var(--text-light);
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      line-height: 1.6;
+    }
+    
+    .workflow-list {
+      padding-inline-start: 1.5rem;
+      color: var(--green);
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      margin-bottom: 1.5rem;
+      list-style-type: '✅ ';
+      padding-right: 20px;
+    }
+    .workflow-list li {
+        padding-right: 10px;
+        margin-bottom: 8px;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .add-step-form {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .new-step-input {
+      flex: 1;
+      padding: 0.6rem 0.8rem;
+      border: 1.5px solid var(--gray-border);
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    
+    .new-step-input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px var(--shadow-color-light);
+    }
+
+    .add-step-btn {
+      background-color: var(--green-dark);
+      color: white;
+    }
+    .add-step-btn:hover {
+      background-color: var(--green);
+    }
+    
+    .main-actions {
+        display: flex;
+        gap: 0.625rem;
+    }
+
+    /* === BOTTOM TABS === */
+    .bottom-tabs {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.06);
+      display: flex;
+      justify-content: space-around;
+      padding: 0.75rem 0;
+      z-index: 1000;
+      border-top-left-radius: 1.5rem;
+      border-top-right-radius: 1.5rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      font-weight: 700;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      padding: 0.5rem 1rem;
+      border-radius: 1rem;
+      color: var(--text-light);
+    }
+
+    .tab-btn.active,
+    .tab-btn:hover {
+      background-color: var(--green-bg);
+      color: var(--green-dark);
+    }
+    .tab-btn .bi { font-size: 1.2em; }
+    
+    .empty-msg {
+      text-align: center;
+      font-style: italic;
+      color: #999;
+      margin-top: 1.25rem;
+      background: #fafafa;
+      padding: 2rem;
+      border-radius: 1rem;
+      border: 1px dashed var(--gray-border);
+    }
+
+    /* === FLOATING ACTION BUTTON & FORM === */
+    .custom-floating-form__fab {
+      position: fixed;
+      bottom: 6.5rem; /* Above tabs */
+      right: clamp(1rem, 5vw, 2rem);
+      width: clamp(55px, 14vw, 60px);
+      height: clamp(55px, 14vw, 60px);
+      font-size: clamp(1.8rem, 5vw, 2rem);
+      border-radius: 50%;
+      background-color: var(--green-dark);
+      color: white;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 1100;
+    }
+    
+    .custom-floating-form__fab:hover {
+      background-color: var(--green);
+      transform: translateY(-3px) scale(1.05);
+    }
+
+    .custom-floating-form__overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 1050;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .custom-floating-form__overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .custom-floating-form {
+      position: fixed;
+      top: 50%; left: 50%;
+      width: 60px; height: 60px;
+      background-color: var(--white);
+      border-radius: 50%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      opacity: 1;
+      z-index: 1051;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -50%);
+    }
+
+    .custom-floating-form__form {
+      width: 100%;
+      padding: 2rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      opacity: 0;
+    }
+
+    .custom-floating-form__form.active {
+      opacity: 1;
+      transition: opacity 0.3s ease 0.2s;
+    }
+
+    .custom-floating-form__title {
+      margin: 0;
+      color: var(--green-dark);
+      font-size: 1.4rem;
+      text-align: center;
+    }
+
+    .custom-floating-form__input {
+      padding: 12px 16px;
+      border: 1.5px solid var(--gray-border);
+      border-radius: 12px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    
+    .custom-floating-form__input:focus {
+        border-color: var(--green);
+        box-shadow: 0 0 0 3px var(--shadow-color-light);
+    }
+
+    .custom-floating-form__submit {
+      background-color: var(--green-dark);
+      color: white;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .custom-floating-form__submit:hover { background-color: var(--green); }
+
+    .custom-floating-form__close-btn {
+      position: absolute;
+      top: 15px; left: 15px;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      color: #999;
+      cursor: pointer;
+      padding: 5px;
+      line-height: 1;
+    }
+    .custom-floating-form__close-btn:hover { color: #333; }
+    
+    /* === TOUR GUIDE === */
+    .tour-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .tour-highlight-box {
+      position: fixed;
+      border: 3px solid var(--green);
+      border-radius: 12px;
+      box-shadow: 0 0 15px 4px var(--green-light);
+      pointer-events: auto;
+      z-index: 10000;
+      transition: all 0.3s ease;
+      background: transparent;
+    }
+    .tour-tooltip {
+      position: fixed;
+      background: var(--green-bg);
+      color: var(--green-dark);
+      padding: 1rem;
+      border-radius: 8px;
+      max-width: 320px;
+      z-index: 10001;
+      pointer-events: auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-right: 4px solid var(--green);
+    }
+    .tour-next-btn {
+      margin-top: 10px;
+      background: var(--green); color: white;
+      padding: 8px 14px; border-radius: 6px;
+    }
+    .tour-next-btn:hover { background: var(--green-dark); }
+    
+    /* === MEDIA QUERIES === */
+    @media (max-width: 600px) {
+      .custom-floating-form.expanded {
+        height: auto !important; /* Let content define height */
+        max-height: 90vh;
+      }
+    }
+  </style>
+
+</head>
+<body>
+
+  <!-- Tour elements (hidden by default) -->
+  <div class="tour-overlay" style="display:none;"></div>
+  <div class="tour-highlight-box" style="display:none;"></div>
+  <div class="tour-tooltip" style="display:none;">
+    <div class="tour-tooltip-text"></div>
+    <button class="tour-next-btn">بعدی</button>
+  </div>
+  <!-- A button to start the tour can be added if needed, e.g. <button id="start-tour-btn">راهنما</button> -->
+
+  <h1>مدیریت کارهای روزمره</h1>
+
+  <!-- Floating Action Button (FAB) -->
+  <button class="custom-floating-form__fab" data-tour-step="1" data-tour="برای اضافه کردن وظایف جدید، روی این دکمه کلیک کنید.">
+    <i class="bi bi-pencil-fill"></i>
+  </button>
+
+  <!-- Dark Overlay for Modal -->
+  <div class="custom-floating-form__overlay"></div>
+
+  <!-- Floating Form Modal -->
+  <div class="custom-floating-form">
+    <form id="custom-floating-form__form" class="custom-floating-form__form">
+      <button class="custom-floating-form__close-btn" type="button">×</button>
+      <h2 class="custom-floating-form__title">افزودن وظیفه جدید</h2>
+      <input type="text" name="title" placeholder="عنوان کار" required class="custom-floating-form__input" />
+      <input type="text" name="description" placeholder="توضیحات (اختیاری)" class="custom-floating-form__input" />
+      <button type="submit" class="custom-floating-form__submit">افزودن</button>
+    </form>
+  </div>
+
+  <div class="container" data-tour-step="2" data-tour="وظایف شما در این قسمت نمایش داده می‌شوند. می‌توانید بین تسک‌های فعال و آرشیو شده جابجا شوید.">
+    <section id="active-tasks-section" class="tasks-section active">
+      <h2><i class="bi bi-list-check"></i> تسک‌های فعال</h2>
+      <div id="active-tasks"></div>
+      <div id="active-empty" class="empty-msg" style="display:none;">هیچ تسک فعالی وجود ندارد.</div>
+    </section>
+
+    <section id="archived-tasks-section" class="tasks-section">
+      <h2><i class="bi bi-archive-fill"></i> آرشیو تسک‌ها</h2>
+      <div id="archived-tasks"></div>
+      <div id="archived-empty" class="empty-msg" style="display:none;">آرشیو شما خالی است.</div>
+    </section>
+  </div>
+
+  <div class="bottom-tabs" data-tour-step="3" data-tour="از اینجا می‌توانید بین کارهای در حال انجام و کارهای آرشیو شده جابجا شوید.">
+    <button class="tab-btn active" data-target="active-tasks-section">
+      <i class="bi bi-list-task"></i>
+      <span>کارهای در حال انجام</span>
+    </button>
+    <button class="tab-btn" data-target="archived-tasks-section">
+      <i class="bi bi-archive"></i>
+      <span>آرشیو</span>
+    </button>
+  </div>
+
+<script>
+  const API_URL = 'https://dailytasks.wegom17380.workers.dev/tasks';
+
+  const activeContainer = document.getElementById('active-tasks');
+  const archivedContainer = document.getElementById('archived-tasks');
+  const activeEmpty = document.getElementById('active-empty');
+  const archivedEmpty = document.getElementById('archived-empty');
+
+  // Tabs switching logic
+  const tabs = document.querySelectorAll('.tab-btn');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const targetId = tab.getAttribute('data-target');
+      document.querySelectorAll('.tasks-section').forEach(section => {
+        section.classList.toggle('active', section.id === targetId);
+      });
+    });
+  });
+
+    // Sanitize text to prevent XSS (Corrected and Final Version)
+  function escapeHtml(text) {
+    // If the input is null, undefined, or empty, return an empty string.
+    if (!text) return '';
+
+    // The map of characters to their corresponding HTML entities.
+    const map = {
+      '&': '&',
+      '<': '<',
+      '>': '>',
+      '"': '"'
+    };
+
+    // Replace each character found in the regex with its entity from the map.
+    return text.replace(/[&<>"']/g, function(m) { 
+      return map[m]; 
+    });
+  }
+
+  // Fetch and render all tasks
+  async function fetchAndRender() {
+    try {
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error('خطا در دریافت داده‌ها');
+      const tasks = await res.json();
+      
+      const activeTasks = tasks.filter(t => !t.archived);
+      const archivedTasks = tasks.filter(t => t.archived);
+
+      renderTasks(activeTasks, activeContainer, false);
+      renderTasks(archivedTasks, archivedContainer, true);
+
+      activeEmpty.style.display = activeTasks.length === 0 ? 'block' : 'none';
+      archivedEmpty.style.display = archivedTasks.length === 0 ? 'block' : 'none';
+
+    } catch(e) {
+      alert(e.message);
+    }
+  }
+
+  // Render a list of tasks into a container
+  function renderTasks(tasks, container, isArchived) {
+    container.innerHTML = '';
+    tasks.forEach(task => addTaskToDOM(task, container, isArchived));
+  }
+
+  // Create and add a single task card to the DOM
+  function addTaskToDOM(task, container, isArchived) {
+    const div = document.createElement('div');
+    const shamsiDate = new persianDate(task.createdAt).format('YYYY/MM/DD');
+    div.className = 'task';
+    div.innerHTML = `
+      <div class="task-container">
+        <div class="task-header">
+          <strong title="${escapeHtml(task.title)}">${escapeHtml(task.title)}</strong>
+          <p class="task-date">${shamsiDate}</p>
+        </div>
+
+        <div class="task-details">
+          <p>${escapeHtml(task.description) || '<i>بدون توضیحات</i>'}</p>
+          <ul class="workflow-list">
+            ${(task.workflow || []).map(step => `<li>${escapeHtml(step)}</li>`).join('') || '<li>مرحله‌ای اضافه نشده است.</li>'}
+          </ul>
+          <div class="actions">
+            ${!isArchived ? `
+              <div class="add-step-form">
+                <input type="text" class="new-step-input" placeholder="یک مرحله جدید تعریف کنید...">
+                <button class="add-step-btn"><i class="bi bi-plus-lg"></i> افزودن</button>
+              </div>
+              <div class="main-actions">
+                <button class="archive"><i class="bi bi-archive-fill"></i> آرشیو</button>
+                <button class="delete"><i class="bi bi-trash3-fill"></i> حذف</button>
+              </div>
+            ` : `
+              <div class="main-actions">
+                <button class="restore"><i class="bi bi-arrow-counterclockwise"></i> بازگردانی</button>
+                <button class="delete"><i class="bi bi-trash3-fill"></i> حذف</button>
+              </div>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Toggle details visibility
+    const header = div.querySelector('.task-header');
+    const details = div.querySelector('.task-details');
+    header.addEventListener('click', () => {
+        const isHidden = details.style.display === 'none' || details.style.display === '';
+        details.style.display = isHidden ? 'block' : 'none';
+    });
+    
+    // Attach event listeners
+    if (!isArchived) {
+      div.querySelector('.add-step-btn').onclick = () => handleAddStep(task.id, div.querySelector('.new-step-input'));
+      div.querySelector('.archive').onclick = () => handleArchive(task.id);
+      div.querySelector('.delete').onclick = () => handleDelete(task.id);
+    } else {
+      div.querySelector('.restore').onclick = () => handleRestore(task.id);
+      div.querySelector('.delete').onclick = () => handleDelete(task.id);
+    }
+
+    container.prepend(div);
+  }
+  
+  // --- Action Handlers ---
+  async function handleAddStep(taskId, input) {
+      const stepName = input.value.trim();
+      if (!stepName) return alert('نام مرحله نمی‌تواند خالی باشد.');
+      try {
+          await fetch(`${API_URL}/${taskId}/workflow`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ step: stepName }),
+          });
+          input.value = '';
+          fetchAndRender();
+      } catch (err) { alert(err.message); }
+  }
+
+  async function handleArchive(taskId) {
+      try {
+          await fetch(`${API_URL}/${taskId}/archive`, { method: 'POST' });
+          fetchAndRender();
+      } catch (err) { alert(err.message); }
+  }
+  
+  async function handleRestore(taskId) {
+      try {
+          await fetch(`${API_URL}/${taskId}/restore`, { method: 'POST' });
+          fetchAndRender();
+      } catch (err) { alert(err.message); }
+  }
+
+  async function handleDelete(taskId) {
+      if (!confirm('آیا از حذف این تسک مطمئن هستید؟ این عمل غیرقابل بازگشت است.')) return;
+      try {
+          await fetch(`${API_URL}/${taskId}`, { method: 'DELETE' });
+          fetchAndRender();
+      } catch (err) { alert(err.message); }
+  }
+
+
+  // --- Form Submission & Initialization ---
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('custom-floating-form__form');
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const title = form.title.value.trim();
+        const description = form.description.value.trim();
+
+        if (!title) return alert('عنوان نمی‌تواند خالی باشد.');
+        
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({title, description, workflow: []}),
+            });
+            form.reset();
+            // This relies on the animation script to close the form
+        } catch(err) {
+            alert(err.message);
+        }
+    };
+    fetchAndRender();
+  });
+</script>
+
+  <!-- Anime.js for animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const fab = document.querySelector(".custom-floating-form__fab");
+      const wrapper = document.querySelector(".custom-floating-form");
+      const form = wrapper.querySelector(".custom-floating-form__form");
+      const closeBtn = wrapper.querySelector(".custom-floating-form__close-btn");
+      const overlay = document.querySelector(".custom-floating-form__overlay");
+      
+      let isOpen = false;
+
+      function openForm() {
+        if (isOpen) return;
+        isOpen = true;
+
+        overlay.classList.add('active');
+        anime({ targets: fab, scale: 0, duration: 250, easing: 'easeInBack', complete: () => fab.style.display = 'none' });
+        
+        wrapper.style.display = 'flex';
+        anime({
+          targets: wrapper,
+          width: ['60px', '90%'],
+          maxWidth: ['60px', '500px'],
+          height: ['60px', 'auto'],
+          borderRadius: ['50%', '24px'],
+          scale: [0.8, 1],
+          easing: 'easeOutElastic(1, .7)',
+          duration: 800,
+          begin: () => form.classList.add("active")
+        });
+      }
+
+      function closeForm() {
+        if (!isOpen) return;
+        isOpen = false;
+        
+        form.classList.remove("active");
+        anime({
+          targets: wrapper,
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          scale: 0.8,
+          easing: 'easeInQuad',
+          duration: 400,
+          complete: () => {
+            wrapper.style.display = 'none';
+            overlay.classList.remove('active');
+            fab.style.display = 'flex';
+            anime({ targets: fab, scale: 1, duration: 350, easing: 'easeOutBack' });
+          }
+        });
+      }
+
+      fab.addEventListener('click', openForm);
+      closeBtn.addEventListener('click', closeForm);
+      overlay.addEventListener('click', closeForm);
+      form.addEventListener('submit', (e) => {
+          e.preventDefault(); // Prevent page reload
+          // The main logic handles the API call. After success, we close the form.
+          // Note: We assume the API call in the other script will succeed.
+          // For a more robust solution, use custom events.
+          setTimeout(() => {
+              fetchAndRender(); // Re-fetch data
+              closeForm();
+          }, 100); // Small delay to allow API call to be sent
+      });
+    });
+  </script>
+
+  <!-- Tour Guide Script -->
+  <script>
+    class TourGuide {
+      constructor() {
+        this.steps = Array.from(document.querySelectorAll('[data-tour-step]'))
+          .sort((a, b) => parseInt(a.dataset.tourStep) - parseInt(b.dataset.tourStep));
+        
+        this.currentStep = 0;
+        this.overlay = document.querySelector('.tour-overlay');
+        this.highlightBox = document.querySelector('.tour-highlight-box');
+        this.tooltip = document.querySelector('.tour-tooltip');
+        this.tooltipText = this.tooltip.querySelector('.tour-tooltip-text');
+        this.nextBtn = this.tooltip.querySelector('.tour-next-btn');
+
+        this.nextBtn.addEventListener('click', () => this.nextStep());
+        window.addEventListener('resize', () => this.showStep(this.currentStep, false)); // Adjust on resize
+      }
+
+      start() {
+        if (this.steps.length === 0) return;
+        this.currentStep = 0;
+        document.body.style.overflow = 'hidden';
+        this.overlay.style.display = 'block';
+        this.highlightBox.style.display = 'block';
+        this.tooltip.style.display = 'block';
+        this.showStep(this.currentStep);
+      }
+
+      end() {
+        this.overlay.style.display = 'none';
+        this.highlightBox.style.display = 'none';
+        this.tooltip.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+
+      showStep(index, withTransition = true) {
+        if (index < 0 || index >= this.steps.length) return this.end();
+        
+        const el = this.steps[index];
+        const rect = el.getBoundingClientRect();
+        
+        this.highlightBox.style.transition = withTransition ? 'all 0.3s ease' : 'none';
+        this.highlightBox.style.top = `${rect.top}px`;
+        this.highlightBox.style.left = `${rect.left}px`;
+        this.highlightBox.style.width = `${rect.width}px`;
+        this.highlightBox.style.height = `${rect.height}px`;
+
+        this.tooltipText.textContent = el.dataset.tour || '';
+        
+        const tooltipRect = this.tooltip.getBoundingClientRect();
+        let tooltipTop = rect.bottom + 10;
+        let tooltipLeft = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+        if (tooltipTop + tooltipRect.height > window.innerHeight) {
+          tooltipTop = rect.top - tooltipRect.height - 10;
+        }
+        if (tooltipLeft < 10) tooltipLeft = 10;
+        if (tooltipLeft + tooltipRect.width > window.innerWidth) {
+          tooltipLeft = window.innerWidth - tooltipRect.width - 10;
+        }
+
+        this.tooltip.style.top = `${tooltipTop}px`;
+        this.tooltip.style.left = `${tooltipLeft}px`;
+        this.nextBtn.textContent = (index === this.steps.length - 1) ? 'پایان' : 'بعدی';
+      }
+
+      nextStep() {
+        this.currentStep++;
+        if (this.currentStep >= this.steps.length) {
+          this.end();
+        } else {
+          this.showStep(this.currentStep);
+        }
+      }
+    }
+    
+    // To start the tour, you can call `new TourGuide().start()`
+    // For example, trigger it with a button:
+    // document.getElementById('start-tour-btn').addEventListener('click', () => {
+    //   new TourGuide().start();
+    // });
+  </script>
+
+</body>
+</html>
