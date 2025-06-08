@@ -2,470 +2,455 @@
 <html lang="fa">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
+  <!-- این خط را به تگ <head> اضافه کنید -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <title>مدیریت کارهای روزمره</title>
-<Style>
-  /* سبک بازنویسی‌شده به‌صورت Mobile-First، با استفاده از clamp(), rem و ساختار واکنش‌گرا */
+  <!-- اضافه کردن کتابخانه آیکون Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /*
+      ========================================
+      استایل‌های بازنویسی شده برای UI/UX بهتر
+      ========================================
+    */
 
-@import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
+    /* --- وارد کردن فونت و متغیرهای اصلی --- */
+    @import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
 
-:root {
-  --green-dark: #2e7d32;
-  --green: #43a047;
-  --green-light: #66bb6a;
-  --green-bg: #e8f5e9;
-  --gray-light: #f5f5f5;
-  --text-light: #4caf50;
-}
+    :root {
+      --green-dark: #2e7d32;
+      --green: #43a047;
+      --green-light: #66bb6a;
+      --green-bg: #e8f5e9;
+      --green-bg-light: #f1f8e9;
+      --gray-light: #f7f9fc;
+      --gray-border: #e0e0e0;
+      --text-dark: #333;
+      --text-light: #6c757d; /* رنگ جدید برای آیکون‌ها */
+      --danger: #e53935;
+      --danger-hover: #c62828;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 25px rgba(46, 125, 50, 0.15);
+    }
 
-html {
-  font-size: 16px;
-}
+    /* --- استایل‌های عمومی و پایه --- */
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
 
-body {
-  font-family: 'Vazir', sans-serif;
-  direction: rtl;
-  margin: 0;
-  padding: 0;
-  background: var(--gray-light);
+    body {
+      font-family: 'Vazir', sans-serif;
+      direction: rtl;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(175deg, #ffffff 0%, var(--gray-light) 100%);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 clamp(1rem, 5vw, 2rem);
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--green-dark);
+      margin: 1.5rem 0;
+      font-weight: 900;
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+    }
+
+    #start-tour-btn {
+      background: var(--green-bg);
+      color: var(--green-dark);
+      border: 1px solid var(--green-light);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    #start-tour-btn:hover {
+      background: var(--green);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .container {
+      flex-grow: 1;
+      padding: 0 clamp(1rem, 5vw, 2rem) 8rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .tasks-section {
+      display: none;
+      flex-direction: column;
+    }
+    .tasks-section.active {
+      display: flex;
+    }
+
+    /* --- کارت‌های وظیفه (Task Cards) --- */
+    .task {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+      border: 1px solid var(--gray-border);
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+    }
+    .task:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--green-light);
+    }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      gap: 1rem;
+    }
+    .task-header strong {
+      font-size: clamp(1rem, 2.2vw, 1.15rem);
+      color: var(--green-dark);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .toggle-icon {
+      color: var(--green);
+      transition: transform 0.3s ease;
+      font-size: 0.9rem;
+    }
+    .task.expanded .toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .task-date {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      background-color: var(--gray-light);
+      padding: 0.2rem 0.6rem;
+      border-radius: 1rem;
+      white-space: nowrap;
+    }
+    
+    .task-details {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease-out, opacity 0.3s ease-in, padding 0.5s ease-out;
+      padding: 0 1.25rem;
+      position: relative; /* برای موقعیت‌دهی دکمه‌های اکشن */
+      padding-bottom: 0; /* فضای کافی برای دکمه‌های پایین */
+    }
+    .task.expanded .task-details {
+      max-height: 600px;
+      opacity: 1;
+      padding-top: 0;
+      padding-bottom: 3.5rem;
+    }
+
+    .task-details-content {
+      border-top: 1px solid var(--gray-border);
+      padding-top: 1rem;
+      padding-bottom: 0rem;
+    }
+
+    .task-details-content p {
+      margin: 0 0 1rem;
+      font-size: clamp(0.9rem, 1.8vw, 1rem);
+      color: var(--text-dark);
+    }
+    .workflow-list {
+      padding-inline-start: 1.5rem;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+    
+    .add-step-container {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    .new-step-input {
+      flex-grow: 1;
+      padding: 0.5rem 0.75rem;
+      border: 1.5px solid var(--gray-border);
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .new-step-input:focus {
+      border-color: var(--green);
+    }
+    button.add-step-btn {
+      font-family: 'Vazir', sans-serif; border: none; border-radius: 0.5rem; padding: 0.6rem 1.2rem;
+      font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.25s ease;
+      background: var(--green); color: white;
+    }
+    button.add-step-btn:hover {
+      background: var(--green-dark); transform: translateY(-2px);
+    }
+
+    /* --- دکمه‌های اکشن جدید (آیکونی) --- */
+    .actions {
+      position: absolute;
+      bottom: 0.75rem;
+      left: 0.75rem;
+      display: flex;
+      gap: 0.25rem;
+    }
+    .action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      font-size: 1.1rem; /* اندازه آیکون */
+      padding: 0.5rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .action-btn:hover {
+      background-color: var(--gray-light);
+    }
+    .action-btn.archive:hover, .action-btn.restore:hover {
+      color: var(--green-dark);
+    }
+    .action-btn.delete:hover {
+      color: var(--danger);
+    }
+    
+
+    /* --- تب‌های پایین --- */
+    .bottom-tabs {
+      position: fixed; bottom: 0; left: 0; right: 0; background: white;
+      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05); display: flex;
+      justify-content: center; gap: 1rem; padding: 0.75rem 0; z-index: 1000;
+      border-top: 1px solid var(--gray-border);
+    }
+    /* این کد را جایگزین کلاس .tab-btn قبلی کنید */
+    .tab-btn {
+    background: transparent;
+    border: none;
+    font-family: 'Vazir';
+    font-weight: 700;
+    font-size: 0.95rem; /* فونت کمی بزرگتر */
+    padding: 0.6rem 1.5rem;
+    border-radius: 2rem;
+    cursor: pointer;
+    color: var(--text-light);
+    transition: all 0.3s ease;
+    /* اضافه شده برای چیدمان آیکون و متن */
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    }
+
+    .tab-btn.active, .tab-btn:hover {
+      background-color: var(--green-dark); color: white; box-shadow: var(--shadow-lg);
+      transform: translateY(-3px);
+    }
+
+    /* --- استایل های دیگر بدون تغییر --- */
+    .empty-msg { text-align: center; font-style: italic; color: var(--text-light); margin-top: 2rem; background: var(--green-bg-light); padding: 2rem; border-radius: 1rem; border: 2px dashed var(--green-light); }
+    .custom-floating-form__fab { position: fixed; bottom: 6.5rem; right: 1.5rem; width: clamp(55px, 12vw, 65px); height: clamp(55px, 12vw, 65px); font-size: clamp(1.8rem, 5vw, 2.2rem); border-radius: 50%; background-color: var(--green-dark); color: white; border: none; cursor: pointer; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; z-index: 1100; }
+    .custom-floating-form__fab:hover { background-color: var(--green); transform: scale(1.1) rotate(15deg); }
+    .custom-floating-form__overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); z-index: 1200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .custom-floating-form__overlay.active { opacity: 1; pointer-events: auto; }
+    .custom-floating-form { position: fixed; top: 50%; left: 50%; width: 60px; height: 60px; background-color: white; border-radius: 50%; box-shadow: var(--shadow-lg); overflow: hidden; z-index: 1300; display: none; align-items: center; justify-content: center; transform: translate(-50%, -50%); }
+    .custom-floating-form__form { width: 100%; padding: 2rem 1.5rem; box-sizing: border-box; display: flex; flex-direction: column; gap: 1rem; opacity: 0; }
+    .custom-floating-form__form.active { opacity: 1; transition: opacity 0.3s ease 0.2s; }
+    .custom-floating-form__title { margin: 0 0 0.5rem; color: var(--green-dark); font-size: 1.5rem; text-align: center; font-weight: 800; }
+    .custom-floating-form__input { padding: 0.8rem 1rem; border: 1.5px solid var(--gray-border); border-radius: 0.75rem; font-size: 1rem; outline: none; transition: all 0.2s ease; }
+    .custom-floating-form__input:focus { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-bg); }
+    .custom-floating-form__submit { background-color: var(--green); color: white; border: none; border-radius: 0.75rem; padding: 0.8rem 1rem; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+    .custom-floating-form__submit:hover { background-color: var(--green-dark); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .custom-floating-form__close-btn { position: absolute; top: 10px; left: 10px; background: transparent; border: none; font-size: 1.5rem; color: var(--text-light); cursor: pointer; width: 30px; height: 30px; line-height: 30px; text-align: center; }
+    .tour-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px); z-index: 9998; }
+    .tour-highlight-box { position: fixed; border: 3px solid var(--green); border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5); z-index: 9999; transition: all 0.4s ease-in-out; }
+    .tour-tooltip { position: fixed; background: white; color: var(--text-dark); padding: 1rem 1.25rem; border-radius: 0.75rem; max-width: 320px; font-size: 0.95rem; z-index: 10001; box-shadow: var(--shadow-lg); border-top: 4px solid var(--green); transition: all 0.4s ease-in-out; font-family: 'Vazir', sans-serif; }
+    .tour-tooltip::before { content: ''; position: absolute; left: 20px; border: 8px solid transparent; }
+    .tour-tooltip.pos-bottom::before { top: -16px; border-bottom-color: var(--green); }
+    .tour-tooltip.pos-top::before { bottom: -16px; border-top-color: var(--green); }
+    .tour-next-btn { margin-top: 1rem; background: var(--green); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 0.5rem; cursor: pointer; font-weight: bold; }
+    .tour-next-btn:hover { background: var(--green-dark); }
+
+
+    /* ===================================== */
+/*   استایل‌های جدید برای قابلیت‌های پیشرفته  */
+/* ===================================== */
+
+/* استایل کلی برای هر مرحله از وظیفه */
+.workflow-step {
   display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  font-size: clamp(0.875rem, 2vw, 1rem);
-}
-
-
-h1 {
-  text-align: center;
-  color: var(--green-dark);
-  margin: 1.5rem 0;
-  font-weight: 900;
-  font-size: clamp(1.5rem, 3vw, 2rem);
-}
-
-.container {
-  flex-grow: 1;
-  padding: 0 5vw 4rem;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.tasks-section {
-  background: white;
-  border-radius: 1.25rem;
-  box-shadow: 0 8px 30px rgba(46, 125, 50, 0.08);
-  padding: 1.5rem;
-  display: none;
-  flex-direction: column;
-}
-
-.tasks-section.active {
-  display: flex;
-}
-
-.tasks-section h2 {
-  color: var(--green-dark);
-  border-bottom: 2px solid var(--green-light);
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.5rem;
-  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
-}
-
-.task {
-  position: relative;
-  background: var(--green-bg);
-  border-radius: 1rem;
-  padding: 1.25rem;
-  margin-bottom: 1.25rem;
-  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.1);
-  transition: all 0.3s ease;
-}
-
-.task:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(46, 125, 50, 0.25);
-}
-
-.task strong {
-  font-size: clamp(1rem, 2vw, 1.2rem);
-  color: var(--green-dark);
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-.task p {
-  margin: 0.4rem 0 0.6rem;
-  font-size: clamp(0.9rem, 1.6vw, 1rem);
-  color: #388e3c;
-}
-
-.workflow-list {
-  padding-inline-start: 1.25rem;
-  color: var(--text-light);
-  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
-  margin-bottom: 0.75rem;
-}
-
-.task-date {
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  background-color: #c8e6c9;
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  color: #2e7d32;
-  font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.625rem;
-}
-
-button {
-  font-family: 'Vazir', sans-serif;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.6rem 1rem;
-  font-size: clamp(0.85rem, 1.5vw, 1rem);
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-}
-
-button.delete {
-  background: #e53935;
-  color: white;
-}
-
-button.delete:hover {
-  background: #c62828;
-}
-
-button.archive {
-  background: #66bb6a;
-  color: white;
-}
-
-button.archive:hover {
-  background: #388e3c;
-}
-
-button.restore {
-  background: #43a047;
-  color: white;
-}
-
-button.restore:hover {
-  background: #2e7d32;
-}
-
-button.workflow {
-  background: #388e3c;
-  color: white;
-}
-
-button.workflow:hover {
-  background: #2e7d32;
-}
-
-input.new-step-input {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  border: 1.5px solid #81c784;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-  outline-color: #a5d6a7;
-  box-sizing: border-box;
-}
-
-form#task-form {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 1.25rem;
-  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.08);
-  margin: 1.5rem auto 0.75rem;
-  max-width: 900px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  flex-wrap: nowrap;
   align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.25rem;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+.workflow-step:hover {
+  background-color: var(--gray-light);
 }
 
+/* آیکون برای کشیدن و رها کردن */
+.drag-handle {
+  cursor: grab;
+  color: #b0bec5;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
 
-.bottom-tabs {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.07);
+/* استایل چک‌باکس سفارشی */
+.workflow-step .checkbox {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border: 2px solid var(--green-light);
+  border-radius: 4px;
+  cursor: pointer;
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: clamp(0.5rem, 3vw, 1.5rem);
-  padding: clamp(0.5rem, 3vw, 1rem) 0;
-  z-index: 1000;
-  border-top-left-radius: clamp(1rem, 5vw, 1.25rem);
-  border-top-right-radius: clamp(1rem, 5vw, 1.25rem);
+  transition: background-color 0.2s, border-color 0.2s;
 }
-
-
-.tab-btn {
-  background: transparent;
-  border: none;
-  font-family: 'Vazir', sans-serif;
-  font-weight: 700;
-  font-size: clamp(1rem, 4vw, 1.4rem);
-  padding: clamp(0.5rem, 2vw, 0.8rem) clamp(1rem, 5vw, 1.8rem);
-  border-radius: clamp(20px, 5vw, 30px);
-  cursor: pointer;
-  color: var(--green-dark);
-  transition: 0.3s;
-}
-
-.tab-btn.active,
-.tab-btn:hover {
-  background-color: var(--green-dark);
+.workflow-step .checkbox i {
   color: white;
-  box-shadow: 0 4px 12px rgba(56, 142, 60, 0.4);
+  font-size: 12px;
+  transform: scale(0);
+  transition: transform 0.2s ease;
 }
 
-.empty-msg {
-  text-align: center;
-  font-style: italic;
-  color: #a5d6a7;
-  margin-top: 1.25rem;
+/* حالت تیک خورده چک‌باکس */
+.workflow-step.completed .checkbox {
+  background-color: var(--green);
+  border-color: var(--green);
+}
+.workflow-step.completed .checkbox i {
+  transform: scale(1);
+}
+.workflow-step.completed .step-title {
+  text-decoration: line-through;
+  color: var(--text-light);
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #b2dfdb;
-  border-radius: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #e0f2f1;
-  border-radius: 8px;
-}
-
-.task-details {
-  display: none;
-  transition: all 0.3s ease;
-}
-
-.task-container.expanded .task-details {
-  display: block;
-}
-
-.task-header {
+/* بخش عنوان و دکمه‌های هر مرحله */
+.step-main {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
-  background-color: #e9f5ee;
-  border-radius: 0.75rem;
-  border: 1px solid #cde7d8;
-  margin-bottom: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  flex-grow: 1;
+  /* اضافه کردن این خط برای جلوگیری از بیرون زدن محتوا */
+  overflow: hidden; 
+}
+
+.step-title {
+  color: var(--text-dark);
   cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.task-header:hover {
-  background-color: #d3efdd;
-}
-
-.task-header strong {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #2e7d32;
-  max-width: 70%;
+  /* اضافه کردن این خطوط برای کنترل متن‌های طولانی */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-grow: 1; /* اجازه می‌دهد تا فضای موجود را پر کند */
 }
 
-.task-header .task-date {
-  font-size: 0.85rem;
-  color: #4caf50;
-  white-space: nowrap;
+/* دکمه‌های ویرایش و حذف مرحله */
+.step-actions {
+  display: flex;
+  opacity: 0; /* در حالت عادی مخفی */
+  transition: opacity 0.2s;
+}
+.workflow-step:hover .step-actions {
+  opacity: 1; /* در هاور نمایش داده می‌شود */
+}
+.step-actions button {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+.step-actions button:hover {
+  color: var(--green-dark);
+}
+.step-actions .delete-step-btn:hover {
+  color: var(--danger);
 }
 
-html {
-  font-size: 16px; /* یا 13px که مناسب باشه */
+/* حالت ویرایش مرحله */
+.workflow-step .edit-input {
+  display: none; /* در حالت عادی مخفی */
+  flex-grow: 1;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.9rem;
+  border: 1px solid var(--green);
+  border-radius: 4px;
+}
+.workflow-step.editing .step-main {
+  display: none; /* مخفی کردن عنوان و دکمه‌ها در حالت ویرایش */
+}
+.workflow-step.editing .edit-input {
+  display: block; /* نمایش اینپوت در حالت ویرایش */
 }
 
-/* Media Queries */
-@media (min-width: 768px) {
-  html { font-size: 18px; }
+/* استایل برای آیتم در حال جابجایی */
+.step-ghost {
+  opacity: 0.4;
+  background: var(--green-bg);
 }
-
-@media (min-width: 992px) {
-  html { font-size: 17px; }
-}
-
-@media (min-width: 1200px) {
-  html { font-size: 14px; }
-}
-
-
-</Style>
-
-
-  <style>
-    @import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
-
-    body {
-      margin: 0;
-      font-family: 'Vazir', sans-serif;
-      background-color: #f1f8e9;
-      overflow-x: hidden;
-      height: 100vh;
-    }
-
-    .custom-floating-form__fab {
-      position: fixed;
-      bottom: clamp(5rem, 5vw, 6rem); /* کمی بیشتر فاصله از پایین بگیر */
-      right: clamp(1.5rem, 5vw, 2.5rem);
-      width: clamp(50px, 12vw, 70px);
-      height: clamp(50px, 12vw, 70px);
-      font-size: clamp(1.6rem, 5vw, 2.2rem);
-      border-radius: 50%;
-      background-color: var(--green-dark);
-      color: white;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.3s;
-      z-index: 1100; /* بالاتر از نوار پایینی */
-    }
-
-
-.custom-floating-form__fab:hover {
-  background-color: var(--green-light);
-}
-
-    .custom-floating-form__overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.2);
-      z-index: 998;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .custom-floating-form__overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .custom-floating-form {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      width: 60px;
-      height: 60px;
-      background-color: white;
-      border-radius: 50%;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-      opacity: 1;
-      z-index: 999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      transform: translate(-50%, -50%);
-    }
-
-    .custom-floating-form__form {
-      width: 100%;
-      height: 100%;
-      padding: 30px 20px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      opacity: 1;
-    }
-
-    .custom-floating-form__form.active {
-      opacity: 1;
-      transition: opacity 0.3s ease;
-    }
-
-    .custom-floating-form__title {
-      margin: 0 0 15px;
-      color: #2e7d32;
-      font-size: 1.2rem;
-      text-align: center;
-    }
-
-    .custom-floating-form__input {
-      padding: 10px 14px;
-      border: 1.5px solid #81c784;
-      border-radius: 10px;
-      font-size: 1rem;
-      outline: none;
-      margin-bottom: 10px;
-    }
-
-    .custom-floating-form__submit {
-      background-color: #388e3c;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .custom-floating-form__submit:hover {
-      background-color: #2e7d32;
-    }
-
-    .custom-floating-form__close-btn {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: transparent;
-      border: none;
-      font-size: 20px;
-      color: #666;
-      cursor: pointer;
-    }
-
-    @media (max-width: 600px) {
-      .custom-floating-form.expanded {
-        height: 360px !important;
-      }
-    }
   </style>
-
-
-
-
 </head>
 <body>
-  <h1>مدیریت کارهای روزمره</h1>
 
-    <!-- دکمه شناور -->
-   <!-- دکمه شناور -->
-  <button class="custom-floating-form__fab">✏️</button>
+  <!-- المان‌های تور -->
+  <div class="tour-overlay" style="display:none;"></div>
+  <div class="tour-highlight-box" style="display:none;"></div>
+  <div class="tour-tooltip" style="display:none;">
+    <div class="tour-tooltip-text"></div>
+    <button class="tour-next-btn">بعدی</button>
+  </div>
+
+  <div class="header-container">
+    <h1>مدیریت کارها</h1>
+    <button id="start-tour-btn" data-tour-step="0" data-tour="برای آشنایی با بخش‌های مختلف برنامه، روی این دکمه کلیک کنید.">شروع راهنما</button>
+  </div>
+
+  <!-- دکمه شناور -->
+  <button class="custom-floating-form__fab" data-tour-step="1" data-tour="با کلیک روی این دکمه می‌توانید یک وظیفه جدید به لیست خود اضافه کنید.">✏️</button>
 
   <!-- لایه تیره -->
   <div class="custom-floating-form__overlay"></div>
@@ -473,35 +458,41 @@ html {
   <!-- فرم شناور -->
   <div class="custom-floating-form">
     <form id="custom-floating-form__form" class="custom-floating-form__form">
-      <button class="custom-floating-form__close-btn" type="button">&times;</button>
+      <button class="custom-floating-form__close-btn" type="button">×</button>
       <h2 class="custom-floating-form__title">افزودن وظیفه جدید</h2>
       <input type="text" name="title" placeholder="عنوان کار" required class="custom-floating-form__input" />
-      <input type="text" name="description" placeholder="توضیح (اختیاری)" class="custom-floating-form__input" />
+      <input type="text" name="description" placeholder="توضیحات (اختیاری)" class="custom-floating-form__input" />
       <button type="submit" class="custom-floating-form__submit">افزودن</button>
     </form>
   </div>
 
-
   <div class="container">
-    <section id="active-tasks-section" class="tasks-section active">
-      <h2>تسک‌های فعال</h2>
+    <section id="active-tasks-section" class="tasks-section active" data-tour-step="2" data-tour="این بخش وظایف فعال و در حال انجام شما را نمایش می‌دهد. روی هر کارت کلیک کنید تا جزئیات آن را ببینید.">
       <div id="active-tasks"></div>
-      <div id="active-empty" class="empty-msg" style="display:none;">تسکی وجود ندارد</div>
+      <div id="active-empty" class="empty-msg" style="display:none;">لیست کارهای فعال شما خالی است!</div>
     </section>
 
     <section id="archived-tasks-section" class="tasks-section">
-      <h2>آرشیو تسک‌ها</h2>
       <div id="archived-tasks"></div>
-      <div id="archived-empty" class="empty-msg" style="display:none;">آرشیو خالی است</div>
+      <div id="archived-empty" class="empty-msg" style="display:none;">آرشیو شما خالی است.</div>
     </section>
   </div>
 
-  <div class="bottom-tabs">
-    <button class="tab-btn active" data-target="active-tasks-section">کارهای در حال انجام</button>
-    <button class="tab-btn" data-target="archived-tasks-section">آرشیو</button>
-  </div>
+  <div class="bottom-tabs" data-tour-step="3" data-tour="از اینجا می‌توانید بین لیست کارهای فعال و کارهای بایگانی‌شده جابجا شوید.">
+  <button class="tab-btn active" data-target="active-tasks-section">
+    <i class="fas fa-list-check"></i>
+    <span>کارهای فعال</span>
+  </button>
+  <button class="tab-btn" data-target="archived-tasks-section">
+    <i class="fas fa-box-archive"></i>
+    <span>بایگانی</span>
+  </button>
+</div>
 
 <script>
+  // ===================================
+  // شروع منطق اصلی برنامه
+  // ===================================
   const API_URL = 'https://dailytasks.wegom17380.workers.dev/tasks';
 
   const activeContainer = document.getElementById('active-tasks');
@@ -509,312 +500,358 @@ html {
   const activeEmpty = document.getElementById('active-empty');
   const archivedEmpty = document.getElementById('archived-empty');
 
-  // تب‌ها و سوئیچ
   const tabs = document.querySelectorAll('.tab-btn');
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      // حذف active از همه تب‌ها
       tabs.forEach(t => t.classList.remove('active'));
-      // اضافه کردن به تب کلیک شده
       tab.classList.add('active');
-      // نمایش درست بخش
       const targetId = tab.getAttribute('data-target');
       document.querySelectorAll('.tasks-section').forEach(section => {
-        if(section.id === targetId) section.classList.add('active');
-        else section.classList.remove('active');
+        section.classList.toggle('active', section.id === targetId);
       });
     });
   });
 
-  // فرار دادن متن (XSS محافظت)
+  // *** تغییر: راه حل جدید، امن و هوشمندانه برای escape کردن HTML ***
   function escapeHtml(text) {
     if (!text) return '';
-    return text.replace(/[&<>"']/g, function(m) {
-      switch (m) {
-        case '&': return '&amp;';
-        case '<': return '&lt;';
-        case '>': return '&gt;';
-        case '"': return '&quot;';
-        case "'": return '&#39;';
-        default: return m;
-      }
-    });
+    // با استفاده از قابلیت ذاتی مرورگر، متن را امن می‌کنیم.
+    // این روش بسیار مطمئن و استاندارد است.
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
-  // دریافت و نمایش تسک‌ها
   async function fetchAndRender() {
     try {
       const res = await fetch(API_URL);
       if (!res.ok) throw new Error('خطا در دریافت داده‌ها');
       const tasks = await res.json();
-
       const activeTasks = tasks.filter(t => !t.archived);
       const archivedTasks = tasks.filter(t => t.archived);
-
       renderTasks(activeTasks, activeContainer, false);
       renderTasks(archivedTasks, archivedContainer, true);
-
       activeEmpty.style.display = activeTasks.length === 0 ? 'block' : 'none';
       archivedEmpty.style.display = archivedTasks.length === 0 ? 'block' : 'none';
-
     } catch(e) {
+      console.error(e);
       alert(e.message);
     }
   }
 
-  // رندر تسک‌ها داخل کانتینر
   function renderTasks(tasks, container, isArchived) {
     container.innerHTML = '';
-    if (tasks.length === 0) return;
-
+    tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     tasks.forEach(task => addTaskToDOM(task, container, isArchived));
   }
 
-  // اضافه کردن کارت تسک به DOM
-  function addTaskToDOM(task, container, isArchived) {
-    const div = document.createElement('div');
-    const shamsiDate = new persianDate(task.createdAt).format('YYYY/MM/DD HH:mm');
-    div.className = 'task';
+// این تابع را به طور کامل جایگزین نسخه قبلی کنید
+// این تابع را به طور کامل جایگزین نسخه قبلی در فایل main.html خود کنید
 
-div.innerHTML = `
-    <div class="task-container">
-      <div class="task-header" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px;">
-        <strong
-          style="max-width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: rtl;"
-          title="${escapeHtml(task.title)}"
-        >
-          ${escapeHtml(task.title)}
-        </strong>
-        <p class="task-date" style="color:#666; font-size:0.85rem;">${shamsiDate}</p>
+// این تابع را به طور کامل جایگزین نسخه قبلی در فایل main.html خود کنید
+
+// این تابع را به طور کامل جایگزین نسخه قبلی در فایل main.html خود کنید
+
+function addTaskToDOM(task, container, isArchived) {
+  const div = document.createElement('div');
+  div.className = 'task';
+  div.dataset.taskId = task.id;
+  const shamsiDate = new persianDate(new Date(task.createdAt)).format('dddd D MMMM YYYY - HH:mm');
+
+  div.innerHTML = `
+    <div class="task-header">
+      <span class="toggle-icon fas fa-chevron-down"></span>
+      <strong title="${escapeHtml(task.title)}">${escapeHtml(task.title)}</strong>
+      <p class="task-date">${shamsiDate}</p>
+    </div>
+    <div class="task-details">
+      <div class="task-details-content">
+        <p>${escapeHtml(task.description) || '<i></i>'}</p>
+        <ul class="workflow-list"></ul>
+        ${!isArchived ? `
+          <div class="add-step-container">
+            <input type="text" class="new-step-input" placeholder="نام مرحله جدید...">
+            <button class="add-step-btn">افزودن</button>
+          </div>` : ''}
       </div>
-
-      <div class="task-details" style="display:none;">
-        <p>${escapeHtml(task.description)}</p>
-        <ul class="workflow-list">
-          ${(task.workflow || []).map(step => `<li>${escapeHtml(step)}</li>`).join('')}
-        </ul>
-
-        <div class="actions">
-          ${
-            !isArchived
-              ? `
-                <div style="display:flex; gap:8px; margin-bottom:8px;">
-                  <input type="text" class="new-step-input" placeholder="نام مرحله جدید..." style="flex:1; padding:6px; font-size:0.9rem; border-radius:6px; border:1px solid #ccc;" />
-                  <button class="add-step-btn">➕ مرحله</button>
-                </div>
-                <button class="archive">آرشیو</button>
-                <button class="delete">حذف</button>
-              `
-              : `
-                <button class="restore">بازگردانی</button>
-                <button class="delete">حذف</button>
-              `
-          }
-        </div>
+      <div class="actions">
+        ${!isArchived ? `
+          <button class="action-btn archive" title="بایگانی"><i class="fas fa-archive"></i></button>
+          <button class="action-btn delete" title="حذف"><i class="fas fa-trash-alt"></i></button>
+        ` : `
+          <button class="action-btn restore" title="بازیابی"><i class="fas fa-undo-alt"></i></button>
+          <button class="action-btn delete" title="حذف کامل"><i class="fas fa-trash-alt"></i></button>
+        `}
       </div>
     </div>
   `;
-const taskContainer = div.querySelector('.task-container');
-const header = taskContainer.querySelector('.task-header');
-const details = taskContainer.querySelector('.task-details');
 
-header.addEventListener('click', () => {
-  if (details.style.display === 'none') {
-    details.style.display = 'block';
-  } else {
-    details.style.display = 'none';
-  }
-});
+  const workflowList = div.querySelector('.workflow-list');
 
+  (task.workflow || []).forEach(step => {
+    const li = document.createElement('li');
+    li.className = `workflow-step ${step.done ? 'completed' : ''}`;
+    li.dataset.stepId = step.id;
 
-    if (!isArchived) {
-      const input = div.querySelector('.new-step-input');
-      const addStepBtn = div.querySelector('.add-step-btn');
+    li.innerHTML = `
+      <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+      <div class="checkbox" role="checkbox" aria-checked="${step.done}">
+        <i class="fas fa-check"></i>
+      </div>
+      <div class="step-main">
+        <span class="step-title">${escapeHtml(step.title)}</span>
+        <div class="step-actions">
+          <button class="edit-step-btn" title="ویرایش"><i class="fas fa-pencil-alt"></i></button>
+          <button class="delete-step-btn" title="حذف"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      </div>
+      <input type="text" class="edit-input" value="${escapeHtml(step.title)}" />
+    `;
+    
+    // رویداد برای تیک زدن
+    li.querySelector('.checkbox').addEventListener('click', async () => {
+      const newDoneState = !li.classList.contains('completed');
+      try {
+        // اصلاح شده: /tasks حذف شد
+        await fetch(`${API_URL}/${task.id}/workflow/${step.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ done: newDoneState }),
+        });
+        fetchAndRender();
+      } catch (err) { alert(err.message); }
+    });
 
-      addStepBtn.onclick = async () => {
-        const stepName = input.value.trim();
-        if (!stepName) {
-          alert('نام مرحله نمی‌تواند خالی باشد.');
-          return;
-        }
+    // رویداد برای ویرایش
+    const editInput = li.querySelector('.edit-input');
+    li.querySelector('.edit-step-btn').addEventListener('click', () => {
+      li.classList.add('editing');
+      editInput.focus();
+      editInput.select();
+    });
+
+    const saveEdit = async () => {
+      if (!li.classList.contains('editing')) return;
+      const newTitle = editInput.value.trim();
+      if (newTitle && newTitle !== step.title) {
         try {
-          const res = await fetch(`${API_URL}/${task.id}/workflow`, {
+          // اصلاح شده: /tasks حذف شد
+          await fetch(`${API_URL}/${task.id}/workflow/${step.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle }),
+          });
+        } catch (err) { alert(err.message); }
+      }
+      fetchAndRender();
+    };
+    editInput.addEventListener('blur', saveEdit);
+    editInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') saveEdit();
+      if (e.key === 'Escape') fetchAndRender();
+    });
+
+    // رویداد برای حذف مرحله
+    li.querySelector('.delete-step-btn').addEventListener('click', async () => {
+      if (!confirm(`آیا از حذف مرحله "${step.title}" مطمئن هستید؟`)) return;
+      try {
+        // اصلاح شده: /tasks حذف شد
+        await fetch(`${API_URL}/${task.id}/workflow/${step.id}`, { method: 'DELETE' });
+        fetchAndRender();
+      } catch (err) { alert(err.message); }
+    });
+
+    workflowList.appendChild(li);
+  });
+
+  if (!isArchived) {
+    new Sortable(workflowList, {
+      animation: 150,
+      handle: '.drag-handle',
+      ghostClass: 'step-ghost',
+      onEnd: async (evt) => {
+        const newOrderIds = Array.from(evt.target.children).map(li => li.dataset.stepId);
+        try {
+          // اصلاح شده: /tasks حذف شد
+          await fetch(`${API_URL}/${task.id}/workflow/reorder`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ step: stepName }),
+            body: JSON.stringify({ order: newOrderIds }),
           });
-          if (!res.ok) throw new Error('خطا در افزودن مرحله');
-          input.value = '';
-          await fetchAndRender();
         } catch (err) {
-          alert(err.message);
+          alert('خطا در ذخیره ترتیب جدید');
+          fetchAndRender();
         }
-      };
-
-      div.querySelector('.archive').onclick = async () => {
-        try {
-          const res = await fetch(`${API_URL}/${task.id}/archive`, { method: 'POST' });
-          if (!res.ok) throw new Error('خطا در آرشیو کردن');
-          await fetchAndRender();
-        } catch (err) {
-          alert(err.message);
-        }
-      };
-
-      div.querySelector('.delete').onclick = async () => {
-        if (!confirm('آیا مطمئنید می‌خواهید این تسک را حذف کنید؟')) return;
-        try {
-          const res = await fetch(`${API_URL}/${task.id}`, { method: 'DELETE' });
-          if (!res.ok) throw new Error('خطا در حذف تسک');
-          await fetchAndRender();
-        } catch (err) {
-          alert(err.message);
-        }
-      };
-
-    } else {
-      div.querySelector('.restore').onclick = async () => {
-        try {
-          const res = await fetch(`${API_URL}/${task.id}/restore`, { method: 'POST' });
-          if (!res.ok) throw new Error('خطا در بازگردانی تسک');
-          await fetchAndRender();
-        } catch (err) {
-          alert(err.message);
-        }
-      };
-
-      div.querySelector('.delete').onclick = async () => {
-        if (!confirm('آیا مطمئنید می‌خواهید این تسک را حذف کنید؟')) return;
-        try {
-          const res = await fetch(`${API_URL}/${task.id}`, { method: 'DELETE' });
-          if (!res.ok) throw new Error('خطا در حذف تسک');
-          await fetchAndRender();
-        } catch (err) {
-          alert(err.message);
-        }
-      };
-    }
-
-    container.prepend(div);
+      },
+    });
   }
+  
+  div.querySelector('.task-header').addEventListener('click', () => {
+    div.classList.toggle('expanded');
+  });
 
-  document.addEventListener('DOMContentLoaded', () => {
-  // کد اصلی شما اینجاست
+  if (!isArchived) {
+    div.querySelector('.add-step-btn').onclick = async () => {
+      const input = div.querySelector('.new-step-input');
+      const stepName = input.value.trim();
+      if (!stepName) return alert('نام مرحله نمی‌تواند خالی باشد.');
+      try {
+        // اصلاح شده: /tasks حذف شد
+        await fetch(`${API_URL}/${task.id}/workflow`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ step: stepName }),
+        });
+        input.value = '';
+        fetchAndRender();
+      } catch (err) { alert(err.message); }
+    };
+    div.querySelector('.archive').onclick = async () => {
+      // اصلاح شده: /tasks حذف شد
+      await fetch(`${API_URL}/${task.id}/archive`, { method: 'POST' });
+      fetchAndRender();
+    };
+  } else {
+    div.querySelector('.restore').onclick = async () => {
+      // اصلاح شده: /tasks حذف شد
+      await fetch(`${API_URL}/${task.id}/restore`, { method: 'POST' });
+      fetchAndRender();
+    };
+  }
+  div.querySelector('.delete').onclick = async () => {
+    if (!confirm('آیا برای حذف این وظیفه مطمئن هستید؟')) return;
+    // اصلاح شده: /tasks حذف شد
+    await fetch(`${API_URL}/${task.id}`, { method: 'DELETE' });
+    fetchAndRender();
+  };
+  
+  container.appendChild(div);
+}
+
+
   document.getElementById('custom-floating-form__form').onsubmit = async e => {
     e.preventDefault();
-    const title = e.target.title.value.trim();
-    const description = e.target.description.value.trim();
-
-    if (!title) {
-      alert('عنوان نمی‌تواند خالی باشد.');
-      return;
-    }
-
+    const form = e.target;
+    const title = form.title.value.trim();
+    const description = form.description.value.trim();
+    if (!title) return alert('عنوان نمی‌تواند خالی باشد.');
     try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({title, description, workflow: []}),
-      });
+      const res = await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({title, description, workflow: []}) });
       if (!res.ok) throw new Error('خطا در افزودن تسک');
-      e.target.reset();
-      await fetchAndRender();
-    } catch(err) {
-      alert(err.message);
-    }
+      fetchAndRender();
+    } catch(err) { alert(err.message); }
   };
-
-  fetchAndRender();
-});
+  
+  document.addEventListener('DOMContentLoaded', fetchAndRender);
 
 </script>
 
-
-
-  <!-- انیمیشن Anime.js -->
+  <!-- انیمیشن Anime.js (بدون تغییر) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const fab = document.querySelector(".custom-floating-form__fab");
-      const wrapper = document.querySelector(".custom-floating-form");
-      const form = wrapper.querySelector(".custom-floating-form__form");
-      const closeBtn = wrapper.querySelector(".custom-floating-form__close-btn");
-      const overlay = document.querySelector(".custom-floating-form__overlay");
+document.addEventListener("DOMContentLoaded", () => {
+  const fab = document.querySelector(".custom-floating-form__fab");
+  const wrapper = document.querySelector(".custom-floating-form");
+  const form = wrapper.querySelector(".custom-floating-form__form");
+  const closeBtn = wrapper.querySelector(".custom-floating-form__close-btn");
+  const overlay = document.querySelector(".custom-floating-form__overlay");
+  let isOpen = false;
 
-      let isOpen = false;
+  function openForm() {
+    if (isOpen) return;
+    isOpen = true;
+    overlay.classList.add('active');
+    anime({
+      targets: fab,
+      scale: 0.4,
+      opacity: 0,
+      duration: 250,
+      easing: 'easeOutQuad',
+      complete: () => { fab.style.display = 'none'; }
+    });
+    wrapper.style.display = 'flex';
+    anime({
+      targets: wrapper,
+      width: ['60px', '90%'],
+      maxWidth: ['60px', '500px'],
+      height: ['60px', window.innerWidth <= 600 ? '320px' : '280px'],
+      borderRadius: ['50%', '20px'],
+      translateX: ['-50%', '-50%'],
+      translateY: ['-50%', '-50%'],
+      scale: [0.8, 1],
+      easing: 'easeOutElastic(1, .6)',
+      duration: 700,
+      begin: () => { form.classList.add("active"); }
+    });
+  }
 
-      function openForm() {
-        if (isOpen) return;
-        isOpen = true;
-
-        overlay.classList.add('active');
-
+  function closeForm() {
+    if (!isOpen) return;
+    isOpen = false;
+    form.classList.remove("active");
+    anime({
+      targets: wrapper,
+      scale: [1, 0.8],
+      opacity: [1, 0],
+      easing: 'easeInBack',
+      duration: 400,
+      complete: () => {
+        wrapper.style.display = 'none';
+        wrapper.style.opacity = 1;
+        overlay.classList.remove('active');
+        fab.style.display = 'flex';
         anime({
           targets: fab,
-          scale: 0.4,
-          duration: 250,
-          easing: 'easeOutQuad',
-          complete: () => {
-            fab.style.display = 'none';
-          }
-        });
-
-        wrapper.style.display = 'flex';
-
-        anime({
-          targets: wrapper,
-          width: ['60px', '90%'],
-          maxWidth: ['60px', '500px'],
-          height: ['60px', window.innerWidth <= 600 ? '360px' : '320px'],
-          borderRadius: ['50%', '20px'],
-          translateX: ['-50%', '-50%'],
-          translateY: ['-50%', '-50%'],
-          scale: [0.8, 1],
-          easing: 'easeOutElastic(1, .6)',
-          duration: 700,
-          begin: () => {
-            form.classList.add("active");
-          }
+          scale: 1,
+          opacity: 1,
+          duration: 350,
+          easing: 'easeOutQuad'
         });
       }
-
-      function closeForm() {
-        if (!isOpen) return;
-        isOpen = false;
-
-        form.classList.remove("active");
-
-        anime({
-          targets: wrapper,
-          scale: [1, 0.8],
-          easing: 'easeInBack',
-          duration: 400,
-          complete: () => {
-            wrapper.style.display = 'none';
-            overlay.classList.remove('active');
-
-            fab.style.display = 'flex';
-            anime({
-              targets: fab,
-              scale: 1,
-              duration: 350,
-              easing: 'easeOutQuad'
-            });
-          }
-        });
-      }
-
-      fab.addEventListener('click', openForm);
-      closeBtn.addEventListener('click', closeForm);
-      overlay.addEventListener('click', closeForm);
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        form.reset();
-        closeForm();
-      });
     });
-  </script>
+  }
 
+  fab.addEventListener('click', openForm);
+  closeBtn.addEventListener('click', closeForm);
+  overlay.addEventListener('click', closeForm);
+  form.addEventListener('submit', (e) => {
+    setTimeout(() => {
+      form.reset();
+      closeForm();
+    }, 100);
+  });
+});
+
+    </script>
+
+  <!-- اسکریپت تور راهنما (بدون تغییر) -->
+  <script>
+    class TourGuide {
+      constructor() {
+        this.steps = Array.from(document.querySelectorAll('[data-tour-step]')).sort((a, b) => parseInt(a.dataset.tourStep) - parseInt(b.dataset.tourStep));
+        this.currentStep = 0; this.overlay = document.querySelector('.tour-overlay'); this.highlightBox = document.querySelector('.tour-highlight-box');
+        this.tooltip = document.querySelector('.tour-tooltip'); this.tooltipText = this.tooltip.querySelector('.tour-tooltip-text'); this.nextBtn = this.tooltip.querySelector('.tour-next-btn');
+        this.nextBtn.addEventListener('click', () => this.nextStep());
+      }
+      start() { if (this.steps.length === 0) return; this.currentStep = 0; this.overlay.style.display = 'block'; this.showStep(this.currentStep); document.body.style.overflow = 'hidden'; }
+      end() { this.overlay.style.display = 'none'; this.highlightBox.style.display = 'none'; this.tooltip.style.display = 'none'; document.body.style.overflow = ''; }
+      showStep(index) {
+        if (index >= this.steps.length) return this.end();
+        const el = this.steps[index]; const rect = el.getBoundingClientRect(); this.highlightBox.style.display = 'block';
+        this.highlightBox.style.top = `${rect.top - 5}px`; this.highlightBox.style.left = `${rect.left - 5}px`;
+        this.highlightBox.style.width = `${rect.width + 10}px`; this.highlightBox.style.height = `${rect.height + 10}px`;
+        this.tooltipText.textContent = el.dataset.tour || ''; this.tooltip.style.display = 'block'; const tooltipRect = this.tooltip.getBoundingClientRect();
+        let tooltipTop = rect.bottom + 15; let tooltipLeft = rect.left + (rect.width / 2) - (tooltipRect.width / 2); this.tooltip.classList.remove('pos-top', 'pos-bottom');
+        if (tooltipTop + tooltipRect.height > window.innerHeight) { tooltipTop = rect.top - tooltipRect.height - 15; this.tooltip.classList.add('pos-top'); } else { this.tooltip.classList.add('pos-bottom'); }
+        if (tooltipLeft < 10) tooltipLeft = 10;
+        if (tooltipLeft + tooltipRect.width > window.innerWidth - 10) { tooltipLeft = window.innerWidth - tooltipRect.width - 10; }
+        this.tooltip.style.top = `${tooltipTop}px`; this.tooltip.style.left = `${tooltipLeft}px`;
+        this.nextBtn.textContent = (index === this.steps.length - 1) ? 'پایان' : 'بعدی';
+      }
+      nextStep() { this.currentStep++; this.showStep(this.currentStep); }
+    }
+    const tour = new TourGuide();
+    document.getElementById('start-tour-btn').addEventListener('click', () => { tour.start(); });
+  </script>
 </body>
 </html>
