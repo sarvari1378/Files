@@ -39,7 +39,8 @@
 
     /* --- استایل‌های عمومی و پایه --- */
     html {
-      font-size: 16px;
+      /* فونت پایه بین 14 تا 17 پیکسل با توجه به عرض صفحه تغییر می‌کند */
+      font-size: clamp(14px, 1.5vw + 8px, 17px);
       scroll-behavior: smooth;
     }
 
@@ -141,6 +142,8 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      flex-grow: 1; /* این خط اضافه شده */
+      min-width: 0;   /* این خط برای اطمینان بیشتر اضافه شده */
     }
     .toggle-icon {
       color: var(--green);
@@ -230,7 +233,6 @@
       gap: 0.25rem;
     }
     .action-btn {
-      background: transparent;
       border: none;
       color: var(--text-light);
       font-size: 1.1rem; /* اندازه آیکون */
@@ -394,8 +396,10 @@
   opacity: 0; /* در حالت عادی مخفی */
   transition: opacity 0.2s;
 }
-.workflow-step:hover .step-actions {
-  opacity: 1; /* در هاور نمایش داده می‌شود */
+/* نمایش دکمه ها در حالت هاور (برای دسکتاپ) یا با کلاس اکتیو (برای موبایل) */
+.workflow-step:hover .step-actions,
+.workflow-step.actions-visible .step-actions {
+  opacity: 1;
 }
 .step-actions button {
   background: none;
@@ -432,6 +436,99 @@
   opacity: 0.4;
   background: var(--green-bg);
 }
+
+
+/* ================================================= */
+/*  کدهای جدید برای فوتر کارت (فقط اضافه شود)     */
+/* ================================================= */
+
+/* 1. مخفی کردن کانتینر .actions قدیمی */
+.actions {
+    display: none !important;
+}
+
+/* 2. استایل برای فوتر جدید کارت */
+.actions-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--gray-border);
+  background-color: white;
+  flex-direction: row-reverse;
+}
+
+/* 3. گروه دکمه‌های اکشن */
+.action-buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* 4. استایل برای تاریخ در فوتر */
+.task-date-footer {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+/* 5. افزایش پدینگ پایین کارت برای جا دادن فوتر */
+.task.expanded .task-details {
+  padding-bottom: 4.5rem !important;
+}
+
+/* 6. مدیریت نمایش در موبایل */
+@media (max-width: 500px) {
+  /* مخفی کردن تاریخ در هدر */
+  .task-header .task-date {
+    display: none;
+  }
+}
+
+
+@media (max-width: 500px) {
+    /* ... کدهای قبلی برای .task-header و .task-header strong ... */
+    .task-header {
+        flex-wrap: wrap; 
+        padding-bottom: 0.5rem;
+    }
+    .task-header strong {
+        white-space: normal; 
+        flex-basis: 100%;
+        order: 1; 
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem; 
+    }
+    .task-header .toggle-icon {
+        order: 2; 
+    }
+  
+    /* تاریخ را کاملا از هدر مخفی می‌کنیم */
+    .task-header .task-date {
+        display: none !important;
+    }
+
+    /* در موبایل، فوتر را به صورت ستونی نمایش می‌دهیم */
+    .task-details .actions-footer {
+        flex-direction: column;
+        align-items: flex-start; /* آیتم‌ها از چپ شروع شوند */
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .task-details .actions-footer .action-buttons {
+        align-self: flex-end; /* دکمه‌ها را به راست منتقل می‌کند */
+    }
+    
+    .task.expanded .task-details {
+        padding-bottom: 6.5rem; /* فضای بیشتر برای فوتر در موبایل */
+    }
+}
+
+
+
   </style>
 </head>
 <body>
@@ -522,6 +619,29 @@
     return div.innerHTML;
   }
 
+
+  function handleResponsiveLayout() {
+  const screenWidth = window.innerWidth;
+  document.querySelectorAll('.task').forEach(task => {
+    const header = task.querySelector('.task-header');
+    const details = task.querySelector('.task-details-content');
+    const dateEl = task.querySelector('.task-date');
+
+    if (!header || !details || !dateEl) return;
+
+    // اگر صفحه کوچک است و تاریخ هنوز در هدر است، آن را به جزئیات منتقل کن
+    if (screenWidth <= 500 && dateEl.parentElement === header) {
+      details.prepend(dateEl); // prepend آن را به ابتدای لیست فرزندان اضافه می‌کند
+    } 
+    // اگر صفحه بزرگ است و تاریخ در جزئیات است، آن را به هدر برگردان
+    else if (screenWidth > 500 && dateEl.parentElement === details) {
+      header.appendChild(dateEl); // append آن را به انتهای لیست فرزندان هدر اضافه می‌کند
+    }
+  });
+}
+
+
+
   async function fetchAndRender() {
     try {
       const res = await fetch(API_URL);
@@ -533,6 +653,10 @@
       renderTasks(archivedTasks, archivedContainer, true);
       activeEmpty.style.display = activeTasks.length === 0 ? 'block' : 'none';
       archivedEmpty.style.display = archivedTasks.length === 0 ? 'block' : 'none';
+
+       handleResponsiveLayout();
+
+
     } catch(e) {
       console.error(e);
       alert(e.message);
@@ -558,15 +682,15 @@ function addTaskToDOM(task, container, isArchived) {
   div.dataset.taskId = task.id;
   const shamsiDate = new persianDate(new Date(task.createdAt)).format('dddd D MMMM YYYY - HH:mm');
 
-  div.innerHTML = `
+  // این بخش را پیدا کرده و با کد زیر جایگزین کنید
+div.innerHTML = `
     <div class="task-header">
       <span class="toggle-icon fas fa-chevron-down"></span>
       <strong title="${escapeHtml(task.title)}">${escapeHtml(task.title)}</strong>
-      <p class="task-date">${shamsiDate}</p>
     </div>
     <div class="task-details">
       <div class="task-details-content">
-        <p>${escapeHtml(task.description) || '<i></i>'}</p>
+        <p>${escapeHtml(task.description) || '<i>بدون توضیحات</i>'}</p>
         <ul class="workflow-list"></ul>
         ${!isArchived ? `
           <div class="add-step-container">
@@ -574,17 +698,27 @@ function addTaskToDOM(task, container, isArchived) {
             <button class="add-step-btn">افزودن</button>
           </div>` : ''}
       </div>
+
+      <!-- این کانتینر .actions قدیمی باقی می‌ماند اما توسط CSS مخفی می‌شود -->
       <div class="actions">
-        ${!isArchived ? `
-          <button class="action-btn archive" title="بایگانی"><i class="fas fa-archive"></i></button>
-          <button class="action-btn delete" title="حذف"><i class="fas fa-trash-alt"></i></button>
-        ` : `
-          <button class="action-btn restore" title="بازیابی"><i class="fas fa-undo-alt"></i></button>
-          <button class="action-btn delete" title="حذف کامل"><i class="fas fa-trash-alt"></i></button>
-        `}
+         <!-- دکمه‌ها در اینجا بودند -->
+      </div>
+      
+      <!-- فوتر جدید برای دکمه‌ها و تاریخ -->
+      <div class="actions-footer">
+        <div class="action-buttons">
+          ${!isArchived ? `
+            <button class="action-btn archive" title="بایگانی"><i class="fas fa-archive"></i></button>
+            <button class="action-btn delete" title="حذف"><i class="fas fa-trash-alt"></i></button>
+          ` : `
+            <button class="action-btn restore" title="بازیابی"><i class="fas fa-undo-alt"></i></button>
+            <button class="action-btn delete" title="حذف کامل"><i class="fas fa-trash-alt"></i></button>
+          `}
+        </div>
+        <span class="task-date-footer">${shamsiDate}</span>
       </div>
     </div>
-  `;
+`;
 
   const workflowList = div.querySelector('.workflow-list');
 
@@ -706,19 +840,19 @@ function addTaskToDOM(task, container, isArchived) {
         fetchAndRender();
       } catch (err) { alert(err.message); }
     };
-    div.querySelector('.archive').onclick = async () => {
+    div.querySelector('.actions-footer .archive').onclick = async () => {
       // اصلاح شده: /tasks حذف شد
       await fetch(`${API_URL}/${task.id}/archive`, { method: 'POST' });
       fetchAndRender();
     };
   } else {
-    div.querySelector('.restore').onclick = async () => {
+    div.querySelector('.actions-footer .restore').onclick = async () => {
       // اصلاح شده: /tasks حذف شد
       await fetch(`${API_URL}/${task.id}/restore`, { method: 'POST' });
       fetchAndRender();
     };
   }
-  div.querySelector('.delete').onclick = async () => {
+  div.querySelector('.actions-footer .delete').onclick = async () => {
     if (!confirm('آیا برای حذف این وظیفه مطمئن هستید؟')) return;
     // اصلاح شده: /tasks حذف شد
     await fetch(`${API_URL}/${task.id}`, { method: 'DELETE' });
@@ -726,6 +860,8 @@ function addTaskToDOM(task, container, isArchived) {
   };
   
   container.appendChild(div);
+
+  
 }
 
 
@@ -742,7 +878,13 @@ function addTaskToDOM(task, container, isArchived) {
     } catch(err) { alert(err.message); }
   };
   
-  document.addEventListener('DOMContentLoaded', fetchAndRender);
+  async function initialLoad() {
+  await fetchAndRender();
+  handleResponsiveLayout(); // <<-- فراخوانی بعد از بارگذاری اولیه
+}
+
+document.addEventListener('DOMContentLoaded', initialLoad);
+window.addEventListener('resize', handleResponsiveLayout); // <<-- فراخوانی هنگام تغییر سایز پنجره
 
 </script>
 
@@ -836,17 +978,69 @@ document.addEventListener("DOMContentLoaded", () => {
       start() { if (this.steps.length === 0) return; this.currentStep = 0; this.overlay.style.display = 'block'; this.showStep(this.currentStep); document.body.style.overflow = 'hidden'; }
       end() { this.overlay.style.display = 'none'; this.highlightBox.style.display = 'none'; this.tooltip.style.display = 'none'; document.body.style.overflow = ''; }
       showStep(index) {
-        if (index >= this.steps.length) return this.end();
-        const el = this.steps[index]; const rect = el.getBoundingClientRect(); this.highlightBox.style.display = 'block';
-        this.highlightBox.style.top = `${rect.top - 5}px`; this.highlightBox.style.left = `${rect.left - 5}px`;
-        this.highlightBox.style.width = `${rect.width + 10}px`; this.highlightBox.style.height = `${rect.height + 10}px`;
-        this.tooltipText.textContent = el.dataset.tour || ''; this.tooltip.style.display = 'block'; const tooltipRect = this.tooltip.getBoundingClientRect();
-        let tooltipTop = rect.bottom + 15; let tooltipLeft = rect.left + (rect.width / 2) - (tooltipRect.width / 2); this.tooltip.classList.remove('pos-top', 'pos-bottom');
-        if (tooltipTop + tooltipRect.height > window.innerHeight) { tooltipTop = rect.top - tooltipRect.height - 15; this.tooltip.classList.add('pos-top'); } else { this.tooltip.classList.add('pos-bottom'); }
-        if (tooltipLeft < 10) tooltipLeft = 10;
-        if (tooltipLeft + tooltipRect.width > window.innerWidth - 10) { tooltipLeft = window.innerWidth - tooltipRect.width - 10; }
-        this.tooltip.style.top = `${tooltipTop}px`; this.tooltip.style.left = `${tooltipLeft}px`;
-        this.nextBtn.textContent = (index === this.steps.length - 1) ? 'پایان' : 'بعدی';
+        if (index >= this.steps.length) {
+          return this.end();
+        }
+        const el = this.steps[index];
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        setTimeout(() => {
+          const rect = el.getBoundingClientRect();
+
+          // 1. هایلایت کردن عنصر مورد نظر (بدون تغییر)
+          this.highlightBox.style.display = 'block';
+          this.highlightBox.style.top = `${rect.top - 5}px`;
+          this.highlightBox.style.left = `${rect.left - 5}px`;
+          this.highlightBox.style.width = `${rect.width + 10}px`;
+          this.highlightBox.style.height = `${rect.height + 10}px`;
+
+          // --- شروع منطق جدید و دقیق برای موقعیت‌یابی Tooltip ---
+
+          // 2. آماده‌سازی tooltip برای محاسبه ابعاد
+          this.tooltipText.textContent = el.dataset.tour || '';
+          this.tooltip.style.visibility = 'hidden'; // نامرئی می‌کنیم تا ابعادش محاسبه شود
+          this.tooltip.style.display = 'block';
+          const tooltipRect = this.tooltip.getBoundingClientRect();
+
+          // 3. محاسبه موقعیت عمودی (بالا یا پایین عنصر)
+          let tooltipTop = rect.bottom + 15;
+          this.tooltip.classList.remove('pos-top', 'pos-bottom');
+          if (tooltipTop + tooltipRect.height > window.innerHeight) {
+            tooltipTop = rect.top - tooltipRect.height - 15;
+            this.tooltip.classList.add('pos-top');
+          } else {
+            this.tooltip.classList.add('pos-bottom');
+          }
+
+          // 4. محاسبه موقعیت افقی اولیه (مرکز عنصر)
+          let tooltipLeft = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+          // 5. **مهم‌ترین بخش: بررسی و اصلاح بیرون‌زدگی**
+          const margin = 10; // فاصله از لبه‌های صفحه
+          if (tooltipLeft < margin) {
+            tooltipLeft = margin;
+          }
+          if (tooltipLeft + tooltipRect.width > window.innerWidth - margin) {
+            tooltipLeft = window.innerWidth - tooltipRect.width - margin;
+          }
+          
+          // اگر موقعیت عمودی هم از صفحه بیرون زد (برای موارد خاص)، آن را اصلاح می‌کنیم
+           if (tooltipTop < margin) {
+            tooltipTop = margin;
+          }
+          if (tooltipTop + tooltipRect.height > window.innerHeight - margin) {
+            tooltipTop = window.innerHeight - tooltipRect.height - margin;
+          }
+
+          // 6. اعمال موقعیت نهایی و نمایش tooltip
+          this.tooltip.style.top = `${tooltipTop}px`;
+          this.tooltip.style.left = `${tooltipLeft}px`;
+          this.tooltip.style.visibility = 'visible'; // حالا آن را مرئی می‌کنیم
+
+          // --- پایان منطق جدید ---
+
+          this.nextBtn.textContent = (index === this.steps.length - 1) ? 'پایان' : 'بعدی';
+        }, 350); // کمی تاخیر بیشتر برای اطمینان کامل
       }
       nextStep() { this.currentStep++; this.showStep(this.currentStep); }
     }
