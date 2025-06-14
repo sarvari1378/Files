@@ -35,7 +35,11 @@
       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
       --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
       --shadow-lg: 0 10px 25px rgba(46, 125, 50, 0.15);
+      --footer-height: 4.5rem;
     }
+
+
+
 
     /* --- استایل‌های عمومی و پایه --- */
     html {
@@ -119,7 +123,6 @@
       box-shadow: var(--shadow-sm);
       transition: all 0.3s ease;
       border: 1px solid var(--gray-border);
-      overflow: hidden;
       margin-bottom: 1.25rem;
     }
     .task:hover {
@@ -136,7 +139,8 @@
       cursor: pointer;
       gap: 1rem;
     }
-    .task-header strong {
+
+    .task-header .task-main-title {
       font-size: clamp(1rem, 2.2vw, 1.15rem);
       color: var(--green-dark);
       overflow: hidden;
@@ -167,22 +171,22 @@
       max-height: 0;
       opacity: 0;
       overflow: hidden;
-      transition: max-height 0.5s ease-out, opacity 0.3s ease-in, padding 0.5s ease-out;
-      padding: 0 1.25rem;
-      position: relative; /* برای موقعیت‌دهی دکمه‌های اکشن */
-      padding-bottom: 0; /* فضای کافی برای دکمه‌های پایین */
-    }
-    .task.expanded .task-details {
-      max-height: 600px;
-      opacity: 1;
-      padding-top: 0;
-      padding-bottom: 3.5rem;
+      transition: max-height 0.5s ease-out, opacity 0.3s ease-in;
+      display: flex;
+      flex-direction: column; 
     }
 
-    .task-details-content {
+
+    .task.expanded .task-details {
+      max-height: 1500px;
+      opacity: 1;
+    }
+
+    .task-details-main-content {
+      padding: 1.25rem;
       border-top: 1px solid var(--gray-border);
-      padding-top: 1rem;
-      padding-bottom: 0rem;
+      flex-grow: 1;
+      overflow-y: auto;
     }
 
     .task-details-content p {
@@ -387,7 +391,7 @@
   
   /* حالت پیش‌فرض (جمع شده) با line-clamp */
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* حداکثر دو خط نمایش داده شود */
+  -webkit-line-clamp: 1; /* حداکثر دو خط نمایش داده شود */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -458,14 +462,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
   padding: 0.75rem 1.25rem;
   border-top: 1px solid var(--gray-border);
   background-color: white;
   flex-direction: row-reverse;
+  flex-shrink: 0;
 }
 
 /* 3. گروه دکمه‌های اکشن */
@@ -479,12 +480,6 @@
   font-size: 0.8rem;
   color: var(--text-light);
 }
-
-/* 5. افزایش پدینگ پایین کارت برای جا دادن فوتر */
-.task.expanded .task-details {
-  padding-bottom: 4.5rem !important;
-}
-
 
 .workflow-step .delete-step-btn {
   opacity: 0;
@@ -592,6 +587,80 @@
     .task.expanded .task-details {
         padding-bottom: 6.5rem; /* فضای بیشتر برای فوتر در موبایل */
     }
+}
+
+
+
+/* انیمیشن‌های باز و بسته شدن بدون Opacity */
+
+/* مرحله کوچک به بالا */
+@keyframes collapseUp {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0);
+  }
+}
+
+/* کارت کامل جمع شدن به پایین */
+@keyframes collapseDown {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0);
+  }
+}
+
+/* مرحله حرکت به چپ همراه با جمع‌شدن */
+@keyframes slideCollapseLeft {
+  from {
+    transform: translateX(0) scaleX(1);
+  }
+  to {
+    transform: translateX(-30px) scaleX(0);
+  }
+}
+
+/* کارت به پایین همراه با جمع شدن */
+@keyframes slideCollapseDown {
+  from {
+    transform: translateY(0) scaleY(1);
+  }
+  to {
+    transform: translateY(30px) scaleY(0);
+  }
+}
+
+/* کلاس‌ها */
+.task.is-removing {
+  animation: slideCollapseDown 550ms cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  transform-origin: top;
+  will-change: transform;
+}
+
+.workflow-step.is-deleting {
+  animation: slideCollapseLeft 550ms cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  transform-origin: left;
+  will-change: transform;
+}
+
+.task-card.is-closing {
+  animation: collapseDown 600ms cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  transform-origin: top;
+  will-change: transform;
+}
+
+.step-item.is-exiting {
+  animation: collapseUp 500ms cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  transform-origin: bottom;
+  will-change: transform;
+}
+
+/* برای جلوگیری از بیرون‌زدن محتوا در حین scale */
+.task, .workflow-step, .task-card, .step-item {
+  overflow: hidden;
 }
 
 
@@ -709,26 +778,34 @@
 
 
 
-  async function fetchAndRender() {
-    try {
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error('خطا در دریافت داده‌ها');
-      const tasks = await res.json();
-      const activeTasks = tasks.filter(t => !t.archived);
-      const archivedTasks = tasks.filter(t => t.archived);
-      renderTasks(activeTasks, activeContainer, false);
-      renderTasks(archivedTasks, archivedContainer, true);
-      activeEmpty.style.display = activeTasks.length === 0 ? 'block' : 'none';
-      archivedEmpty.style.display = archivedTasks.length === 0 ? 'block' : 'none';
 
-       handleResponsiveLayout();
+async function fetchAndRender(only = null) { // only can be 'active' or 'archived'
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error('خطا در دریافت داده‌ها');
+    const tasks = await res.json();
+    const activeTasks = tasks.filter(t => !t.archived);
+    const archivedTasks = tasks.filter(t => t.archived);
 
-
-    } catch(e) {
-      console.error(e);
-      alert(e.message);
+    if (only !== 'archived') {
+        renderTasks(activeTasks, activeContainer, false);
     }
+    if (only !== 'active') {
+        renderTasks(archivedTasks, archivedContainer, true);
+    }
+    
+    activeEmpty.style.display = activeTasks.length === 0 ? 'block' : 'none';
+    archivedEmpty.style.display = archivedTasks.length === 0 ? 'block' : 'none';
+
+    handleResponsiveLayout();
+
+  } catch (e) {
+    console.error(e);
+    alert(e.message);
   }
+}
+
+
 
   function renderTasks(tasks, container, isArchived) {
     container.innerHTML = '';
@@ -736,12 +813,29 @@
     tasks.forEach(task => addTaskToDOM(task, container, isArchived));
   }
 
-// این تابع را به طور کامل جایگزین نسخه قبلی کنید
-// این تابع را به طور کامل جایگزین نسخه قبلی در فایل main.html خود کنید
 
-// این تابع را به طور کامل جایگزین نسخه قبلی در فایل main.html خود کنید
 
-// این تابع را به طور کامل جایگزین نسخه قبلی در فایل main.html خود کنید
+  function removeTaskCard(cardElement) {
+    cardElement.classList.add('is-removing');
+    cardElement.addEventListener('animationend', () => {
+        cardElement.remove();
+        // بعد از حذف، چک کن که آیا لیست خالی شده است یا نه
+        checkEmptyStates();
+    });
+}
+
+// تابع کمکی برای چک کردن پیام‌های "لیست خالی"
+function checkEmptyStates() {
+    const activeTasksContainer = document.getElementById('active-tasks');
+    const archivedTasksContainer = document.getElementById('archived-tasks');
+    
+    document.getElementById('active-empty').style.display = 
+        activeTasksContainer.children.length === 0 ? 'block' : 'none';
+    
+    document.getElementById('archived-empty').style.display = 
+        archivedTasksContainer.children.length === 0 ? 'block' : 'none';
+}
+
 
 function addTaskToDOM(task, container, isArchived) {
   const div = document.createElement('div');
@@ -750,14 +844,15 @@ function addTaskToDOM(task, container, isArchived) {
   const shamsiDate = new persianDate(new Date(task.createdAt)).format('dddd D MMMM YYYY - HH:mm');
 
   // این بخش را پیدا کرده و با کد زیر جایگزین کنید
+// <<<<<<<<<<<<<<<< این بخش را به طور کامل جایگزین کنید >>>>>>>>>>>>>>>>
 div.innerHTML = `
     <div class="task-header">
       <span class="toggle-icon fas fa-chevron-down"></span>
-      <strong title="${escapeHtml(task.title)}">${escapeHtml(task.title)}</strong>
+      <strong class="task-main-title" title="${escapeHtml(task.title)}">${escapeHtml(task.title)}</strong>
       <input type="text" class="edit-main-title-input" value="${escapeHtml(task.title)}" />
     </div>
     <div class="task-details">
-      <div class="task-details-content">
+      <div class="task-details-main-content">
         <p>${escapeHtml(task.description) || '<i>بدون توضیحات</i>'}</p>
         <ul class="workflow-list"></ul>
         ${!isArchived ? `
@@ -766,13 +861,6 @@ div.innerHTML = `
             <button class="add-step-btn">افزودن</button>
           </div>` : ''}
       </div>
-
-      <!-- این کانتینر .actions قدیمی باقی می‌ماند اما توسط CSS مخفی می‌شود -->
-      <div class="actions">
-         <!-- دکمه‌ها در اینجا بودند -->
-      </div>
-      
-      <!-- فوتر جدید برای دکمه‌ها و تاریخ -->
       <div class="actions-footer">
         <div class="action-buttons">
           ${!isArchived ? `
@@ -788,6 +876,8 @@ div.innerHTML = `
       </div>
     </div>
 `;
+// <<<<<<<<<<<<<<<< تا اینجا جایگزین شود >>>>>>>>>>>>>>>>
+
 
   const workflowList = div.querySelector('.workflow-list');
 
@@ -811,18 +901,36 @@ div.innerHTML = `
     `;
     
     // رویداد برای تیک زدن
-    li.querySelector('.checkbox').addEventListener('click', async () => {
-      const newDoneState = !li.classList.contains('completed');
-      try {
-        // اصلاح شده: /tasks حذف شد
-        await fetch(`${API_URL}/${task.id}/workflow/${step.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ done: newDoneState }),
+    li.querySelector('.checkbox').addEventListener('click', async (e) => {
+    const checkbox = e.currentTarget;
+    const stepLi = checkbox.closest('.workflow-step');
+    const isCompleted = stepLi.classList.contains('completed');
+    const newDoneState = !isCompleted;
+
+    // آپدیت خوش‌بینانه: بلافاصله ظاهر را تغییر بده
+    stepLi.classList.toggle('completed', newDoneState);
+    checkbox.setAttribute('aria-checked', newDoneState);
+
+    try {
+        const response = await fetch(`${API_URL}/${task.id}/workflow/${step.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ done: newDoneState }),
         });
-        fetchAndRender();
-      } catch (err) { alert(err.message); }
-    });
+
+        if (!response.ok) {
+            // اگر سرور خطا داد، تغییر را به حالت اول برگردان
+            throw new Error('Server update failed');
+        }
+        // در صورت موفقیت، هیچ کاری لازم نیست چون DOM قبلاً آپدیت شده.
+
+    } catch (err) {
+        alert("خطا در به‌روزرسانی وضعیت. لطفا دوباره تلاش کنید.");
+        // بازگرداندن تغییر در صورت خطا
+        stepLi.classList.toggle('completed', isCompleted);
+        checkbox.setAttribute('aria-checked', isCompleted);
+    }
+});
 
    
 
@@ -865,40 +973,132 @@ div.innerHTML = `
     div.classList.toggle('expanded');
   });
 
-  if (!isArchived) {
+
+  
+  //Start
+
+  // ================================================================
+//          بخش بازنویسی شده با انیمیشن و آپدیت DOM
+// ================================================================
+
+// تابع کمکی برای حذف یک کارت با انیمیشن
+function removeTaskCard(cardElement) {
+    cardElement.classList.add('is-removing');
+    cardElement.addEventListener('animationend', () => {
+        cardElement.remove();
+        // بعد از حذف، چک کن که آیا لیست خالی شده است یا نه
+        checkEmptyStates();
+    });
+}
+
+// تابع کمکی برای چک کردن پیام‌های "لیست خالی"
+function checkEmptyStates() {
+    const activeTasksContainer = document.getElementById('active-tasks');
+    const archivedTasksContainer = document.getElementById('archived-tasks');
+    
+    document.getElementById('active-empty').style.display = 
+        activeTasksContainer.children.length === 0 ? 'block' : 'none';
+    
+    document.getElementById('archived-empty').style.display = 
+        archivedTasksContainer.children.length === 0 ? 'block' : 'none';
+}
+
+
+// --- رویدادهای اصلی کارت ---
+
+if (!isArchived) {
+    // افزودن مرحله جدید
     div.querySelector('.add-step-btn').onclick = async () => {
-      const input = div.querySelector('.new-step-input');
-      const stepName = input.value.trim();
-      if (!stepName) return alert('نام مرحله نمی‌تواند خالی باشد.');
-      try {
-        // اصلاح شده: /tasks حذف شد
-        await fetch(`${API_URL}/${task.id}/workflow`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ step: stepName }),
-        });
-        input.value = '';
-        fetchAndRender();
-      } catch (err) { alert(err.message); }
+        const input = div.querySelector('.new-step-input');
+        const stepName = input.value.trim();
+        if (!stepName) return alert('نام مرحله نمی‌تواند خالی باشد.');
+
+        // برای سادگی، افزودن مرحله هنوز با رندر مجدد انجام می‌شود
+        // چون نیاز به دریافت ID جدید از سرور دارد.
+        // بهینه‌سازی این بخش نیاز به بازنویسی گسترده‌تری دارد.
+        try {
+            await fetch(`${API_URL}/${task.id}/workflow`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ step: stepName }),
+            });
+            input.value = '';
+            fetchAndRender(); // این مورد فعلاً باقی می‌ماند
+        } catch (err) { alert(err.message); }
     };
+
+    // بایگانی کردن وظیفه
     div.querySelector('.actions-footer .archive').onclick = async () => {
-      // اصلاح شده: /tasks حذف شد
-      await fetch(`${API_URL}/${task.id}/archive`, { method: 'POST' });
-      fetchAndRender();
+        const taskCard = div;
+        removeTaskCard(taskCard); // حذف با انیمیشن از لیست فعال
+        
+        try {
+            const response = await fetch(`${API_URL}/${task.id}/archive`, { method: 'POST' });
+            if (!response.ok) throw new Error('Server archive failed');
+            
+            // <<-- خط کلیدی: فقط لیست بایگانی را در پس‌زمینه رندر کن
+            fetchAndRender('archived'); 
+
+        } catch (err) {
+            console.error(err);
+            alert("خطا در بایگانی وظیفه. وضعیت به حالت اولیه بازگردانده می‌شود.");
+            fetchAndRender(); // در صورت خطا، همه چیز را رندر کن
+        }
     };
-  } else {
+
+} else {
+    // بازیابی وظیفه از بایگانی
     div.querySelector('.actions-footer .restore').onclick = async () => {
-      // اصلاح شده: /tasks حذف شد
-      await fetch(`${API_URL}/${task.id}/restore`, { method: 'POST' });
-      fetchAndRender();
+        const taskCard = div;
+
+        // ۱. حذف کارت از لیست بایگانی با انیمیشن
+        removeTaskCard(taskCard);
+
+        try {
+            const response = await fetch(`${API_URL}/${task.id}/restore`, { method: 'POST' });
+            if (!response.ok) {
+                throw new Error('Server restore failed');
+            }
+            
+            // ۲. <<-- مرحله کلیدی: فقط لیست فعال را در پس‌زمینه رندر کن
+            fetchAndRender('active'); 
+
+        } catch (err) {
+            console.error(err);
+            alert("خطا در بازیابی وظیفه. وضعیت به حالت اولیه بازگردانده می‌شود.");
+            // در صورت خطا، کل صفحه را رندر کن تا وضعیت صحیح نمایش داده شود
+            fetchAndRender();
+        }
     };
-  }
-  div.querySelector('.actions-footer .delete').onclick = async () => {
-    if (!confirm('آیا برای حذف این وظیفه مطمئن هستید؟')) return;
-    // اصلاح شده: /tasks حذف شد
-    await fetch(`${API_URL}/${task.id}`, { method: 'DELETE' });
-    fetchAndRender();
-  };
+}
+
+// حذف کامل وظیفه (هم برای فعال و هم بایگانی)
+div.querySelector('.actions-footer .delete').onclick = async () => {
+    if (!confirm('آیا برای حذف این وظیفه مطمئن هستید؟ این عمل غیرقابل بازگشت است.')) return;
+    
+    const taskCard = div;
+    // آپدیت خوش‌بینانه: بلافاصله کارت را با انیمیشن حذف کن
+    removeTaskCard(taskCard);
+
+    try {
+        const response = await fetch(`${API_URL}/${task.id}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error('Server delete failed');
+        // در صورت موفقیت، هیچ کاری لازم نیست.
+    } catch (err) {
+        alert("خطا در حذف وظیفه. لطفا صفحه را رفرش کنید.");
+        fetchAndRender();
+    }
+};
+
+// ================================================================
+//          پایان بخش بازنویسی شده
+// ================================================================
+
+  // end
+
+
+
+
   
   container.appendChild(div);
 
