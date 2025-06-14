@@ -319,12 +319,13 @@
 /* استایل کلی برای هر مرحله از وظیفه */
 .workflow-step {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* <<-- حتماً این مقدار باشد */
   gap: 0.75rem;
-  padding: 0.5rem 0.25rem;
+  padding: 0.75rem 0.25rem;
   border-radius: 6px;
   transition: background-color 0.2s;
 }
+
 .workflow-step:hover {
   background-color: var(--gray-light);
 }
@@ -382,25 +383,30 @@
 
 .step-title {
   color: var(--text-dark);
-  cursor: pointer;
-  /* اضافه کردن این خطوط برای کنترل متن‌های طولانی */
-  white-space: nowrap;
+  cursor: pointer; /* کرسر نشان می‌دهد که قابل کلیک است */
+  
+  /* حالت پیش‌فرض (جمع شده) با line-clamp */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* حداکثر دو خط نمایش داده شود */
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-grow: 1; /* اجازه می‌دهد تا فضای موجود را پر کند */
+  word-break: break-word;
+  transition: -webkit-line-clamp 0.3s ease-in-out; /* انیمیشن نرم */
 }
+
+/* حالت باز شده */
+.step-title.expanded {
+  -webkit-line-clamp: 100; /* یک عدد بزرگ برای نمایش تمام خطوط */
+}
+
 
 /* دکمه‌های ویرایش و حذف مرحله */
 .step-actions {
   display: flex;
-  opacity: 0; /* در حالت عادی مخفی */
-  transition: opacity 0.2s;
 }
-/* نمایش دکمه ها در حالت هاور (برای دسکتاپ) یا با کلاس اکتیو (برای موبایل) */
-.workflow-step:hover .step-actions,
-.workflow-step.actions-visible .step-actions {
-  opacity: 1;
-}
+
+/* نمایش دکمه ها در حالت هاور دیگر نیازی نیست، پس این بخش را حذف می‌کنیم */
 .step-actions button {
   background: none;
   border: none;
@@ -479,6 +485,67 @@
   padding-bottom: 4.5rem !important;
 }
 
+
+.workflow-step .delete-step-btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* وقتی کارت در حالت ویرایش است، دکمه حذف مرحله نمایان می‌شود */
+.task.edit-mode .delete-step-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* وقتی کارت در حالت ویرایش است، عنوان مرحله برای ویرایش آماده می‌شود */
+.task.edit-mode .step-title {
+  cursor: text;
+  background-color: var(--green-bg-light);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* تغییر آیکون دکمه ویرایش اصلی در حالت ویرایش */
+.task.edit-mode .action-btn.edit-task i::before {
+  content: "\f00c"; /* کد آیکون تیک (check) در Font Awesome */
+  font-weight: 900;
+}
+
+
+/* ===================================== */
+/*   استایل‌های جدید برای ویرایش عنوان کارت */
+/* ===================================== */
+
+/* 1. اینپوت ویرایش عنوان به طور پیش‌فرض مخفی است */
+.edit-main-title-input {
+  display: none;
+  width: 100%; /* تمام عرض هدر را بگیرد */
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  font-weight: 700;
+  color: var(--green-dark);
+  border: 2px solid var(--green);
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
+  font-family: 'Vazir', sans-serif;
+  outline: none;
+}
+
+/* 2. در حالت ویرایش، عنوان اصلی مخفی می‌شود */
+.task.edit-mode .task-main-title {
+  display: none;
+}
+
+/* 3. در حالت ویرایش، اینپوت ویرایش نمایان می‌شود */
+.task.edit-mode .edit-main-title-input {
+  display: block;
+}
+
+/* 4. در حالت ویرایش، هدر دیگر قابل کلیک برای باز/بسته کردن کارت نیست */
+.task.edit-mode .task-header {
+  cursor: default;
+}
+
 /* 6. مدیریت نمایش در موبایل */
 @media (max-width: 500px) {
   /* مخفی کردن تاریخ در هدر */
@@ -495,7 +562,7 @@
         padding-bottom: 0.5rem;
     }
     .task-header strong {
-        white-space: normal; 
+        white-space: nowrap; 
         flex-basis: 100%;
         order: 1; 
         margin-bottom: 0.5rem;
@@ -687,6 +754,7 @@ div.innerHTML = `
     <div class="task-header">
       <span class="toggle-icon fas fa-chevron-down"></span>
       <strong title="${escapeHtml(task.title)}">${escapeHtml(task.title)}</strong>
+      <input type="text" class="edit-main-title-input" value="${escapeHtml(task.title)}" />
     </div>
     <div class="task-details">
       <div class="task-details-content">
@@ -708,6 +776,7 @@ div.innerHTML = `
       <div class="actions-footer">
         <div class="action-buttons">
           ${!isArchived ? `
+            <button class="action-btn edit-task" title="ویرایش وظیفه"><i class="fas fa-pencil-alt"></i></button> 
             <button class="action-btn archive" title="بایگانی"><i class="fas fa-archive"></i></button>
             <button class="action-btn delete" title="حذف"><i class="fas fa-trash-alt"></i></button>
           ` : `
@@ -735,7 +804,6 @@ div.innerHTML = `
       <div class="step-main">
         <span class="step-title">${escapeHtml(step.title)}</span>
         <div class="step-actions">
-          <button class="edit-step-btn" title="ویرایش"><i class="fas fa-pencil-alt"></i></button>
           <button class="delete-step-btn" title="حذف"><i class="fas fa-trash-alt"></i></button>
         </div>
       </div>
@@ -756,34 +824,7 @@ div.innerHTML = `
       } catch (err) { alert(err.message); }
     });
 
-    // رویداد برای ویرایش
-    const editInput = li.querySelector('.edit-input');
-    li.querySelector('.edit-step-btn').addEventListener('click', () => {
-      li.classList.add('editing');
-      editInput.focus();
-      editInput.select();
-    });
-
-    const saveEdit = async () => {
-      if (!li.classList.contains('editing')) return;
-      const newTitle = editInput.value.trim();
-      if (newTitle && newTitle !== step.title) {
-        try {
-          // اصلاح شده: /tasks حذف شد
-          await fetch(`${API_URL}/${task.id}/workflow/${step.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title: newTitle }),
-          });
-        } catch (err) { alert(err.message); }
-      }
-      fetchAndRender();
-    };
-    editInput.addEventListener('blur', saveEdit);
-    editInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') saveEdit();
-      if (e.key === 'Escape') fetchAndRender();
-    });
+   
 
     // رویداد برای حذف مرحله
     li.querySelector('.delete-step-btn').addEventListener('click', async () => {
@@ -794,7 +835,7 @@ div.innerHTML = `
         fetchAndRender();
       } catch (err) { alert(err.message); }
     });
-
+  
     workflowList.appendChild(li);
   });
 
@@ -861,7 +902,206 @@ div.innerHTML = `
   
   container.appendChild(div);
 
+  div.querySelectorAll('.step-title').forEach(stepTitle => {
+    // بررسی می‌کنیم که آیا متن واقعاً بریده شده است یا نه
+    const isClamped = stepTitle.offsetHeight < stepTitle.scrollHeight;
+
+    if (isClamped) {
+      // اگر متن بلند است، قابلیت کلیک را فعال می‌کنیم
+      stepTitle.addEventListener('click', () => {
+        stepTitle.classList.toggle('expanded');
+      });
+    } else {
+      // اگر متن کوتاه است، کرسر را به حالت پیش‌فرض درمی‌آوریم
+      stepTitle.style.cursor = 'default';
+    }
+  });
   
+  const editTaskBtn = div.querySelector('.action-btn.edit-task');
+  
+
+
+  // ================================================================
+//          شروع منطق جدید و امن برای حالت ویرایش
+// ================================================================
+// فقط اگر دکمه ویرایش وجود دارد
+if (editTaskBtn) {
+    const taskCard = div;
+    const taskHeader = taskCard.querySelector('.task-header');
+    
+    // --- المان‌های عنوان اصلی ---
+    const mainTitleSpan = taskCard.querySelector('.task-main-title');
+    const mainTitleInput = taskCard.querySelector('.edit-main-title-input');
+
+    // --- المان‌های مراحل ---
+    const allSteps = taskCard.querySelectorAll('.workflow-step');
+
+    // --- رویداد اصلی برای ورود/خروج از حالت ویرایش ---
+    editTaskBtn.addEventListener('click', () => {
+        taskCard.classList.toggle('edit-mode');
+        if (!taskCard.classList.contains('edit-mode')) {
+            fetchAndRender(); // برای لغو تغییرات ذخیره نشده
+        }
+    });
+
+    // --- جلوگیری از بسته شدن کارت در حالت ویرایش ---
+    taskHeader.addEventListener('click', (e) => {
+        if (taskCard.classList.contains('edit-mode')) {
+            e.stopPropagation();
+        }
+    }, true);
+
+    // --- منطق ویرایش عنوان اصلی کارت ---
+// ... داخل بلاک if (editTaskBtn) ...
+
+    // --- منطق ویرایش عنوان اصلی کارت ---
+    const saveMainTitle = async () => {
+        
+        // --- شروع بخش دیباگ ---
+        console.log("--- Firing saveMainTitle ---");
+
+        const taskCard = mainTitleInput.closest('.task');
+        if (!taskCard) {
+            console.error("DEBUG: Could not find parent .task card. Aborting.");
+            return;
+        }
+        console.log("DEBUG: Found task card:", taskCard);
+
+        const mainTitleSpan = taskCard.querySelector('.task-main-title');
+        if (!mainTitleSpan) {
+            console.error("DEBUG: Could not find .task-main-title span. Aborting.");
+            return;
+        }
+        console.log("DEBUG: Found title span:", mainTitleSpan);
+        
+        const taskId = taskCard.dataset.taskId;
+        if (!taskId) {
+            console.error("DEBUG: Could not find taskId in dataset. Aborting.");
+            return;
+        }
+        console.log("DEBUG: Task ID is:", taskId);
+        // --- پایان بخش دیباگ ---
+
+        const newTitle = mainTitleInput.value.trim();
+        const originalTitle = mainTitleSpan.textContent.trim();
+
+        console.log(`DEBUG: Original title: "${originalTitle}", New title: "${newTitle}"`);
+
+        // فقط اگر عنوان واقعاً تغییر کرده باشد، درخواست را ارسال کن
+        if (newTitle && newTitle !== originalTitle) {
+            
+            const requestURL = `${API_URL}/${taskId}`;
+            const requestBody = { title: newTitle };
+
+            console.log("DEBUG: Sending PUT request to:", requestURL);
+            console.log("DEBUG: Request body:", JSON.stringify(requestBody));
+
+            try {
+                const response = await fetch(requestURL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody),
+                });
+
+                console.log("DEBUG: Response status:", response.status);
+                
+                if (!response.ok) {
+                    // اگر پاسخ موفقیت آمیز نبود، متن خطا را از سرور بخوان
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Server responded with ${response.status}`);
+                }
+                
+                // اگر همه چیز موفق بود، DOM را آپدیت کن
+                mainTitleSpan.textContent = newTitle;
+                mainTitleSpan.title = newTitle;
+                console.log("DEBUG: Title updated successfully in frontend.");
+
+            } catch (err) {
+                console.error("DEBUG: Error during fetch:", err);
+                alert('خطا در ذخیره عنوان: ' + err.message);
+                // در صورت خطا، مقدار قبلی را به اینپوت برگردان
+                mainTitleInput.value = originalTitle;
+            }
+
+        } else {
+            // اگر تغییری نکرده، فقط مقدار اینپوت را به حالت اولیه برگردان
+            mainTitleInput.value = originalTitle;
+            console.log("DEBUG: No change in title. Aborting fetch.");
+        }
+    };
+    
+    // رویدادهای blur و keydown بدون تغییر باقی می‌مانند
+    mainTitleInput.addEventListener('blur', saveMainTitle);
+    mainTitleInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); mainTitleInput.blur(); }
+        if (e.key === 'Escape') { mainTitleInput.value = mainTitleSpan.textContent.trim(); mainTitleInput.blur(); }
+    });
+// ...
+
+
+
+
+    mainTitleInput.addEventListener('blur', saveMainTitle);
+    mainTitleInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); mainTitleInput.blur(); }
+        if (e.key === 'Escape') { mainTitleInput.value = mainTitleSpan.textContent.trim(); mainTitleInput.blur(); }
+    });
+
+
+    // --- منطق ویرایش هر یک از مراحل ---
+    allSteps.forEach(stepLi => {
+        const titleSpan = stepLi.querySelector('.step-title');
+        const editInput = stepLi.querySelector('.edit-input');
+
+        titleSpan.addEventListener('click', (e) => {
+            if (taskCard.classList.contains('edit-mode')) {
+                e.stopPropagation();
+                stepLi.classList.add('editing');
+                editInput.focus();
+                editInput.select();
+            }
+        });
+
+        const saveStepEdit = async () => {
+            if (!stepLi.classList.contains('editing')) return;
+            const newTitle = editInput.value.trim();
+            const stepId = stepLi.dataset.stepId;
+            const originalTitle = titleSpan.textContent.trim();
+            stepLi.classList.remove('editing');
+
+            if (newTitle && newTitle !== originalTitle) {
+                try {
+                    await fetch(`${API_URL}/${task.id}/workflow/${stepId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: newTitle }),
+                    });
+                    titleSpan.textContent = newTitle;
+                } catch (err) {
+                    alert(err.message);
+                    editInput.value = originalTitle;
+                }
+            } else {
+                editInput.value = originalTitle;
+            }
+        };
+
+        editInput.addEventListener('blur', saveStepEdit);
+        editInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); saveStepEdit(); }
+            if (e.key === 'Escape') {
+                stepLi.classList.remove('editing');
+                editInput.value = titleSpan.textContent.trim();
+            }
+        });
+    });
+}
+// ================================================================
+//          پایان منطق جدید حالت ویرایش
+// ================================================================
+
+
+
 }
 
 
