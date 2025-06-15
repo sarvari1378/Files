@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
-  <!-- این خط را به تگ <head> اضافه کنید -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <title>مدیریت کارهای روزمره</title>
-  <!-- اضافه کردن کتابخانه آیکون Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
@@ -16,8 +14,6 @@
       استایل‌های بازنویسی شده برای UI/UX بهتر
       ========================================
     */
-
-    /* --- وارد کردن فونت و متغیرهای اصلی --- */
     @import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
 
     :root {
@@ -29,21 +25,15 @@
       --gray-light: #f7f9fc;
       --gray-border: #e0e0e0;
       --text-dark: #333;
-      --text-light: #6c757d; /* رنگ جدید برای آیکون‌ها */
+      --text-light: #6c757d;
       --danger: #e53935;
       --danger-hover: #c62828;
       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
       --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
       --shadow-lg: 0 10px 25px rgba(46, 125, 50, 0.15);
-      --footer-height: 4.5rem;
     }
 
-
-
-
-    /* --- استایل‌های عمومی و پایه --- */
     html {
-      /* فونت پایه بین 14 تا 17 پیکسل با توجه به عرض صفحه تغییر می‌کند */
       font-size: clamp(14px, 1.5vw + 8px, 17px);
       scroll-behavior: smooth;
     }
@@ -116,7 +106,7 @@
       display: flex;
     }
 
-    /* --- کارت‌های وظیفه (Task Cards) --- */
+    /* --- کارت‌های وظیفه (Flexbox) --- */
     .task {
       background: white;
       border-radius: 1rem;
@@ -130,7 +120,6 @@
       box-shadow: var(--shadow-md);
       border-color: var(--green-light);
     }
-
     .task-header {
       display: flex;
       justify-content: space-between;
@@ -139,15 +128,14 @@
       cursor: pointer;
       gap: 1rem;
     }
-
     .task-header .task-main-title {
       font-size: clamp(1rem, 2.2vw, 1.15rem);
       color: var(--green-dark);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      flex-grow: 1; /* این خط اضافه شده */
-      min-width: 0;   /* این خط برای اطمینان بیشتر اضافه شده */
+      flex-grow: 1;
+      min-width: 0;
     }
     .toggle-icon {
       color: var(--green);
@@ -157,16 +145,6 @@
     .task.expanded .toggle-icon {
       transform: rotate(180deg);
     }
-
-    .task-date {
-      font-size: 0.8rem;
-      color: var(--text-light);
-      background-color: var(--gray-light);
-      padding: 0.2rem 0.6rem;
-      border-radius: 1rem;
-      white-space: nowrap;
-    }
-    
     .task-details {
       max-height: 0;
       opacity: 0;
@@ -175,30 +153,152 @@
       display: flex;
       flex-direction: column; 
     }
-
-
     .task.expanded .task-details {
       max-height: 1500px;
       opacity: 1;
     }
-
     .task-details-main-content {
       padding: 1.25rem;
       border-top: 1px solid var(--gray-border);
       flex-grow: 1;
       overflow-y: auto;
     }
-
-    .task-details-content p {
+    .task-details-main-content p {
       margin: 0 0 1rem;
       font-size: clamp(0.9rem, 1.8vw, 1rem);
       color: var(--text-dark);
     }
+    .actions-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1.25rem;
+      border-top: 1px solid var(--gray-border);
+      background-color: white;
+      flex-direction: row-reverse;
+      flex-shrink: 0;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 0.25rem;
+    }
+    .task-date-footer {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+    .action-btn {
+      border: none;
+      color: var(--text-light);
+      font-size: 1.1rem;
+      padding: 0.5rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .action-btn:hover {
+      background-color: var(--gray-light);
+    }
+    .action-btn.archive:hover, .action-btn.restore:hover {
+      color: var(--green-dark);
+    }
+    .action-btn.delete:hover {
+      color: var(--danger);
+    }
+    
+    /* --- مراحل وظیفه --- */
     .workflow-list {
       padding-inline-start: 1.5rem;
       color: var(--text-light);
       font-size: 0.9rem;
       margin-bottom: 1.25rem;
+    }
+    .workflow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 0.25rem;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+    }
+    .workflow-step:hover {
+      background-color: var(--gray-light);
+    }
+    .drag-handle {
+      cursor: grab;
+      color: #b0bec5;
+    }
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+    .workflow-step .checkbox {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      border: 2px solid var(--green-light);
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .workflow-step .checkbox i {
+      color: white;
+      font-size: 12px;
+      transform: scale(0);
+      transition: transform 0.2s ease;
+    }
+    .workflow-step.completed .checkbox {
+      background-color: var(--green);
+      border-color: var(--green);
+    }
+    .workflow-step.completed .checkbox i {
+      transform: scale(1);
+    }
+    .workflow-step.completed .step-title {
+      text-decoration: line-through;
+      color: var(--text-light);
+    }
+    .step-main {
+      display: flex;
+      align-items: center;
+      flex-grow: 1;
+      overflow: hidden; 
+    }
+    .step-title {
+      color: var(--text-dark);
+      cursor: pointer;
+      display: -webkit-box;
+      -webkit-line-clamp: 1; /* <<-- پیش‌فرض تک خطی */
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-word;
+      transition: -webkit-line-clamp 0.3s ease-in-out;
+    }
+    .step-title.expanded {
+      -webkit-line-clamp: 100; /* <<-- در حالت باز شده چند خطی می‌شود */
+    }
+    .step-actions {
+      display: flex;
+    }
+    .step-actions button {
+      background: none;
+      border: none;
+      color: var(--text-light);
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+    }
+    .step-actions button:hover {
+      color: var(--green-dark);
+    }
+    .step-actions .delete-step-btn:hover {
+      color: var(--danger);
     }
     
     .add-step-container {
@@ -227,40 +327,58 @@
     button.add-step-btn:hover {
       background: var(--green-dark); transform: translateY(-2px);
     }
-
-    /* --- دکمه‌های اکشن جدید (آیکونی) --- */
-    .actions {
-      position: absolute;
-      bottom: 0.75rem;
-      left: 0.75rem;
-      display: flex;
-      gap: 0.25rem;
+    
+    /* --- حالت ویرایش --- */
+    .edit-main-title-input, .workflow-step .edit-input {
+      display: none;
     }
-    .action-btn {
-      border: none;
-      color: var(--text-light);
-      font-size: 1.1rem; /* اندازه آیکون */
-      padding: 0.5rem;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
+    .task.edit-mode .task-main-title, .workflow-step.editing .step-main {
+      display: none;
     }
-    .action-btn:hover {
-      background-color: var(--gray-light);
+    .task.edit-mode .edit-main-title-input, .workflow-step.editing .edit-input {
+      display: block;
     }
-    .action-btn.archive:hover, .action-btn.restore:hover {
+    .edit-main-title-input {
+      width: 100%;
+      font-size: clamp(1rem, 2.2vw, 1.15rem);
+      font-weight: 700;
       color: var(--green-dark);
+      border: 2px solid var(--green);
+      border-radius: 8px;
+      padding: 0.25rem 0.5rem;
+      font-family: 'Vazir', sans-serif;
+      outline: none;
     }
-    .action-btn.delete:hover {
-      color: var(--danger);
+    .workflow-step .edit-input {
+      flex-grow: 1;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.9rem;
+      border: 1px solid var(--green);
+      border-radius: 4px;
+    }
+    .task.edit-mode .task-header {
+      cursor: default;
+    }
+    .workflow-step .delete-step-btn {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .task.edit-mode .delete-step-btn {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .task.edit-mode .step-title {
+      cursor: text;
+      background-color: var(--green-bg-light);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+    .task.edit-mode .action-btn.edit-task i::before {
+      content: "\f00c";
+      font-weight: 900;
     }
     
-
     /* --- تب‌های پایین --- */
     .bottom-tabs {
       position: fixed; bottom: 0; left: 0; right: 0; background: white;
@@ -268,30 +386,18 @@
       justify-content: center; gap: 1rem; padding: 0.75rem 0; z-index: 1000;
       border-top: 1px solid var(--gray-border);
     }
-    /* این کد را جایگزین کلاس .tab-btn قبلی کنید */
     .tab-btn {
-    background: transparent;
-    border: none;
-    font-family: 'Vazir';
-    font-weight: 700;
-    font-size: 0.95rem; /* فونت کمی بزرگتر */
-    padding: 0.6rem 1.5rem;
-    border-radius: 2rem;
-    cursor: pointer;
-    color: var(--text-light);
-    transition: all 0.3s ease;
-    /* اضافه شده برای چیدمان آیکون و متن */
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
+      background: transparent; border: none; font-family: 'Vazir';
+      font-weight: 700; font-size: 0.95rem; padding: 0.6rem 1.5rem;
+      border-radius: 2rem; cursor: pointer; color: var(--text-light);
+      transition: all 0.3s ease; display: flex; align-items: center; gap: 0.6rem;
     }
-
     .tab-btn.active, .tab-btn:hover {
       background-color: var(--green-dark); color: white; box-shadow: var(--shadow-lg);
       transform: translateY(-3px);
     }
-
-    /* --- استایل های دیگر بدون تغییر --- */
+    
+    /* --- سایر استایل‌ها --- */
     .empty-msg { text-align: center; font-style: italic; color: var(--text-light); margin-top: 2rem; background: var(--green-bg-light); padding: 2rem; border-radius: 1rem; border: 2px dashed var(--green-light); }
     .custom-floating-form__fab { position: fixed; bottom: 6.5rem; right: 1.5rem; width: clamp(55px, 12vw, 65px); height: clamp(55px, 12vw, 65px); font-size: clamp(1.8rem, 5vw, 2.2rem); border-radius: 50%; background-color: var(--green-dark); color: white; border: none; cursor: pointer; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; z-index: 1100; }
     .custom-floating-form__fab:hover { background-color: var(--green); transform: scale(1.1) rotate(15deg); }
@@ -315,355 +421,45 @@
     .tour-next-btn { margin-top: 1rem; background: var(--green); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 0.5rem; cursor: pointer; font-weight: bold; }
     .tour-next-btn:hover { background: var(--green-dark); }
 
-
-    /* ===================================== */
-/*   استایل‌های جدید برای قابلیت‌های پیشرفته  */
-/* ===================================== */
-
-/* استایل کلی برای هر مرحله از وظیفه */
-.workflow-step {
-  display: flex;
-  align-items: flex-start; /* <<-- حتماً این مقدار باشد */
-  gap: 0.75rem;
-  padding: 0.75rem 0.25rem;
-  border-radius: 6px;
-  transition: background-color 0.2s;
-}
-
-.workflow-step:hover {
-  background-color: var(--gray-light);
-}
-
-/* آیکون برای کشیدن و رها کردن */
-.drag-handle {
-  cursor: grab;
-  color: #b0bec5;
-}
-.drag-handle:active {
-  cursor: grabbing;
-}
-
-/* استایل چک‌باکس سفارشی */
-.workflow-step .checkbox {
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
-  border: 2px solid var(--green-light);
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-.workflow-step .checkbox i {
-  color: white;
-  font-size: 12px;
-  transform: scale(0);
-  transition: transform 0.2s ease;
-}
-
-/* حالت تیک خورده چک‌باکس */
-.workflow-step.completed .checkbox {
-  background-color: var(--green);
-  border-color: var(--green);
-}
-.workflow-step.completed .checkbox i {
-  transform: scale(1);
-}
-.workflow-step.completed .step-title {
-  text-decoration: line-through;
-  color: var(--text-light);
-}
-
-/* بخش عنوان و دکمه‌های هر مرحله */
-.step-main {
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-  /* اضافه کردن این خط برای جلوگیری از بیرون زدن محتوا */
-  overflow: hidden; 
-}
-
-.step-title {
-  color: var(--text-dark);
-  cursor: pointer; /* کرسر نشان می‌دهد که قابل کلیک است */
-  
-  /* حالت پیش‌فرض (جمع شده) با line-clamp */
-  display: -webkit-box;
-  -webkit-line-clamp: 1; /* حداکثر دو خط نمایش داده شود */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  word-break: break-word;
-  transition: -webkit-line-clamp 0.3s ease-in-out; /* انیمیشن نرم */
-}
-
-/* حالت باز شده */
-.step-title.expanded {
-  -webkit-line-clamp: 100; /* یک عدد بزرگ برای نمایش تمام خطوط */
-}
-
-
-/* دکمه‌های ویرایش و حذف مرحله */
-.step-actions {
-  display: flex;
-}
-
-/* نمایش دکمه ها در حالت هاور دیگر نیازی نیست، پس این بخش را حذف می‌کنیم */
-.step-actions button {
-  background: none;
-  border: none;
-  color: var(--text-light);
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-}
-.step-actions button:hover {
-  color: var(--green-dark);
-}
-.step-actions .delete-step-btn:hover {
-  color: var(--danger);
-}
-
-/* حالت ویرایش مرحله */
-.workflow-step .edit-input {
-  display: none; /* در حالت عادی مخفی */
-  flex-grow: 1;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.9rem;
-  border: 1px solid var(--green);
-  border-radius: 4px;
-}
-.workflow-step.editing .step-main {
-  display: none; /* مخفی کردن عنوان و دکمه‌ها در حالت ویرایش */
-}
-.workflow-step.editing .edit-input {
-  display: block; /* نمایش اینپوت در حالت ویرایش */
-}
-
-/* استایل برای آیتم در حال جابجایی */
-.step-ghost {
-  opacity: 0.4;
-  background: var(--green-bg);
-}
-
-
-/* ================================================= */
-/*  کدهای جدید برای فوتر کارت (فقط اضافه شود)     */
-/* ================================================= */
-
-/* 1. مخفی کردن کانتینر .actions قدیمی */
-.actions {
-    display: none !important;
-}
-
-/* 2. استایل برای فوتر جدید کارت */
-.actions-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1.25rem;
-  border-top: 1px solid var(--gray-border);
-  background-color: white;
-  flex-direction: row-reverse;
-  flex-shrink: 0;
-}
-
-/* 3. گروه دکمه‌های اکشن */
-.action-buttons {
-  display: flex;
-  gap: 0.25rem;
-}
-
-/* 4. استایل برای تاریخ در فوتر */
-.task-date-footer {
-  font-size: 0.8rem;
-  color: var(--text-light);
-}
-
-.workflow-step .delete-step-btn {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-/* وقتی کارت در حالت ویرایش است، دکمه حذف مرحله نمایان می‌شود */
-.task.edit-mode .delete-step-btn {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* وقتی کارت در حالت ویرایش است، عنوان مرحله برای ویرایش آماده می‌شود */
-.task.edit-mode .step-title {
-  cursor: text;
-  background-color: var(--green-bg-light);
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-}
-
-/* تغییر آیکون دکمه ویرایش اصلی در حالت ویرایش */
-.task.edit-mode .action-btn.edit-task i::before {
-  content: "\f00c"; /* کد آیکون تیک (check) در Font Awesome */
-  font-weight: 900;
-}
-
-
-/* ===================================== */
-/*   استایل‌های جدید برای ویرایش عنوان کارت */
-/* ===================================== */
-
-/* 1. اینپوت ویرایش عنوان به طور پیش‌فرض مخفی است */
-.edit-main-title-input {
-  display: none;
-  width: 100%; /* تمام عرض هدر را بگیرد */
-  font-size: clamp(1rem, 2.2vw, 1.15rem);
-  font-weight: 700;
-  color: var(--green-dark);
-  border: 2px solid var(--green);
-  border-radius: 8px;
-  padding: 0.25rem 0.5rem;
-  font-family: 'Vazir', sans-serif;
-  outline: none;
-}
-
-/* 2. در حالت ویرایش، عنوان اصلی مخفی می‌شود */
-.task.edit-mode .task-main-title {
-  display: none;
-}
-
-/* 3. در حالت ویرایش، اینپوت ویرایش نمایان می‌شود */
-.task.edit-mode .edit-main-title-input {
-  display: block;
-}
-
-/* 4. در حالت ویرایش، هدر دیگر قابل کلیک برای باز/بسته کردن کارت نیست */
-.task.edit-mode .task-header {
-  cursor: default;
-}
-
-/* 6. مدیریت نمایش در موبایل */
-@media (max-width: 500px) {
-  /* مخفی کردن تاریخ در هدر */
-  .task-header .task-date {
-    display: none;
-  }
-}
-
-
-@media (max-width: 500px) {
-    /* ... کدهای قبلی برای .task-header و .task-header strong ... */
-    .task-header {
-        flex-wrap: wrap; 
-        padding-bottom: 0.5rem;
+    /* --- انیمیشن‌ها --- */
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-50px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .task-header strong {
-        white-space: nowrap; 
-        flex-basis: 100%;
-        order: 1; 
-        margin-bottom: 0.5rem;
-        font-size: 1.1rem; 
+    .task.newly-created {
+      animation: dropIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
     }
-    .task-header .toggle-icon {
-        order: 2; 
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translate3d(0, -20px, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
     }
-  
-    /* تاریخ را کاملا از هدر مخفی می‌کنیم */
-    .task-header .task-date {
-        display: none !important;
+    .workflow-step.newly-added {
+      animation: fadeInDown 0.4s ease-out;
+    }
+    @keyframes slideFadeOutLeft {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(-30px); max-height: 0; padding: 0; margin: 0; border: 0; }
+    }
+    .workflow-step.is-deleting {
+      animation: slideFadeOutLeft 0.35s ease-in-out forwards;
+    }
+    @keyframes slideFadeOutDown {
+      from { opacity: 1; transform: translateY(0); max-height: 500px; }
+      to { opacity: 0; transform: translateY(50px); max-height: 0; padding: 0; margin-bottom: 0; border-width: 0; }
+    }
+    .task.is-removing {
+      animation: slideFadeOutDown 0.4s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
     }
 
-    /* در موبایل، فوتر را به صورت ستونی نمایش می‌دهیم */
-    .task-details .actions-footer {
-        flex-direction: column;
-        align-items: flex-start; /* آیتم‌ها از چپ شروع شوند */
-        gap: 0.5rem;
-        padding: 0.75rem;
+    /* --- Media Queries --- */
+    @media (max-width: 500px) {
+      .task-header { flex-wrap: wrap; padding-bottom: 0.5rem; }
+      .task-header .task-main-title { white-space: nowrap; flex-basis: 100%; order: 1; margin-bottom: 0.5rem; font-size: 1.1rem; }
+      .task-header .toggle-icon { order: 2; }
+      .task-header .task-date { display: none !important; }
+      .task-details .actions-footer { flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 0.75rem; }
+      .task-details .actions-footer .action-buttons { align-self: flex-end; }
     }
-
-    .task-details .actions-footer .action-buttons {
-        align-self: flex-end; /* دکمه‌ها را به راست منتقل می‌کند */
-    }
-    
-    .task.expanded .task-details {
-        padding-bottom: 6.5rem; /* فضای بیشتر برای فوتر در موبایل */
-    }
-}
-
-
-
-/* انیمیشن‌های باز و بسته شدن بدون Opacity */
-
-/* مرحله کوچک به بالا */
-@keyframes collapseUp {
-  from {
-    transform: scaleY(1);
-  }
-  to {
-    transform: scaleY(0);
-  }
-}
-
-/* کارت کامل جمع شدن به پایین */
-@keyframes collapseDown {
-  from {
-    transform: scaleY(1);
-  }
-  to {
-    transform: scaleY(0);
-  }
-}
-
-/* مرحله حرکت به چپ همراه با جمع‌شدن */
-@keyframes slideCollapseLeft {
-  from {
-    transform: translateX(0) scaleX(1);
-  }
-  to {
-    transform: translateX(-30px) scaleX(0);
-  }
-}
-
-/* کارت به پایین همراه با جمع شدن */
-@keyframes slideCollapseDown {
-  from {
-    transform: translateY(0) scaleY(1);
-  }
-  to {
-    transform: translateY(30px) scaleY(0);
-  }
-}
-
-/* کلاس‌ها */
-.task.is-removing {
-  animation: slideCollapseDown 550ms cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-  transform-origin: top;
-  will-change: transform;
-}
-
-.workflow-step.is-deleting {
-  animation: slideCollapseLeft 550ms cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-  transform-origin: left;
-  will-change: transform;
-}
-
-.task-card.is-closing {
-  animation: collapseDown 600ms cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-  transform-origin: top;
-  will-change: transform;
-}
-
-.step-item.is-exiting {
-  animation: collapseUp 500ms cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-  transform-origin: bottom;
-  will-change: transform;
-}
-
-/* برای جلوگیری از بیرون‌زدن محتوا در حین scale */
-.task, .workflow-step, .task-card, .step-item {
-  overflow: hidden;
-}
-
-
 
   </style>
 </head>
@@ -679,11 +475,11 @@
 
   <div class="header-container">
     <h1>مدیریت کارها</h1>
-    <button id="start-tour-btn" data-tour-step="0" data-tour="برای آشنایی با بخش‌های مختلف برنامه، روی این دکمه کلیک کنید.">شروع راهنما</button>
+    <button id="start-tour-btn">شروع راهنما</button>
   </div>
 
   <!-- دکمه شناور -->
-  <button class="custom-floating-form__fab" data-tour-step="1" data-tour="با کلیک روی این دکمه می‌توانید یک وظیفه جدید به لیست خود اضافه کنید.">✏️</button>
+  <button class="custom-floating-form__fab">✏️</button>
 
   <!-- لایه تیره -->
   <div class="custom-floating-form__overlay"></div>
@@ -700,7 +496,7 @@
   </div>
 
   <div class="container">
-    <section id="active-tasks-section" class="tasks-section active" data-tour-step="2" data-tour="این بخش وظایف فعال و در حال انجام شما را نمایش می‌دهد. روی هر کارت کلیک کنید تا جزئیات آن را ببینید.">
+    <section id="active-tasks-section" class="tasks-section active">
       <div id="active-tasks"></div>
       <div id="active-empty" class="empty-msg" style="display:none;">لیست کارهای فعال شما خالی است!</div>
     </section>
@@ -711,700 +507,530 @@
     </section>
   </div>
 
-  <div class="bottom-tabs" data-tour-step="3" data-tour="از اینجا می‌توانید بین لیست کارهای فعال و کارهای بایگانی‌شده جابجا شوید.">
-  <button class="tab-btn active" data-target="active-tasks-section">
-    <i class="fas fa-list-check"></i>
-    <span>کارهای فعال</span>
-  </button>
-  <button class="tab-btn" data-target="archived-tasks-section">
-    <i class="fas fa-box-archive"></i>
-    <span>بایگانی</span>
-  </button>
-</div>
+  <div class="bottom-tabs">
+    <button class="tab-btn active" data-target="active-tasks-section">
+      <i class="fas fa-list-check"></i>
+      <span>کارهای فعال</span>
+    </button>
+    <button class="tab-btn" data-target="archived-tasks-section">
+      <i class="fas fa-box-archive"></i>
+      <span>بایگانی</span>
+    </button>
+  </div>
 
 <script>
-  // ===================================
-  // شروع منطق اصلی برنامه
-  // ===================================
-  const API_URL = 'https://dailytasks.wegom17380.workers.dev/tasks';
+// ===================================
+// شروع منطق اصلی برنامه (نسخه نهایی و اصلاح شده)
+// ===================================
+const API_URL = 'https://dailytasks.wegom17380.workers.dev/tasks';
 
-  const activeContainer = document.getElementById('active-tasks');
-  const archivedContainer = document.getElementById('archived-tasks');
-  const activeEmpty = document.getElementById('active-empty');
-  const archivedEmpty = document.getElementById('archived-empty');
+// تعریف متغیرهای سراسری برای کانتینرها
+const activeContainer = document.getElementById('active-tasks');
+const archivedContainer = document.getElementById('archived-tasks');
+const activeEmpty = document.getElementById('active-empty');
+const archivedEmpty = document.getElementById('archived-empty');
+const tabs = document.querySelectorAll('.tab-btn');
 
-  const tabs = document.querySelectorAll('.tab-btn');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const targetId = tab.getAttribute('data-target');
-      document.querySelectorAll('.tasks-section').forEach(section => {
-        section.classList.toggle('active', section.id === targetId);
-      });
-    });
-  });
+// -------------------------------------------------------------------
+// بخش ۱: توابع کمکی (Helper Functions)
+// -------------------------------------------------------------------
 
-  // *** تغییر: راه حل جدید، امن و هوشمندانه برای escape کردن HTML ***
-  function escapeHtml(text) {
+function escapeHtml(text) {
     if (!text) return '';
-    // با استفاده از قابلیت ذاتی مرورگر، متن را امن می‌کنیم.
-    // این روش بسیار مطمئن و استاندارد است.
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
-  }
-
-
-  function handleResponsiveLayout() {
-  const screenWidth = window.innerWidth;
-  document.querySelectorAll('.task').forEach(task => {
-    const header = task.querySelector('.task-header');
-    const details = task.querySelector('.task-details-content');
-    const dateEl = task.querySelector('.task-date');
-
-    if (!header || !details || !dateEl) return;
-
-    // اگر صفحه کوچک است و تاریخ هنوز در هدر است، آن را به جزئیات منتقل کن
-    if (screenWidth <= 500 && dateEl.parentElement === header) {
-      details.prepend(dateEl); // prepend آن را به ابتدای لیست فرزندان اضافه می‌کند
-    } 
-    // اگر صفحه بزرگ است و تاریخ در جزئیات است، آن را به هدر برگردان
-    else if (screenWidth > 500 && dateEl.parentElement === details) {
-      header.appendChild(dateEl); // append آن را به انتهای لیست فرزندان هدر اضافه می‌کند
-    }
-  });
 }
 
-
-
-
-async function fetchAndRender(only = null) { // only can be 'active' or 'archived'
-  try {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error('خطا در دریافت داده‌ها');
-    const tasks = await res.json();
-    const activeTasks = tasks.filter(t => !t.archived);
-    const archivedTasks = tasks.filter(t => t.archived);
-
-    if (only !== 'archived') {
-        renderTasks(activeTasks, activeContainer, false);
-    }
-    if (only !== 'active') {
-        renderTasks(archivedTasks, archivedContainer, true);
-    }
-    
-    activeEmpty.style.display = activeTasks.length === 0 ? 'block' : 'none';
-    archivedEmpty.style.display = archivedTasks.length === 0 ? 'block' : 'none';
-
-    handleResponsiveLayout();
-
-  } catch (e) {
-    console.error(e);
-    alert(e.message);
-  }
-}
-
-
-
-  function renderTasks(tasks, container, isArchived) {
-    container.innerHTML = '';
-    tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    tasks.forEach(task => addTaskToDOM(task, container, isArchived));
-  }
-
-
-
-  function removeTaskCard(cardElement) {
-    cardElement.classList.add('is-removing');
-    cardElement.addEventListener('animationend', () => {
-        cardElement.remove();
-        // بعد از حذف، چک کن که آیا لیست خالی شده است یا نه
-        checkEmptyStates();
-    });
-}
-
-// تابع کمکی برای چک کردن پیام‌های "لیست خالی"
-function checkEmptyStates() {
-    const activeTasksContainer = document.getElementById('active-tasks');
-    const archivedTasksContainer = document.getElementById('archived-tasks');
-    
-    document.getElementById('active-empty').style.display = 
-        activeTasksContainer.children.length === 0 ? 'block' : 'none';
-    
-    document.getElementById('archived-empty').style.display = 
-        archivedTasksContainer.children.length === 0 ? 'block' : 'none';
-}
-
-
-function addTaskToDOM(task, container, isArchived) {
-  const div = document.createElement('div');
-  div.className = 'task';
-  div.dataset.taskId = task.id;
-  const shamsiDate = new persianDate(new Date(task.createdAt)).format('dddd D MMMM YYYY - HH:mm');
-
-  // این بخش را پیدا کرده و با کد زیر جایگزین کنید
-// <<<<<<<<<<<<<<<< این بخش را به طور کامل جایگزین کنید >>>>>>>>>>>>>>>>
-div.innerHTML = `
-    <div class="task-header">
-      <span class="toggle-icon fas fa-chevron-down"></span>
-      <strong class="task-main-title" title="${escapeHtml(task.title)}">${escapeHtml(task.title)}</strong>
-      <input type="text" class="edit-main-title-input" value="${escapeHtml(task.title)}" />
-    </div>
-    <div class="task-details">
-      <div class="task-details-main-content">
-        <p>${escapeHtml(task.description) || '<i>بدون توضیحات</i>'}</p>
-        <ul class="workflow-list"></ul>
-        ${!isArchived ? `
-          <div class="add-step-container">
-            <input type="text" class="new-step-input" placeholder="نام مرحله جدید...">
-            <button class="add-step-btn">افزودن</button>
-          </div>` : ''}
-      </div>
-      <div class="actions-footer">
-        <div class="action-buttons">
-          ${!isArchived ? `
-            <button class="action-btn edit-task" title="ویرایش وظیفه"><i class="fas fa-pencil-alt"></i></button> 
-            <button class="action-btn archive" title="بایگانی"><i class="fas fa-archive"></i></button>
-            <button class="action-btn delete" title="حذف"><i class="fas fa-trash-alt"></i></button>
-          ` : `
-            <button class="action-btn restore" title="بازیابی"><i class="fas fa-undo-alt"></i></button>
-            <button class="action-btn delete" title="حذف کامل"><i class="fas fa-trash-alt"></i></button>
-          `}
-        </div>
-        <span class="task-date-footer">${shamsiDate}</span>
-      </div>
-    </div>
-`;
-// <<<<<<<<<<<<<<<< تا اینجا جایگزین شود >>>>>>>>>>>>>>>>
-
-
-  const workflowList = div.querySelector('.workflow-list');
-
-  (task.workflow || []).forEach(step => {
-    const li = document.createElement('li');
-    li.className = `workflow-step ${step.done ? 'completed' : ''}`;
-    li.dataset.stepId = step.id;
-
-    li.innerHTML = `
-      <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
-      <div class="checkbox" role="checkbox" aria-checked="${step.done}">
-        <i class="fas fa-check"></i>
-      </div>
-      <div class="step-main">
-        <span class="step-title">${escapeHtml(step.title)}</span>
-        <div class="step-actions">
-          <button class="delete-step-btn" title="حذف"><i class="fas fa-trash-alt"></i></button>
-        </div>
-      </div>
-      <input type="text" class="edit-input" value="${escapeHtml(step.title)}" />
-    `;
-    
-    // رویداد برای تیک زدن
-    li.querySelector('.checkbox').addEventListener('click', async (e) => {
-    const checkbox = e.currentTarget;
-    const stepLi = checkbox.closest('.workflow-step');
-    const isCompleted = stepLi.classList.contains('completed');
-    const newDoneState = !isCompleted;
-
-    // آپدیت خوش‌بینانه: بلافاصله ظاهر را تغییر بده
-    stepLi.classList.toggle('completed', newDoneState);
-    checkbox.setAttribute('aria-checked', newDoneState);
-
-    try {
-        const response = await fetch(`${API_URL}/${task.id}/workflow/${step.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ done: newDoneState }),
-        });
-
-        if (!response.ok) {
-            // اگر سرور خطا داد، تغییر را به حالت اول برگردان
-            throw new Error('Server update failed');
-        }
-        // در صورت موفقیت، هیچ کاری لازم نیست چون DOM قبلاً آپدیت شده.
-
-    } catch (err) {
-        alert("خطا در به‌روزرسانی وضعیت. لطفا دوباره تلاش کنید.");
-        // بازگرداندن تغییر در صورت خطا
-        stepLi.classList.toggle('completed', isCompleted);
-        checkbox.setAttribute('aria-checked', isCompleted);
-    }
-});
-
-   
-
-    // رویداد برای حذف مرحله
-    li.querySelector('.delete-step-btn').addEventListener('click', async () => {
-      if (!confirm(`آیا از حذف مرحله "${step.title}" مطمئن هستید؟`)) return;
-      try {
-        // اصلاح شده: /tasks حذف شد
-        await fetch(`${API_URL}/${task.id}/workflow/${step.id}`, { method: 'DELETE' });
-        fetchAndRender();
-      } catch (err) { alert(err.message); }
-    });
-  
-    workflowList.appendChild(li);
-  });
-
-  if (!isArchived) {
-    new Sortable(workflowList, {
-      animation: 150,
-      handle: '.drag-handle',
-      ghostClass: 'step-ghost',
-      onEnd: async (evt) => {
-        const newOrderIds = Array.from(evt.target.children).map(li => li.dataset.stepId);
-        try {
-          // اصلاح شده: /tasks حذف شد
-          await fetch(`${API_URL}/${task.id}/workflow/reorder`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ order: newOrderIds }),
-          });
-        } catch (err) {
-          alert('خطا در ذخیره ترتیب جدید');
-          fetchAndRender();
-        }
-      },
-    });
-  }
-  
-  div.querySelector('.task-header').addEventListener('click', () => {
-    div.classList.toggle('expanded');
-  });
-
-
-  
-  //Start
-
-  // ================================================================
-//          بخش بازنویسی شده با انیمیشن و آپدیت DOM
-// ================================================================
-
-// تابع کمکی برای حذف یک کارت با انیمیشن
 function removeTaskCard(cardElement) {
     cardElement.classList.add('is-removing');
     cardElement.addEventListener('animationend', () => {
         cardElement.remove();
-        // بعد از حذف، چک کن که آیا لیست خالی شده است یا نه
         checkEmptyStates();
     });
 }
 
-// تابع کمکی برای چک کردن پیام‌های "لیست خالی"
 function checkEmptyStates() {
-    const activeTasksContainer = document.getElementById('active-tasks');
-    const archivedTasksContainer = document.getElementById('archived-tasks');
-    
-    document.getElementById('active-empty').style.display = 
-        activeTasksContainer.children.length === 0 ? 'block' : 'none';
-    
-    document.getElementById('archived-empty').style.display = 
-        archivedTasksContainer.children.length === 0 ? 'block' : 'none';
+    activeEmpty.style.display = activeContainer.children.length === 0 ? 'block' : 'none';
+    archivedEmpty.style.display = archivedContainer.children.length === 0 ? 'block' : 'none';
 }
 
+function createStepElement(stepData) {
+    const li = document.createElement('li');
+    li.className = `workflow-step ${stepData.done ? 'completed' : ''}`;
+    li.dataset.stepId = stepData.id;
+    li.innerHTML = `
+      <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+      <div class="checkbox" role="checkbox" aria-checked="${stepData.done}"><i class="fas fa-check"></i></div>
+      <div class="step-main">
+        <span class="step-title">${escapeHtml(stepData.title)}</span>
+        <div class="step-actions"><button class="delete-step-btn" title="حذف"><i class="fas fa-trash-alt"></i></button></div>
+      </div>
+      <input type="text" class="edit-input" value="${escapeHtml(stepData.title)}" />
+    `;
+    return li;
+}
 
-// --- رویدادهای اصلی کارت ---
+// -------------------------------------------------------------------
+// بخش ۲: تابع اصلی ساخت DOM و اتصال رویدادها
+// -------------------------------------------------------------------
 
-if (!isArchived) {
-    // افزودن مرحله جدید
-    div.querySelector('.add-step-btn').onclick = async () => {
-        const input = div.querySelector('.new-step-input');
-        const stepName = input.value.trim();
-        if (!stepName) return alert('نام مرحله نمی‌تواند خالی باشد.');
+function addTaskToDOM(task) {
+    const div = document.createElement('div');
+    div.className = 'task';
+    div.dataset.taskId = task.id;
+    const isArchived = task.archived;
+    const shamsiDate = new persianDate(new Date(task.createdAt)).format('dddd D MMMM YYYY - HH:mm');
 
-        // برای سادگی، افزودن مرحله هنوز با رندر مجدد انجام می‌شود
-        // چون نیاز به دریافت ID جدید از سرور دارد.
-        // بهینه‌سازی این بخش نیاز به بازنویسی گسترده‌تری دارد.
-        try {
-            await fetch(`${API_URL}/${task.id}/workflow`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ step: stepName }),
-            });
-            input.value = '';
-            fetchAndRender(); // این مورد فعلاً باقی می‌ماند
-        } catch (err) { alert(err.message); }
-    };
+    div.innerHTML = `
+      <div class="task-header">
+        <span class="toggle-icon fas fa-chevron-down"></span>
+        <strong class="task-main-title" title="${escapeHtml(task.title)}">${escapeHtml(task.title)}</strong>
+        <input type="text" class="edit-main-title-input" value="${escapeHtml(task.title)}" />
+      </div>
+      <div class="task-details">
+          <div class="task-details-main-content">
+              <p>${escapeHtml(task.description) || '<i>بدون توضیحات</i>'}</p>
+              <ul class="workflow-list"></ul>
+              ${!isArchived ? `
+              <div class="add-step-container">
+                  <input type="text" class="new-step-input" placeholder="نام مرحله جدید...">
+                  <button class="add-step-btn">افزودن</button>
+              </div>` : ''}
+          </div>
+          <div class="actions-footer">
+              <div class="action-buttons">
+              ${!isArchived ? `<button class="action-btn edit-task" title="ویرایش وظیفه"><i class="fas fa-pencil-alt"></i></button> <button class="action-btn archive" title="بایگانی"><i class="fas fa-archive"></i></button> <button class="action-btn delete" title="حذف"><i class="fas fa-trash-alt"></i></button>` : `<button class="action-btn restore" title="بازیابی"><i class="fas fa-undo-alt"></i></button> <button class="action-btn delete" title="حذف کامل"><i class="fas fa-trash-alt"></i></button>`}
+              </div>
+              <span class="task-date-footer">${shamsiDate}</span>
+          </div>
+      </div>
+    `;
 
-    // بایگانی کردن وظیفه
-    div.querySelector('.actions-footer .archive').onclick = async () => {
-        const taskCard = div;
-        removeTaskCard(taskCard); // حذف با انیمیشن از لیست فعال
-        
-        try {
-            const response = await fetch(`${API_URL}/${task.id}/archive`, { method: 'POST' });
-            if (!response.ok) throw new Error('Server archive failed');
-            
-            // <<-- خط کلیدی: فقط لیست بایگانی را در پس‌زمینه رندر کن
-            fetchAndRender('archived'); 
+    const workflowList = div.querySelector('.workflow-list');
+    (task.workflow || []).forEach(stepData => {
+        const stepElement = createStepElement(stepData);
+        workflowList.appendChild(stepElement);
+    });
 
-        } catch (err) {
-            console.error(err);
-            alert("خطا در بایگانی وظیفه. وضعیت به حالت اولیه بازگردانده می‌شود.");
-            fetchAndRender(); // در صورت خطا، همه چیز را رندر کن
+    return div;
+}
+
+// <<<<<<<<<<<<<<<< این تابع را به طور کامل جایگزین کنید >>>>>>>>>>>>>>>>
+function initializeTaskInteractions(taskCard, taskData) {
+    const isArchived = taskData.archived;
+    const workflowList = taskCard.querySelector('.workflow-list');
+
+    // --- رویدادهای عمومی کارت ---
+    taskCard.querySelector('.task-header').addEventListener('click', (e) => {
+        // جلوگیری از باز/بسته شدن هنگام کلیک روی اینپوت ویرایش
+        if (!e.target.closest('.edit-main-title-input')) {
+            taskCard.classList.toggle('expanded');
         }
-    };
+    });
 
-} else {
-    // بازیابی وظیفه از بایگانی
-    div.querySelector('.actions-footer .restore').onclick = async () => {
-        const taskCard = div;
-
-        // ۱. حذف کارت از لیست بایگانی با انیمیشن
+    taskCard.querySelector('.actions-footer .delete').onclick = async () => {
+        if (!confirm('آیا برای حذف این وظیفه مطمئن هستید؟')) return;
         removeTaskCard(taskCard);
-
         try {
-            const response = await fetch(`${API_URL}/${task.id}/restore`, { method: 'POST' });
-            if (!response.ok) {
-                throw new Error('Server restore failed');
-            }
-            
-            // ۲. <<-- مرحله کلیدی: فقط لیست فعال را در پس‌زمینه رندر کن
-            fetchAndRender('active'); 
-
+            await fetch(`${API_URL}/${taskData.id}`, { method: 'DELETE' });
         } catch (err) {
-            console.error(err);
-            alert("خطا در بازیابی وظیفه. وضعیت به حالت اولیه بازگردانده می‌شود.");
-            // در صورت خطا، کل صفحه را رندر کن تا وضعیت صحیح نمایش داده شود
-            fetchAndRender();
+            alert("خطا در حذف وظیفه."); fetchAndRender();
         }
     };
-}
 
-// حذف کامل وظیفه (هم برای فعال و هم بایگانی)
-div.querySelector('.actions-footer .delete').onclick = async () => {
-    if (!confirm('آیا برای حذف این وظیفه مطمئن هستید؟ این عمل غیرقابل بازگشت است.')) return;
-    
-    const taskCard = div;
-    // آپدیت خوش‌بینانه: بلافاصله کارت را با انیمیشن حذف کن
-    removeTaskCard(taskCard);
-
-    try {
-        const response = await fetch(`${API_URL}/${task.id}`, { method: 'DELETE' });
-        if (!response.ok) throw new Error('Server delete failed');
-        // در صورت موفقیت، هیچ کاری لازم نیست.
-    } catch (err) {
-        alert("خطا در حذف وظیفه. لطفا صفحه را رفرش کنید.");
-        fetchAndRender();
-    }
-};
-
-// ================================================================
-//          پایان بخش بازنویسی شده
-// ================================================================
-
-  // end
-
-
-
-
-  
-  container.appendChild(div);
-
-  div.querySelectorAll('.step-title').forEach(stepTitle => {
-    // بررسی می‌کنیم که آیا متن واقعاً بریده شده است یا نه
-    const isClamped = stepTitle.offsetHeight < stepTitle.scrollHeight;
-
-    if (isClamped) {
-      // اگر متن بلند است، قابلیت کلیک را فعال می‌کنیم
-      stepTitle.addEventListener('click', () => {
-        stepTitle.classList.toggle('expanded');
-      });
-    } else {
-      // اگر متن کوتاه است، کرسر را به حالت پیش‌فرض درمی‌آوریم
-      stepTitle.style.cursor = 'default';
-    }
-  });
-  
-  const editTaskBtn = div.querySelector('.action-btn.edit-task');
-  
-
-
-  // ================================================================
-//          شروع منطق جدید و امن برای حالت ویرایش
-// ================================================================
-// فقط اگر دکمه ویرایش وجود دارد
-if (editTaskBtn) {
-    const taskCard = div;
-    const taskHeader = taskCard.querySelector('.task-header');
-    
-    // --- المان‌های عنوان اصلی ---
-    const mainTitleSpan = taskCard.querySelector('.task-main-title');
-    const mainTitleInput = taskCard.querySelector('.edit-main-title-input');
-
-    // --- المان‌های مراحل ---
-    const allSteps = taskCard.querySelectorAll('.workflow-step');
-
-    // --- رویداد اصلی برای ورود/خروج از حالت ویرایش ---
-    editTaskBtn.addEventListener('click', () => {
-        taskCard.classList.toggle('edit-mode');
-        if (!taskCard.classList.contains('edit-mode')) {
-            fetchAndRender(); // برای لغو تغییرات ذخیره نشده
-        }
+    // --- اتصال رویدادها به هر مرحله (Step) ---
+    taskCard.querySelectorAll('.workflow-step').forEach(stepElement => {
+        initializeStepInteractions(stepElement, taskData, taskCard);
     });
-
-    // --- جلوگیری از بسته شدن کارت در حالت ویرایش ---
-    taskHeader.addEventListener('click', (e) => {
-        if (taskCard.classList.contains('edit-mode')) {
-            e.stopPropagation();
-        }
-    }, true);
-
-    // --- منطق ویرایش عنوان اصلی کارت ---
-// ... داخل بلاک if (editTaskBtn) ...
-
-    // --- منطق ویرایش عنوان اصلی کارت ---
-    const saveMainTitle = async () => {
-        
-        // --- شروع بخش دیباگ ---
-        console.log("--- Firing saveMainTitle ---");
-
-        const taskCard = mainTitleInput.closest('.task');
-        if (!taskCard) {
-            console.error("DEBUG: Could not find parent .task card. Aborting.");
-            return;
-        }
-        console.log("DEBUG: Found task card:", taskCard);
-
-        const mainTitleSpan = taskCard.querySelector('.task-main-title');
-        if (!mainTitleSpan) {
-            console.error("DEBUG: Could not find .task-main-title span. Aborting.");
-            return;
-        }
-        console.log("DEBUG: Found title span:", mainTitleSpan);
-        
-        const taskId = taskCard.dataset.taskId;
-        if (!taskId) {
-            console.error("DEBUG: Could not find taskId in dataset. Aborting.");
-            return;
-        }
-        console.log("DEBUG: Task ID is:", taskId);
-        // --- پایان بخش دیباگ ---
-
-        const newTitle = mainTitleInput.value.trim();
-        const originalTitle = mainTitleSpan.textContent.trim();
-
-        console.log(`DEBUG: Original title: "${originalTitle}", New title: "${newTitle}"`);
-
-        // فقط اگر عنوان واقعاً تغییر کرده باشد، درخواست را ارسال کن
-        if (newTitle && newTitle !== originalTitle) {
-            
-            const requestURL = `${API_URL}/${taskId}`;
-            const requestBody = { title: newTitle };
-
-            console.log("DEBUG: Sending PUT request to:", requestURL);
-            console.log("DEBUG: Request body:", JSON.stringify(requestBody));
-
-            try {
-                const response = await fetch(requestURL, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody),
-                });
-
-                console.log("DEBUG: Response status:", response.status);
-                
-                if (!response.ok) {
-                    // اگر پاسخ موفقیت آمیز نبود، متن خطا را از سرور بخوان
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Server responded with ${response.status}`);
+    
+    // --- رویدادهای مختص تسک‌های فعال ---
+    if (!isArchived) {
+        // فعال کردن قابلیت کشیدن و رها کردن (Drag & Drop)
+        new Sortable(workflowList, {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'step-ghost',
+            onEnd: async (evt) => {
+                const newOrderIds = Array.from(evt.target.children).map(li => li.dataset.stepId);
+                try {
+                    await fetch(`${API_URL}/${taskData.id}/workflow/reorder`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ order: newOrderIds }),
+                    });
+                    // نیازی به fetchAndRender نیست چون ترتیب در DOM درست است
+                } catch (err) {
+                    alert('خطا در ذخیره ترتیب جدید. لطفا صفحه را رفرش کنید.');
+                    fetchAndRender(); // در صورت خطا، بازسازی می‌کنیم
                 }
-                
-                // اگر همه چیز موفق بود، DOM را آپدیت کن
-                mainTitleSpan.textContent = newTitle;
-                mainTitleSpan.title = newTitle;
-                console.log("DEBUG: Title updated successfully in frontend.");
-
-            } catch (err) {
-                console.error("DEBUG: Error during fetch:", err);
-                alert('خطا در ذخیره عنوان: ' + err.message);
-                // در صورت خطا، مقدار قبلی را به اینپوت برگردان
-                mainTitleInput.value = originalTitle;
-            }
-
-        } else {
-            // اگر تغییری نکرده، فقط مقدار اینپوت را به حالت اولیه برگردان
-            mainTitleInput.value = originalTitle;
-            console.log("DEBUG: No change in title. Aborting fetch.");
-        }
-    };
-    
-    // رویدادهای blur و keydown بدون تغییر باقی می‌مانند
-    mainTitleInput.addEventListener('blur', saveMainTitle);
-    mainTitleInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') { e.preventDefault(); mainTitleInput.blur(); }
-        if (e.key === 'Escape') { mainTitleInput.value = mainTitleSpan.textContent.trim(); mainTitleInput.blur(); }
-    });
-// ...
-
-
-
-
-    mainTitleInput.addEventListener('blur', saveMainTitle);
-    mainTitleInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') { e.preventDefault(); mainTitleInput.blur(); }
-        if (e.key === 'Escape') { mainTitleInput.value = mainTitleSpan.textContent.trim(); mainTitleInput.blur(); }
-    });
-
-
-    // --- منطق ویرایش هر یک از مراحل ---
-    allSteps.forEach(stepLi => {
-        const titleSpan = stepLi.querySelector('.step-title');
-        const editInput = stepLi.querySelector('.edit-input');
-
-        titleSpan.addEventListener('click', (e) => {
-            if (taskCard.classList.contains('edit-mode')) {
-                e.stopPropagation();
-                stepLi.classList.add('editing');
-                editInput.focus();
-                editInput.select();
-            }
+            },
         });
 
-        const saveStepEdit = async () => {
-            if (!stepLi.classList.contains('editing')) return;
-            const newTitle = editInput.value.trim();
-            const stepId = stepLi.dataset.stepId;
-            const originalTitle = titleSpan.textContent.trim();
-            stepLi.classList.remove('editing');
-
-            if (newTitle && newTitle !== originalTitle) {
-                try {
-                    await fetch(`${API_URL}/${task.id}/workflow/${stepId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ title: newTitle }),
-                    });
-                    titleSpan.textContent = newTitle;
-                } catch (err) {
-                    alert(err.message);
-                    editInput.value = originalTitle;
-                }
-            } else {
-                editInput.value = originalTitle;
+        // بایگانی
+        taskCard.querySelector('.actions-footer .archive').onclick = async () => {
+            removeTaskCard(taskCard);
+            try {
+                await fetch(`${API_URL}/${taskData.id}/archive`, { method: 'POST' });
+                fetchAndRender('archived');
+            } catch (err) {
+                alert("خطا در بایگانی."); fetchAndRender();
             }
         };
 
-        editInput.addEventListener('blur', saveStepEdit);
-        editInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') { e.preventDefault(); saveStepEdit(); }
-            if (e.key === 'Escape') {
-                stepLi.classList.remove('editing');
-                editInput.value = titleSpan.textContent.trim();
+        // افزودن مرحله
+        // <<<<<<<<<<<<<<<< این رویداد را به طور کامل جایگزین کنید >>>>>>>>>>>>>>>>
+        // افزودن مرحله (نسخه نهایی و خوش‌بینانه)
+        const addStepBtn = taskCard.querySelector('.add-step-btn');
+        const newStepInput = taskCard.querySelector('.new-step-input');
+        addStepBtn.onclick = async () => {
+            const stepName = newStepInput.value.trim();
+            if (!stepName) return alert('نام مرحله نمی‌تواند خالی باشد.');
+
+            const tempId = `temp-${Date.now()}`; // یک آیدی موقت برای المان DOM
+            const newStepData = {
+                id: tempId,
+                title: stepName,
+                done: false
+            };
+            
+            // ۱. آپدیت خوش‌بینانه: بلافاصله المان را بساز و به DOM اضافه کن
+            const newStepElement = createStepElement(newStepData);
+            newStepElement.classList.add('newly-added');
+            workflowList.appendChild(newStepElement);
+            
+            // به صورت موقت، رویدادها را به این المان اضافه می‌کنیم (به جز حذف و ویرایش)
+            newStepElement.querySelector('.checkbox').onclick = () => {
+                alert("لطفاً صبر کنید تا مرحله ذخیره شود.");
+                return false; // جلوی تیک زدن را می‌گیرد
+            };
+            
+            const originalInputValue = newStepInput.value;
+            newStepInput.value = '';
+            newStepInput.focus();
+            addStepBtn.disabled = true;
+
+            try {
+                // ۲. ارسال درخواست به سرور در پس‌زمینه
+                const response = await fetch(`${API_URL}/${taskData.id}/workflow`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ step: stepName }) });
+                
+                if (!response.ok) throw new Error('Failed to add step');
+                
+                const updatedTask = await response.json();
+                const newlySavedStep = updatedTask.workflow.find(s => s.title === stepName && !taskData.workflow.some(ts => ts.id === s.id));
+                
+                if (newlySavedStep) {
+                    // ۳. آپدیت المان موقت با ID واقعی از سرور
+                    const tempElement = workflowList.querySelector(`[data-step-id="${tempId}"]`);
+                    if (tempElement) {
+                        tempElement.dataset.stepId = newlySavedStep.id; // آیدی واقعی را جایگزین کن
+                        // حالا رویدادهای کامل را به آن متصل می‌کنیم
+                        initializeStepInteractions(tempElement, updatedTask, taskCard);
+                    }
+                }
+                // داده‌های محلی را هم آپدیت می‌کنیم
+                taskData.workflow = updatedTask.workflow;
+
+            } catch (err) {
+                alert("خطا در افزودن مرحله: " + err.message);
+                // در صورت خطا، المان موقتی که اضافه کردیم را حذف می‌کنیم
+                const tempElement = workflowList.querySelector(`[data-step-id="${tempId}"]`);
+                if (tempElement) tempElement.remove();
+                newStepInput.value = originalInputValue; // مقدار قبلی را برمی‌گردانیم
+            } finally {
+                addStepBtn.disabled = false;
+            }
+        };
+
+        // منطق حالت ویرایش (کامل و بدون تغییر)
+        const editTaskBtn = taskCard.querySelector('.action-btn.edit-task');
+        const mainTitleSpan = taskCard.querySelector('.task-main-title');
+        const mainTitleInput = taskCard.querySelector('.edit-main-title-input');
+        let originalMainTitleValue = '';
+        editTaskBtn.addEventListener('click', () => {
+            const isInEditMode = taskCard.classList.contains('edit-mode');
+            if (isInEditMode) {
+                taskCard.classList.remove('edit-mode');
+                mainTitleInput.value = originalMainTitleValue;
+            } else {
+                originalMainTitleValue = mainTitleSpan.textContent.trim();
+                mainTitleInput.value = originalMainTitleValue;
+                taskCard.classList.add('edit-mode');
             }
         });
+        const saveMainTitle = async () => {
+            const newTitle = mainTitleInput.value.trim();
+            if (newTitle && newTitle !== originalMainTitleValue) {
+                try {
+                    await fetch(`${API_URL}/${taskData.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: newTitle }) });
+                    mainTitleSpan.textContent = newTitle;
+                    mainTitleSpan.title = newTitle;
+                    originalMainTitleValue = newTitle;
+                } catch (err) { alert('خطا در ذخیره عنوان: ' + err.message); mainTitleInput.value = originalMainTitleValue; }
+            } else { mainTitleInput.value = originalMainTitleValue; }
+        };
+        mainTitleInput.addEventListener('blur', saveMainTitle);
+        mainTitleInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); mainTitleInput.blur(); } if (e.key === 'Escape') { mainTitleInput.value = originalMainTitleValue; mainTitleInput.blur(); }});
+
+
+    } else { // --- رویدادهای مختص تسک‌های بایگانی شده ---
+        taskCard.querySelector('.actions-footer .restore').onclick = async () => {
+            removeTaskCard(taskCard);
+            try {
+                await fetch(`${API_URL}/${taskData.id}/restore`, { method: 'POST' });
+                fetchAndRender('active');
+            } catch (err) {
+                alert("خطا در بازیابی."); fetchAndRender();
+            }
+        };
+    }
+}
+
+
+
+
+function initializeStepInteractions(stepElement, taskData, taskCard) {
+    const stepId = stepElement.dataset.stepId;
+    
+    // Expand/Collapse
+    const titleSpan = stepElement.querySelector('.step-title');
+    const isClamped = titleSpan.offsetHeight < titleSpan.scrollHeight;
+    if (isClamped) {
+        titleSpan.addEventListener('click', (e) => {
+            if (!taskCard.classList.contains('edit-mode')) {
+                titleSpan.classList.toggle('expanded');
+            }
+        });
+    } else {
+        titleSpan.style.cursor = 'default';
+    }
+
+    // تیک زدن
+    stepElement.querySelector('.checkbox').addEventListener('click', async (e) => {
+        const checkbox = e.currentTarget;
+        const isCompleted = stepElement.classList.contains('completed');
+        const newDoneState = !isCompleted;
+        stepElement.classList.toggle('completed', newDoneState);
+        checkbox.setAttribute('aria-checked', newDoneState);
+        try {
+            const response = await fetch(`${API_URL}/${taskData.id}/workflow/${stepId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ done: newDoneState }) });
+            if (!response.ok) throw new Error('Server update failed');
+        } catch (err) {
+            alert("خطا در به‌روزرسانی وضعیت.");
+            stepElement.classList.toggle('completed', isCompleted);
+            checkbox.setAttribute('aria-checked', isCompleted);
+        }
+    });
+
+    // حذف مرحله
+    stepElement.querySelector('.delete-step-btn').addEventListener('click', async (e) => {
+        if (!confirm(`آیا از حذف مرحله "${titleSpan.textContent}" مطمئن هستید؟`)) return;
+        stepElement.classList.add('is-deleting');
+        stepElement.addEventListener('animationend', () => stepElement.remove());
+        try {
+            const response = await fetch(`${API_URL}/${taskData.id}/workflow/${stepId}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Server delete failed');
+        } catch (err) {
+            alert("خطا در حذف مرحله."); fetchAndRender();
+        }
+    });
+    
+    // ویرایش مرحله
+    const editInput = stepElement.querySelector('.edit-input');
+    let originalStepTitle = '';
+    titleSpan.addEventListener('click', (e) => {
+        if (taskCard.classList.contains('edit-mode')) {
+            e.stopPropagation();
+            originalStepTitle = titleSpan.textContent.trim();
+            stepElement.classList.add('editing');
+            editInput.focus();
+            editInput.select();
+        }
+    });
+    const saveStepEdit = async () => {
+        if (!stepElement.classList.contains('editing')) return;
+        const newTitle = editInput.value.trim();
+        stepElement.classList.remove('editing');
+        if (newTitle && newTitle !== originalStepTitle) {
+            try {
+                await fetch(`${API_URL}/${taskData.id}/workflow/${stepId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: newTitle }) });
+                titleSpan.textContent = newTitle;
+            } catch (err) {
+                alert(err.message); editInput.value = originalStepTitle;
+            }
+        } else {
+            editInput.value = originalStepTitle;
+        }
+    };
+    editInput.addEventListener('blur', saveStepEdit);
+    editInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveStepEdit(); } if (e.key === 'Escape') { stepElement.classList.remove('editing'); editInput.value = originalStepTitle; }});
+}
+
+
+// -------------------------------------------------------------------
+// بخش ۳: توابع اصلی برنامه
+// -------------------------------------------------------------------
+
+function renderTasks(tasks, container) {
+    container.innerHTML = '';
+    tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    tasks.forEach(taskData => {
+        const taskElement = addTaskToDOM(taskData);
+        container.appendChild(taskElement);
+        initializeTaskInteractions(taskElement, taskData);
     });
 }
-// ================================================================
-//          پایان منطق جدید حالت ویرایش
-// ================================================================
 
+async function fetchAndRender(only = null) {
+    try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error('خطا در دریافت داده‌ها');
+        const tasks = await res.json();
+        const activeTasks = tasks.filter(t => !t.archived);
+        const archivedTasks = tasks.filter(t => t.archived);
 
-
+        if (only !== 'archived') {
+            renderTasks(activeTasks, activeContainer);
+        }
+        if (only !== 'active') {
+            renderTasks(archivedTasks, archivedContainer);
+        }
+        
+        checkEmptyStates();
+        handleResponsiveLayout();
+    } catch (e) {
+        console.error(e);
+        alert(e.message);
+    }
 }
 
+// -------------------------------------------------------------------
+// بخش ۴: رویدادهای اولیه و بارگذاری
+// -------------------------------------------------------------------
 
-  document.getElementById('custom-floating-form__form').onsubmit = async e => {
+tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const targetId = tab.getAttribute('data-target');
+        document.querySelectorAll('.tasks-section').forEach(section => {
+            section.classList.toggle('active', section.id === targetId);
+        });
+    });
+});
+
+document.getElementById('custom-floating-form__form').onsubmit = async e => {
     e.preventDefault();
     const form = e.target;
     const title = form.title.value.trim();
     const description = form.description.value.trim();
     if (!title) return alert('عنوان نمی‌تواند خالی باشد.');
+
+    const submitButton = form.querySelector('.custom-floating-form__submit');
+    submitButton.disabled = true;
+    submitButton.textContent = 'در حال افزودن...';
+
+    // این یک تابع سراسری از اسکریپت انیمیشن فرم است
+    if (typeof closeForm === "function") {
+        closeForm();
+    }
+    
     try {
-      const res = await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({title, description, workflow: []}) });
-      if (!res.ok) throw new Error('خطا در افزودن تسک');
-      fetchAndRender();
-    } catch(err) { alert(err.message); }
-  };
-  
-  async function initialLoad() {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, description, workflow: [] }),
+        });
+        if (!response.ok) throw new Error('خطا در افزودن وظیفه جدید');
+        
+        const newTaskData = await response.json();
+        const newTaskElement = addTaskToDOM(newTaskData);
+        newTaskElement.classList.add('newly-created');
+        activeContainer.prepend(newTaskElement);
+        checkEmptyStates();
+        initializeTaskInteractions(newTaskElement, newTaskData);
+        newTaskElement.addEventListener('animationend', () => {
+            newTaskElement.classList.remove('newly-created');
+        });
+    } catch (err) {
+        alert(err.message);
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'افزودن';
+        form.reset();
+    }
+};
+
+function handleResponsiveLayout() {
+  const screenWidth = window.innerWidth;
+  document.querySelectorAll('.task').forEach(task => {
+    const header = task.querySelector('.task-header');
+    const dateEl = header.querySelector('.task-date');
+    if (!dateEl) return;
+    if (screenWidth <= 500 && dateEl.parentElement === header) {
+      // این بخش دیگر لازم نیست چون تاریخ همیشه در فوتر است
+    } 
+  });
+}
+
+async function initialLoad() {
   await fetchAndRender();
-  handleResponsiveLayout(); // <<-- فراخوانی بعد از بارگذاری اولیه
+  //handleResponsiveLayout();
+  // اضافه کردن رویدادهای تور راهنما
+  const tour = new TourGuide();
+  const startTourBtn = document.getElementById('start-tour-btn');
+  if (startTourBtn) {
+    startTourBtn.addEventListener('click', () => tour.start());
+  }
+  // اضافه کردن رویدادهای مربوط به دکمه شناور
+  const fab = document.querySelector(".custom-floating-form__fab");
+  if(fab && typeof initializeFab === "function") {
+      initializeFab();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', initialLoad);
-window.addEventListener('resize', handleResponsiveLayout); // <<-- فراخوانی هنگام تغییر سایز پنجره
+window.addEventListener('resize', handleResponsiveLayout);
 
 </script>
 
   <!-- انیمیشن Anime.js (بدون تغییر) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const fab = document.querySelector(".custom-floating-form__fab");
-  const wrapper = document.querySelector(".custom-floating-form");
-  const form = wrapper.querySelector(".custom-floating-form__form");
-  const closeBtn = wrapper.querySelector(".custom-floating-form__close-btn");
-  const overlay = document.querySelector(".custom-floating-form__overlay");
-  let isOpen = false;
+    // برای اینکه توابع در دسترس باشند، آنها را در حوزه سراسری قرار می‌دهیم
+    let closeForm;
 
-  function openForm() {
-    if (isOpen) return;
-    isOpen = true;
-    overlay.classList.add('active');
-    anime({
-      targets: fab,
-      scale: 0.4,
-      opacity: 0,
-      duration: 250,
-      easing: 'easeOutQuad',
-      complete: () => { fab.style.display = 'none'; }
-    });
-    wrapper.style.display = 'flex';
-    anime({
-      targets: wrapper,
-      width: ['60px', '90%'],
-      maxWidth: ['60px', '500px'],
-      height: ['60px', window.innerWidth <= 600 ? '320px' : '280px'],
-      borderRadius: ['50%', '20px'],
-      translateX: ['-50%', '-50%'],
-      translateY: ['-50%', '-50%'],
-      scale: [0.8, 1],
-      easing: 'easeOutElastic(1, .6)',
-      duration: 700,
-      begin: () => { form.classList.add("active"); }
-    });
-  }
+    document.addEventListener("DOMContentLoaded", () => {
+      const fab = document.querySelector(".custom-floating-form__fab");
+      const wrapper = document.querySelector(".custom-floating-form");
+      const form = wrapper.querySelector(".custom-floating-form__form");
+      const closeBtn = wrapper.querySelector(".custom-floating-form__close-btn");
+      const overlay = document.querySelector(".custom-floating-form__overlay");
+      let isOpen = false;
 
-  function closeForm() {
-    if (!isOpen) return;
-    isOpen = false;
-    form.classList.remove("active");
-    anime({
-      targets: wrapper,
-      scale: [1, 0.8],
-      opacity: [1, 0],
-      easing: 'easeInBack',
-      duration: 400,
-      complete: () => {
-        wrapper.style.display = 'none';
-        wrapper.style.opacity = 1;
-        overlay.classList.remove('active');
-        fab.style.display = 'flex';
-        anime({
-          targets: fab,
-          scale: 1,
-          opacity: 1,
-          duration: 350,
-          easing: 'easeOutQuad'
-        });
+      function openForm() {
+        if (isOpen) return;
+        isOpen = true;
+        overlay.classList.add('active');
+        anime({ targets: fab, scale: 0.4, opacity: 0, duration: 250, easing: 'easeOutQuad', complete: () => { fab.style.display = 'none'; } });
+        wrapper.style.display = 'flex';
+        anime({ targets: wrapper, width: ['60px', '90%'], maxWidth: ['60px', '500px'], height: ['60px', window.innerWidth <= 600 ? '320px' : '280px'], borderRadius: ['50%', '20px'], translateX: ['-50%', '-50%'], translateY: ['-50%', '-50%'], scale: [0.8, 1], easing: 'easeOutElastic(1, .6)', duration: 700, begin: () => { form.classList.add("active"); } });
       }
+
+      closeForm = function() {
+        if (!isOpen) return;
+        isOpen = false;
+        form.classList.remove("active");
+        anime({ targets: wrapper, scale: [1, 0.8], opacity: [1, 0], easing: 'easeInBack', duration: 400, complete: () => { wrapper.style.display = 'none'; wrapper.style.opacity = 1; overlay.classList.remove('active'); fab.style.display = 'flex'; anime({ targets: fab, scale: 1, opacity: 1, duration: 350, easing: 'easeOutQuad' }); } });
+      }
+
+      fab.addEventListener('click', openForm);
+      closeBtn.addEventListener('click', closeForm);
+      overlay.addEventListener('click', closeForm);
+      form.addEventListener('submit', (e) => {
+          // بستن فرم توسط رویداد onsubmit اصلی مدیریت می‌شود
+      });
     });
-  }
-
-  fab.addEventListener('click', openForm);
-  closeBtn.addEventListener('click', closeForm);
-  overlay.addEventListener('click', closeForm);
-  form.addEventListener('submit', (e) => {
-    setTimeout(() => {
-      form.reset();
-      closeForm();
-    }, 100);
-  });
-});
-
-    </script>
+  </script>
 
   <!-- اسکریپت تور راهنما (بدون تغییر) -->
   <script>
@@ -1413,79 +1039,42 @@ document.addEventListener("DOMContentLoaded", () => {
         this.steps = Array.from(document.querySelectorAll('[data-tour-step]')).sort((a, b) => parseInt(a.dataset.tourStep) - parseInt(b.dataset.tourStep));
         this.currentStep = 0; this.overlay = document.querySelector('.tour-overlay'); this.highlightBox = document.querySelector('.tour-highlight-box');
         this.tooltip = document.querySelector('.tour-tooltip'); this.tooltipText = this.tooltip.querySelector('.tour-tooltip-text'); this.nextBtn = this.tooltip.querySelector('.tour-next-btn');
-        this.nextBtn.addEventListener('click', () => this.nextStep());
+        if(this.nextBtn) this.nextBtn.addEventListener('click', () => this.nextStep());
       }
       start() { if (this.steps.length === 0) return; this.currentStep = 0; this.overlay.style.display = 'block'; this.showStep(this.currentStep); document.body.style.overflow = 'hidden'; }
       end() { this.overlay.style.display = 'none'; this.highlightBox.style.display = 'none'; this.tooltip.style.display = 'none'; document.body.style.overflow = ''; }
       showStep(index) {
-        if (index >= this.steps.length) {
-          return this.end();
-        }
+        if (index >= this.steps.length) { return this.end(); }
         const el = this.steps[index];
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
         setTimeout(() => {
           const rect = el.getBoundingClientRect();
-
-          // 1. هایلایت کردن عنصر مورد نظر (بدون تغییر)
           this.highlightBox.style.display = 'block';
-          this.highlightBox.style.top = `${rect.top - 5}px`;
-          this.highlightBox.style.left = `${rect.left - 5}px`;
-          this.highlightBox.style.width = `${rect.width + 10}px`;
-          this.highlightBox.style.height = `${rect.height + 10}px`;
-
-          // --- شروع منطق جدید و دقیق برای موقعیت‌یابی Tooltip ---
-
-          // 2. آماده‌سازی tooltip برای محاسبه ابعاد
+          this.highlightBox.style.top = `${rect.top - 5}px`; this.highlightBox.style.left = `${rect.left - 5}px`;
+          this.highlightBox.style.width = `${rect.width + 10}px`; this.highlightBox.style.height = `${rect.height + 10}px`;
           this.tooltipText.textContent = el.dataset.tour || '';
-          this.tooltip.style.visibility = 'hidden'; // نامرئی می‌کنیم تا ابعادش محاسبه شود
-          this.tooltip.style.display = 'block';
+          this.tooltip.style.visibility = 'hidden'; this.tooltip.style.display = 'block';
           const tooltipRect = this.tooltip.getBoundingClientRect();
-
-          // 3. محاسبه موقعیت عمودی (بالا یا پایین عنصر)
           let tooltipTop = rect.bottom + 15;
           this.tooltip.classList.remove('pos-top', 'pos-bottom');
           if (tooltipTop + tooltipRect.height > window.innerHeight) {
             tooltipTop = rect.top - tooltipRect.height - 15;
             this.tooltip.classList.add('pos-top');
-          } else {
-            this.tooltip.classList.add('pos-bottom');
-          }
-
-          // 4. محاسبه موقعیت افقی اولیه (مرکز عنصر)
+          } else { this.tooltip.classList.add('pos-bottom'); }
           let tooltipLeft = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
-
-          // 5. **مهم‌ترین بخش: بررسی و اصلاح بیرون‌زدگی**
-          const margin = 10; // فاصله از لبه‌های صفحه
-          if (tooltipLeft < margin) {
-            tooltipLeft = margin;
-          }
-          if (tooltipLeft + tooltipRect.width > window.innerWidth - margin) {
-            tooltipLeft = window.innerWidth - tooltipRect.width - margin;
-          }
-          
-          // اگر موقعیت عمودی هم از صفحه بیرون زد (برای موارد خاص)، آن را اصلاح می‌کنیم
-           if (tooltipTop < margin) {
-            tooltipTop = margin;
-          }
-          if (tooltipTop + tooltipRect.height > window.innerHeight - margin) {
-            tooltipTop = window.innerHeight - tooltipRect.height - margin;
-          }
-
-          // 6. اعمال موقعیت نهایی و نمایش tooltip
-          this.tooltip.style.top = `${tooltipTop}px`;
-          this.tooltip.style.left = `${tooltipLeft}px`;
-          this.tooltip.style.visibility = 'visible'; // حالا آن را مرئی می‌کنیم
-
-          // --- پایان منطق جدید ---
-
+          const margin = 10;
+          if (tooltipLeft < margin) { tooltipLeft = margin; }
+          if (tooltipLeft + tooltipRect.width > window.innerWidth - margin) { tooltipLeft = window.innerWidth - tooltipRect.width - margin; }
+          if (tooltipTop < margin) { tooltipTop = margin; }
+          if (tooltipTop + tooltipRect.height > window.innerHeight - margin) { tooltipTop = window.innerHeight - tooltipRect.height - margin; }
+          this.tooltip.style.top = `${tooltipTop}px`; this.tooltip.style.left = `${tooltipLeft}px`;
+          this.tooltip.style.visibility = 'visible';
           this.nextBtn.textContent = (index === this.steps.length - 1) ? 'پایان' : 'بعدی';
-        }, 350); // کمی تاخیر بیشتر برای اطمینان کامل
+        }, 350);
       }
       nextStep() { this.currentStep++; this.showStep(this.currentStep); }
     }
-    const tour = new TourGuide();
-    document.getElementById('start-tour-btn').addEventListener('click', () => { tour.start(); });
   </script>
+
 </body>
 </html>
