@@ -462,6 +462,62 @@
       .task-details .actions-footer .action-buttons { align-self: flex-end; }
     }
 
+
+    /* --- استایل‌های جدید برای افزودن مرحله داینامیک --- */
+.action-btn.add-step-trigger-btn:hover {
+  color: var(--green-dark); /* رنگ سبز هنگام هاور */
+}
+
+.new-step-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.25rem;
+  animation: fadeInDown 0.4s ease-out; /* انیمیشن ورود */
+}
+
+.dynamic-new-step-input {
+  flex-grow: 1;
+  padding: 0.6rem 0.8rem;
+  border: 1.5px solid var(--green); /* حاشیه سبز برای تاکید */
+  border-radius: 6px;
+  outline: none;
+  font-family: 'Vazir', sans-serif; /* <<-- اعمال فونت وزیر */
+  font-size: 0.9rem;
+  background-color: var(--green-bg-light);
+}
+
+.new-step-input-wrapper button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.5rem;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.new-step-input-wrapper .save-new-step-btn {
+  color: var(--green);
+}
+.new-step-input-wrapper .save-new-step-btn:hover {
+  background-color: var(--green-bg);
+  color: var(--green-dark);
+}
+
+.new-step-input-wrapper .cancel-new-step-btn {
+  color: var(--text-light);
+}
+.new-step-input-wrapper .cancel-new-step-btn:hover {
+  background-color: #fbe9e7; /* یک پس‌زمینه قرمز خیلی روشن */
+  color: var(--danger);
+}
+
   </style>
 </head>
 <body>
@@ -593,15 +649,19 @@ function addTaskToDOM(task) {
           <div class="task-details-main-content">
               <p>${escapeHtml(task.description) || '<i>بدون توضیحات</i>'}</p>
               <ul class="workflow-list"></ul>
-              ${!isArchived ? `
-              <div class="add-step-container">
-                  <input type="text" class="new-step-input" placeholder="نام مرحله جدید...">
-                  <button class="add-step-btn">افزودن</button>
-              </div>` : ''}
+              <!-- کانتینر افزودن مرحله از اینجا حذف شد -->
           </div>
           <div class="actions-footer">
               <div class="action-buttons">
-              ${!isArchived ? `<button class="action-btn edit-task" title="ویرایش وظیفه"><i class="fas fa-pencil-alt"></i></button> <button class="action-btn archive" title="بایگانی"><i class="fas fa-archive"></i></button> <button class="action-btn delete" title="حذف"><i class="fas fa-trash-alt"></i></button>` : `<button class="action-btn restore" title="بازیابی"><i class="fas fa-undo-alt"></i></button> <button class="action-btn delete" title="حذف کامل"><i class="fas fa-trash-alt"></i></button>`}
+              ${!isArchived ? `
+                <button class="action-btn add-step-trigger-btn" title="افزودن مرحله"><i class="fas fa-plus"></i></button>
+                <button class="action-btn edit-task" title="ویرایش وظیفه"><i class="fas fa-pencil-alt"></i></button>
+                <button class="action-btn archive" title="بایگانی"><i class="fas fa-archive"></i></button>
+                <button class="action-btn delete" title="حذف"><i class="fas fa-trash-alt"></i></button>
+              ` : `
+                <button class="action-btn restore" title="بازیابی"><i class="fas fa-undo-alt"></i></button>
+                <button class="action-btn delete" title="حذف کامل"><i class="fas fa-trash-alt"></i></button>
+              `}
               </div>
               <span class="task-date-footer">${shamsiDate}</span>
           </div>
@@ -617,14 +677,14 @@ function addTaskToDOM(task) {
     return div;
 }
 
-// <<<<<<<<<<<<<<<< این تابع را به طور کامل جایگزین کنید >>>>>>>>>>>>>>>>
+
+
 function initializeTaskInteractions(taskCard, taskData) {
     const isArchived = taskData.archived;
     const workflowList = taskCard.querySelector('.workflow-list');
 
     // --- رویدادهای عمومی کارت ---
     taskCard.querySelector('.task-header').addEventListener('click', (e) => {
-        // جلوگیری از باز/بسته شدن هنگام کلیک روی اینپوت ویرایش
         if (!e.target.closest('.edit-main-title-input')) {
             taskCard.classList.toggle('expanded');
         }
@@ -649,21 +709,17 @@ function initializeTaskInteractions(taskCard, taskData) {
     if (!isArchived) {
         // فعال کردن قابلیت کشیدن و رها کردن (Drag & Drop)
         new Sortable(workflowList, {
-            animation: 150,
-            handle: '.drag-handle',
-            ghostClass: 'step-ghost',
+            animation: 150, handle: '.drag-handle', ghostClass: 'step-ghost',
             onEnd: async (evt) => {
                 const newOrderIds = Array.from(evt.target.children).map(li => li.dataset.stepId);
                 try {
                     await fetch(`${API_URL}/${taskData.id}/workflow/reorder`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ order: newOrderIds }),
                     });
-                    // نیازی به fetchAndRender نیست چون ترتیب در DOM درست است
                 } catch (err) {
                     alert('خطا در ذخیره ترتیب جدید. لطفا صفحه را رفرش کنید.');
-                    fetchAndRender(); // در صورت خطا، بازسازی می‌کنیم
+                    fetchAndRender();
                 }
             },
         });
@@ -679,71 +735,84 @@ function initializeTaskInteractions(taskCard, taskData) {
             }
         };
 
-        // افزودن مرحله
-        // <<<<<<<<<<<<<<<< این رویداد را به طور کامل جایگزین کنید >>>>>>>>>>>>>>>>
-        // افزودن مرحله (نسخه نهایی و خوش‌بینانه)
-        const addStepBtn = taskCard.querySelector('.add-step-btn');
-        const newStepInput = taskCard.querySelector('.new-step-input');
-        addStepBtn.onclick = async () => {
-            const stepName = newStepInput.value.trim();
-            if (!stepName) return alert('نام مرحله نمی‌تواند خالی باشد.');
+        // <<<<<<<<<<<<<<<< منطق جدید افزودن مرحله >>>>>>>>>>>>>>>>
+        const addStepTriggerBtn = taskCard.querySelector('.add-step-trigger-btn');
+        addStepTriggerBtn.addEventListener('click', () => {
+            // اگر از قبل یک فرم باز وجود داشت، کاری نکن
+            if (workflowList.querySelector('.new-step-input-wrapper')) return;
 
-            const tempId = `temp-${Date.now()}`; // یک آیدی موقت برای المان DOM
-            const newStepData = {
-                id: tempId,
-                title: stepName,
-                done: false
-            };
+            // ۱. ساخت المان‌های فرم ورودی
+            const newStepLi = document.createElement('li');
+            newStepLi.className = 'new-step-input-wrapper'; // از workflow-step استفاده نمی‌کنیم تا draggable نباشد
+            newStepLi.innerHTML = `
+              <input type="text" class="dynamic-new-step-input" placeholder="عنوان مرحله جدید...">
+              <button class="save-new-step-btn" title="تایید"><i class="fas fa-check"></i></button>
+              <button class="cancel-new-step-btn" title="انصراف"><i class="fas fa-times"></i></button>
+            `;
+            workflowList.appendChild(newStepLi);
             
-            // ۱. آپدیت خوش‌بینانه: بلافاصله المان را بساز و به DOM اضافه کن
-            const newStepElement = createStepElement(newStepData);
-            newStepElement.classList.add('newly-added');
-            workflowList.appendChild(newStepElement);
-            
-            // به صورت موقت، رویدادها را به این المان اضافه می‌کنیم (به جز حذف و ویرایش)
-            newStepElement.querySelector('.checkbox').onclick = () => {
-                alert("لطفاً صبر کنید تا مرحله ذخیره شود.");
-                return false; // جلوی تیک زدن را می‌گیرد
-            };
-            
-            const originalInputValue = newStepInput.value;
-            newStepInput.value = '';
-            newStepInput.focus();
-            addStepBtn.disabled = true;
+            const inputField = newStepLi.querySelector('.dynamic-new-step-input');
+            const saveBtn = newStepLi.querySelector('.save-new-step-btn');
+            const cancelBtn = newStepLi.querySelector('.cancel-new-step-btn');
 
-            try {
-                // ۲. ارسال درخواست به سرور در پس‌زمینه
-                const response = await fetch(`${API_URL}/${taskData.id}/workflow`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ step: stepName }) });
-                
-                if (!response.ok) throw new Error('Failed to add step');
-                
-                const updatedTask = await response.json();
-                const newlySavedStep = updatedTask.workflow.find(s => s.title === stepName && !taskData.workflow.some(ts => ts.id === s.id));
-                
-                if (newlySavedStep) {
-                    // ۳. آپدیت المان موقت با ID واقعی از سرور
-                    const tempElement = workflowList.querySelector(`[data-step-id="${tempId}"]`);
-                    if (tempElement) {
-                        tempElement.dataset.stepId = newlySavedStep.id; // آیدی واقعی را جایگزین کن
-                        // حالا رویدادهای کامل را به آن متصل می‌کنیم
-                        initializeStepInteractions(tempElement, updatedTask, taskCard);
-                    }
+            inputField.focus();
+
+            // ۲. تعریف تابع ذخیره
+            const saveNewStep = async () => {
+                const stepName = inputField.value.trim();
+                if (!stepName) {
+                    inputField.focus();
+                    return;
                 }
-                // داده‌های محلی را هم آپدیت می‌کنیم
-                taskData.workflow = updatedTask.workflow;
+                
+                // غیرفعال کردن دکمه‌ها برای جلوگیری از کلیک مجدد
+                saveBtn.disabled = true;
+                cancelBtn.disabled = true;
+                inputField.disabled = true;
 
-            } catch (err) {
-                alert("خطا در افزودن مرحله: " + err.message);
-                // در صورت خطا، المان موقتی که اضافه کردیم را حذف می‌کنیم
-                const tempElement = workflowList.querySelector(`[data-step-id="${tempId}"]`);
-                if (tempElement) tempElement.remove();
-                newStepInput.value = originalInputValue; // مقدار قبلی را برمی‌گردانیم
-            } finally {
-                addStepBtn.disabled = false;
-            }
-        };
+                try {
+                    const response = await fetch(`${API_URL}/${taskData.id}/workflow`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ step: stepName })
+                    });
+                    if (!response.ok) throw new Error('خطا در ارتباط با سرور');
+                    
+                    const updatedTask = await response.json();
+                    const newStepData = updatedTask.workflow.find(s => s.title === stepName && !taskData.workflow.some(ts => ts.id === s.id));
+                    
+                    if (newStepData) {
+                        const newStepElement = createStepElement(newStepData);
+                        newStepElement.classList.add('newly-added');
+                        workflowList.replaceChild(newStepElement, newStepLi); // جایگزینی فرم با آیتم اصلی
+                        initializeStepInteractions(newStepElement, updatedTask, taskCard);
+                        taskData.workflow = updatedTask.workflow; // آپدیت داده‌های لوکال
+                    } else {
+                        throw new Error('مرحله جدید در پاسخ سرور یافت نشد.');
+                    }
+                } catch (err) {
+                    alert('خطا در افزودن مرحله: ' + err.message);
+                    newStepLi.remove(); // در صورت خطا، فرم را حذف کن
+                }
+            };
+            
+            // ۳. اتصال رویدادها
+            saveBtn.onclick = saveNewStep;
+            inputField.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveNewStep();
+                } else if (e.key === 'Escape') {
+                    newStepLi.remove();
+                }
+            });
+            cancelBtn.onclick = () => {
+                newStepLi.remove();
+            };
+        });
 
-        // منطق حالت ویرایش (کامل و بدون تغییر)
+
+        // منطق حالت ویرایش (بدون تغییر)
         const editTaskBtn = taskCard.querySelector('.action-btn.edit-task');
         const mainTitleSpan = taskCard.querySelector('.task-main-title');
         const mainTitleInput = taskCard.querySelector('.edit-main-title-input');
@@ -773,7 +842,6 @@ function initializeTaskInteractions(taskCard, taskData) {
         mainTitleInput.addEventListener('blur', saveMainTitle);
         mainTitleInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); mainTitleInput.blur(); } if (e.key === 'Escape') { mainTitleInput.value = originalMainTitleValue; mainTitleInput.blur(); }});
 
-
     } else { // --- رویدادهای مختص تسک‌های بایگانی شده ---
         taskCard.querySelector('.actions-footer .restore').onclick = async () => {
             removeTaskCard(taskCard);
@@ -786,7 +854,6 @@ function initializeTaskInteractions(taskCard, taskData) {
         };
     }
 }
-
 
 
 
