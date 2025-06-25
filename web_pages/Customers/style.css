@@ -1,0 +1,490 @@
+/* ---  Reset & Global Styles --- */
+:root {
+    --primary-color: #3b82f6; /* آبی مدرن */
+    --primary-hover: #2563eb;
+    --dark-bg: #111827; /* پس‌زمینه منوی تیره */
+    --light-bg: #f3f4f6; /* پس‌زمینه محتوای روشن */
+    --text-dark: #1f2937;
+    --text-light: #f9fafb;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --card-bg: #ffffff;
+    --success-color: #10b981;
+    --pending-color: #f59e0b;
+    --font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --border-radius: 8px;
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    direction: rtl;
+    line-height: 1.6;
+}
+
+.hidden { display: none !important; }
+
+/* --- Login Page Styles --- */
+#login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: var(--dark-bg);
+}
+
+.login-box {
+    background: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.login-box h2 {
+    margin-bottom: 1.5rem;
+    color: var(--text-dark);
+}
+
+#login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+input[type="email"], input[type="password"], input[type="text"], textarea {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-family: var(--font-family);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+button {
+    padding: 0.75rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: var(--primary-hover);
+}
+
+/* --- Dashboard Layout --- */
+#dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* --- Right Navigation Menu --- */
+#dashboard-nav {
+    width: 260px;
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 1.5rem 0;
+}
+
+.nav-header {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    font-size: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#dashboard-nav ul {
+    list-style: none;
+    flex-grow: 1;
+    margin-top: 1.5rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem 1.5rem;
+    color: #d1d5db; /* Light gray text */
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background-color 0.2s, color 0.2s;
+    border-right: 4px solid transparent;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-light);
+}
+
+.nav-link.active {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: var(--text-light);
+    border-right-color: var(--primary-color);
+    font-weight: 500;
+}
+
+.nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.nav-footer {
+    padding: 0 1rem;
+}
+
+#logout-btn {
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid #4b5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+#logout-btn:hover {
+    background-color: #374151;
+}
+
+/* --- Main Content Area --- */
+#dashboard-content {
+    flex-grow: 1;
+    padding: 2.5rem;
+    overflow-y: auto;
+}
+
+.content-section {
+    display: none; /* All sections hidden by default */
+}
+
+.content-section.active {
+    display: block; /* Active section is shown */
+}
+
+#dashboard-content h1 {
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.card h2 {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+/* --- Specific Section Styles --- */
+
+/* Task List Styles */
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.task-item {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border-left: 5px solid var(--pending-color); /* Yellow for pending */
+}
+
+.task-item.completed {
+    border-left-color: var(--success-color); /* Green for completed */
+}
+
+.task-item.completed p {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+.task-item p { margin: 5px 0; }
+.task-item .note {
+    font-size: 0.9em;
+    color: var(--text-muted);
+    background: var(--light-bg);
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* Billing Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: var(--light-bg);
+    font-weight: 600;
+}
+
+tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+
+
+/* ---  تمام استایل‌های قبلی سر جای خود باقی می‌مانند --- */
+/* ... (کدهای قبلی را اینجا کپی کنید) ... */
+
+/* --- جدید: استایل‌های رابط کاربری چت --- */
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 75vh; /* ارتفاع چت باکس */
+    padding: 0;
+}
+
+.chat-history {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.chat-message {
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    max-width: 70%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* پیام‌های ارسال شده توسط مشتری (sent) */
+.chat-message.sent {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    align-self: flex-end; /* هم‌ترازی به سمت چپ (چون در حالت RTL هستیم) */
+    border-bottom-left-radius: 0;
+}
+
+/* پیام‌های دریافت شده از پشتیبان (received) */
+.chat-message.received {
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    align-self: flex-start; /* هم‌ترازی به سمت راست */
+    border-bottom-right-radius: 0;
+}
+
+.chat-message .message-text {
+    margin-bottom: 0.5rem;
+}
+
+.chat-message .message-meta {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    text-align: left; /* زمان و تیک‌ها همیشه چپ‌چین باشند */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.message-meta .status-ticks {
+    direction: ltr; /* تیک‌ها باید LTR باشند */
+}
+.message-meta .status-ticks .fa-check-double {
+    color: #4ade80; /* رنگ سبز/آبی برای تیک دوم */
+}
+
+.chat-form {
+    display: flex;
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    gap: 0.5rem;
+}
+
+#chat-message-input {
+    flex-grow: 1;
+}
+
+.chat-form button {
+    flex-shrink: 0; /* جلوگیری از کوچک شدن دکمه */
+    width: 100px;
+}
+
+/* استایل شماره حساب در بخش مالی */
+.account-number {
+    background-color: var(--light-bg);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    margin: 1rem 0;
+    font-family: monospace;
+}
+
+
+/* در انتهای style.css اضافه شود */
+.no-message {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    align-self: center;
+    justify-self: center;
+    margin: auto;
+}
+
+
+/* در انتهای فایل style.css اضافه شود */
+.user-identifier {
+    color: #9ca3af; /* یک خاکستری روشن */
+    font-size: 0.875rem; /* 14px */
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap; /* جلوگیری از شکستن خط در ایمیل‌های طولانی */
+    overflow: hidden;
+    text-overflow: ellipsis; /* اگر ایمیل خیلی طولانی بود، سه نقطه (...) نشان می‌دهد */
+    padding: 0 0.5rem;
+}
+
+
+/* در انتهای style.css */
+
+/* استایل فرم افزودن وظیفه */
+.add-task-card {
+    background-color: #eef2ff; /* یک پس‌زمینه آبی ملایم */
+    border: 1px solid #c7d2fe;
+}
+
+#add-task-form .form-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+#add-task-form .form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#add-task-form label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+select {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-family: var(--font-family);
+    background-color: white;
+}
+
+/* استایل بخش نمایش سهمیه */
+.task-quota-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.quota-item strong {
+    display: block;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+.quota-item.limit-reached strong {
+    color: #ef4444; /* قرمز برای زمانی که سهمیه تمام شده */
+}
+.quota-item span {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.task-item.high-priority {
+    border-left-color: #ef4444; /* قرمز برای اولویت بالا */
+}
+
+
+/* استایل صفحه در انتظار تایید */
+.pending-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--light-bg);
+}
+
+.pending-box {
+    background: var(--card-bg);
+    padding: 3rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    max-width: 600px;
+    box-shadow: var(--shadow);
+}
+
+.pending-box i {
+    font-size: 3rem;
+    color: var(--pending-color);
+    margin-bottom: 1.5rem;
+}
+
+.pending-box h2 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.pending-box p {
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+.btn-secondary {
+    background-color: #6b7280;
+}
+.btn-secondary:hover {
+    background-color: #4b5563;
+}
