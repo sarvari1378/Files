@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل کاربری حرفه‌ای</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- بخش لاگین بدون تغییر -->
+    <div id="login-container">
+        <div class="login-box">
+            <h2>ورود به پنل کاربری</h2>
+            <form id="login-form">
+                <input type="email" id="email" placeholder="ایمیل" required>
+                <input type="password" id="password" placeholder="رمز عبور" required>
+                <button type="submit">ورود</button>
+                <p id="login-error" class="error-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- داشبورد اصلی با ساختار جدید -->
+    <div id="dashboard-container" class="hidden">
+        <!-- منوی ناوبری سمت راست -->
+        <nav id="dashboard-nav">
+            <div id="user-identifier" class="user-identifier"></div>
+            <div class="nav-header"><h3>پنل شما</h3></div>
+            <ul>
+                <!-- تب پیشخوان حذف شد -->
+                <li><a href="#" class="nav-link active" data-target="content-tasks"><i class="fas fa-tasks"></i><span>وظایف</span></a></li>
+                <li><a href="#" class="nav-link" data-target="content-chat"><i class="fas fa-comments"></i><span>پشتیبانی (چت)</span></a></li>
+                <li><a href="#" class="nav-link" data-target="content-billing"><i class="fas fa-file-invoice-dollar"></i><span>امور مالی</span></a></li>
+            </ul>
+            <div class="nav-footer">
+                <button id="logout-btn"><i class="fas fa-sign-out-alt"></i><span>خروج</span></button>
+            </div>
+        </nav>
+
+        <!-- محتوای اصلی -->
+        <main id="dashboard-content">
+            
+            <!-- در فایل index.html -->
+            <section id="content-tasks" class="content-section active">
+                <h1>لیست وظایف شما</h1>
+
+                <!-- <<< فرم جدید برای افزودن وظیفه >>> -->
+                <div class="card add-task-card">
+                    <h2>افزودن وظیفه جدید</h2>
+                    <form id="add-task-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="task-title">عنوان وظیفه</label>
+                                <input type="text" id="task-title" placeholder="مثلا: تغییر رنگ دکمه‌ها" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="task-priority">اولویت</label>
+                                <select id="task-priority" required>
+                                    <option value="normal">عادی (انجام در یک هفته)</option>
+                                    <option value="high">با اولویت (انجام تا ۲۴ ساعت)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit">ثبت وظیفه</button>
+                        <p id="add-task-error" class="error-message"></p>
+                    </form>
+                    <div id="task-quota-info" class="task-quota-info">
+                        <!-- اطلاعات سهمیه اینجا نمایش داده می‌شود -->
+                    </div>
+                </div>
+                <!-- <<< پایان فرم جدید >>> -->
+
+                <div id="tasks-list" class="card-container">
+                    <!-- وظایف به صورت کارت‌های داینامیک اینجا اضافه می‌شوند -->
+                </div>
+            </section>
+
+            <!-- جدید: بخش پشتیبانی به شکل چت -->
+            <section id="content-chat" class="content-section">
+                <h1>چت با پشتیبانی</h1>
+                <div class="chat-container card">
+                    <div id="chat-history" class="chat-history">
+                        <!-- پیام‌های چت اینجا لود می‌شوند -->
+                    </div>
+                    <form id="chat-form" class="chat-form">
+                        <input type="text" id="chat-message-input" placeholder="پیام خود را تایپ کنید..." autocomplete="off">
+                        <button type="submit"><i class="fas fa-paper-plane"></i> ارسال</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- جدید: بخش مالی با محتوای استاتیک -->
+            <section id="content-billing" class="content-section">
+                 <h1>امور مالی و قرارداد</h1>
+                 <div class="card">
+                    <h2>نحوه تسویه حساب</h2>
+                    <p>در حال حاضر تسویه حساب به صورت آنلاین امکان‌پذیر نمی‌باشد.</p>
+                    <p>لطفاً مبلغ فاکتور خود را به شماره کارت زیر واریز نمایید:</p>
+                    <p class="account-number"><strong>۶۰۳۷-۹۹۷۹-۱۱۱۱-۲۲۲۲</strong></p>
+                    <p>به نام: [نام شما]</p>
+                    <p>پس از واریز، لطفاً تصویر رسید را از طریق بخش **پشتیبانی (چت)** برای ما ارسال کنید تا تسویه حساب شما در سیستم ثبت گردد.</p>
+                 </div>
+                 <div class="card">
+                    <h2>وضعیت قرارداد</h2>
+                    <!-- اطلاعات زمان تعهد به اینجا منتقل شد -->
+                    <p id="commitment-info">در حال بارگذاری...</p>
+                 </div>
+            </section>
+        </main>
+    </div>
+
+
+    <div id="pending-container" class="container pending-page hidden">
+        <div class="pending-box">
+            <i class="fas fa-hourglass-half"></i>
+            <h2>اکانت شما در انتظار تایید است</h2>
+            <p>
+                حساب کاربری شما با موفقیت ایجاد شده است، تمامی وظایف شما ثبت شده و در حال انجام می باشد اما برای دسترسی به امکانات پنل، نیاز به تایید توسط ادمین دارد.
+                <br>
+                این فاصله به منظور یکپارچه سازی وظایف، بررسی و ثبت آنها می‌باشد به محض تایید، شما قادر به استفاده از تمام بخش‌ها خواهید بود. از شکیبایی شما سپاسگزاریم.
+            </p>
+            <button id="logout-pending-btn" class="btn-secondary">خروج</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
