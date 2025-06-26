@@ -1,0 +1,602 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پلن‌های پشتیبانی و نگهداری وب‌سایت</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a00e0;
+            --secondary-color: #8e2de2;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --text-light: #666;
+            --bg-color: #f4f7fc;
+            --accent-color: #ffc107;
+        }
+
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            background: #e9ecef;
+            border-radius: 50px;
+            padding: 5px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 12px 30px;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            color: var(--text-light);
+        }
+
+        .tab-btn.active {
+            background-image: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        
+        .plan-content {
+            display: none;
+        }
+        .plan-content.active {
+            display: contents; /* Allows grid to see the cards directly */
+        }
+
+        .pricing-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(74, 0, 224, 0.15);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 15px;
+            left: -40px;
+            background: var(--accent-color);
+            color: #333;
+            padding: 5px 40px;
+            font-weight: 700;
+            transform: rotate(-45deg);
+            font-size: 0.9rem;
+        }
+        
+        .card-header {
+            padding: 30px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .card-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .card-header .price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 5px 0 0;
+            color: var(--text-color);
+        }
+        .card-header .price span {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--text-light);
+        }
+        
+        .toggle-icon {
+            font-size: 2rem;
+            font-weight: 300;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .card-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s ease-in-out, padding 0.7s ease-in-out;
+            padding: 0 30px;
+        }
+
+        .pricing-card.active .card-body {
+            max-height: 800px; /* Adjust if content is taller */
+            padding-bottom: 30px;
+        }
+        
+        .pricing-card.active .toggle-icon {
+            transform: rotate(45deg);
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .features-list li .icon {
+            margin-left: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .icon-check {
+            color: #28a745;
+        }
+        
+        .icon-times {
+            color: #dc3545;
+        }
+
+        .contact-price {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            .tab-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>پلن‌های پشتیبانی و نگهداری وب‌سایت</h1>
+            <p>متناسب با نیاز و بودجه شما، بهترین پلن را برای رشد کسب‌وکار آنلاین خود انتخاب کنید.</p>
+        </div>
+
+        <div class="tab-buttons">
+            <button class="tab-btn active" data-target="#laravel-plans">پلن‌های لاراول</button>
+            <button class="tab-btn" data-target="#wordpress-plans">پلن‌های وردپرس</button>
+        </div>
+
+        <!-- Laravel Plans -->
+        <div id="laravel-plans" class="plan-content active">
+            <div class="pricing-grid">
+                <!-- Card 1: پایه -->
+                <div class="pricing-card">
+                    <div class="card-header">
+                        <div class="card-header-content">
+                            <div>
+                                <h2>پایه</h2>
+                                <p class="price">1,500,000 <span>تومان/ماهانه</span></p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="features-list">
+                            <li><span class="icon icon-times">❌</span>پشتیبانی تلفنی 24 ساعته</li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت اول: <strong>1 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت دوم: <strong>3 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت سوم: <strong>5 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف برنامه‌نویسان: <strong>سوم</strong></li>
+                            <li><span class="icon icon-check">✔</span>پشتیبان‌گیری هفتگی</li>
+                            <li><span class="icon icon-times">❌</span>گزارش رتبه محصولات (ترب و...)</li>
+                            <li><span class="icon icon-times">❌</span>تولید محتوا و مقاله</li>
+                            <li><span class="icon icon-times">❌</span>تهیه بنر گرافیکی</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card 2: استاندارد -->
+                <div class="pricing-card">
+		    <div class="popular-badge">به صرفه‌ترین</div>
+                    <div class="card-header">
+                        <div class="card-header-content">
+                            <div>
+                                <h2>استاندارد</h2>
+                                <p class="price">3,500,000 <span>تومان/ماهانه</span></p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="features-list">
+                             <li><span class="icon icon-check">✔</span>پشتیبانی تلفنی (ساعات اداری)</li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت اول: <strong>1 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت دوم: <strong>6 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت سوم: <strong>12 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف برنامه‌نویسان: <strong>دوم</strong></li>
+                            <li><span class="icon icon-check">✔</span>پشتیبان‌گیری روزانه</li>
+                            <li><span class="icon icon-check">✔</span>گزارش ماهانه رتبه (تا 5 محصول)</li>
+                            <li><span class="icon icon-check">✔</span>تولید محتوا: <strong>1 مقاله</strong></li>
+                            <li><span class="icon icon-times">❌</span>تهیه بنر گرافیکی</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card 3: تجاری (محبوب) -->
+                <div class="pricing-card">
+                    <div class="popular-badge">محبوب‌ترین</div>
+                    <div class="card-header">
+                        <div class="card-header-content">
+                            <div>
+                                <h2>تجاری</h2>
+                                <p class="price">5,000,000 <span>تومان/ماهانه</span></p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="features-list">
+                            <li><span class="icon icon-check">✔</span>پشتیبانی تلفنی 24 ساعته</li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت اول: <strong>4 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت دوم: <strong>8 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت سوم: <strong>15 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف برنامه‌نویسان: <strong>دوم (بالا)</strong></li>
+                            <li><span class="icon icon-check">✔</span>پشتیبان‌گیری روزانه (چندین نسخه)</li>
+                            <li><span class="icon icon-check">✔</span>گزارش هفتگی رتبه (تا 15 محصول)</li>
+                            <li><span class="icon icon-check">✔</span>تولید محتوا: <strong>3 مقاله</strong></li>
+                            <li><span class="icon icon-check">✔</span>تهیه بنر گرافیکی: <strong>2 عدد</strong></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card 4: حرفه‌ای -->
+                <div class="pricing-card">
+                    <div class="card-header">
+                        <div class="card-header-content">
+                            <div>
+                                <h2>حرفه‌ای</h2>
+                                <p class="price">7,500,000 <span>تومان/ماهانه</span></p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                         <ul class="features-list">
+                            <li><span class="icon icon-check">✔</span>پشتیبانی تلفنی 24 ساعته (۷ روز هفته)</li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت اول: <strong>6 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت دوم: <strong>12 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت سوم: <strong>نامحدود</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف برنامه‌نویسان: <strong>اول</strong></li>
+                            <li><span class="icon icon-check">✔</span>پشتیبان‌گیری روزانه + قبل از تغییر</li>
+                            <li><span class="icon icon-check">✔</span>گزارش روزانه رتبه (تا 30 محصول)</li>
+                            <li><span class="icon icon-check">✔</span>تولید محتوا: <strong>6 مقاله</strong></li>
+                            <li><span class="icon icon-check">✔</span>تهیه بنر گرافیکی: <strong>5 عدد</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                 <!-- Card 5: ویژه (VIP) -->
+                <div class="pricing-card">
+                    <div class="card-header">
+                        <div class="card-header-content">
+                            <div>
+                                <h2>ویژه (VIP)</h2>
+                                <p class="price">10,000,000 <span>تومان/ماهانه</span></p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                         <ul class="features-list">
+                            <li><span class="icon icon-check">✔</span>پشتیبانی تلفنی ۲۴ ساعته + خط ویژه</li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت اول: <strong>۱۰ عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت دوم: <strong>نامحدود</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت سوم: <strong>نامحدود</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف برنامه‌نویسان: <strong>ویژه (فوری)</strong></li>
+                            <li><span class="icon icon-check">✔</span>پشتیبان‌گیری آنی + روزانه</li>
+                            <li><span class="icon icon-check">✔</span>گزارش روزانه + تحلیل رقبا</li>
+                            <li><span class="icon icon-check">✔</span>تولید محتوا: <strong>۱۰ مقاله + استراتژی</strong></li>
+                            <li><span class="icon icon-check">✔</span>تهیه بنر گرافیکی: <strong>۱۰ عدد + کمپین</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                 <!-- Card 6: سازمانی -->
+                <div class="pricing-card">
+                    <div class="card-header">
+                        <div class="card-header-content">
+                            <div>
+                                <h2>سازمانی</h2>
+                                <p class="price contact-price">تماس بگیرید</p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                         <ul class="features-list">
+                            <li><span class="icon icon-check">✔</span>مدیر پروژه و پشتیبان اختصاصی</li>
+                            <li><span class="icon icon-check">✔</span>تعداد تسک: <strong>کاملاً سفارشی</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف برنامه‌نویسان: <strong>تیم اختصاصی</strong></li>
+                            <li><span class="icon icon-check">✔</span>زیرساخت پشتیبان‌گیری اختصاصی</li>
+                            <li><span class="icon icon-check">✔</span>گزارش‌های تحلیلی و مدیریتی سفارشی</li>
+                            <li><span class="icon icon-check">✔</span>استراتژی کامل محتوا و دیجیتال مارکتینگ</li>
+                            <li><span class="icon icon-check">✔</span>طراحی بصری و هویت برند</li>
+                            <li><span class="icon icon-check">✔</span>و هرآنچه شما نیاز دارید...</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- WordPress Plans -->
+        <div id="wordpress-plans" class="plan-content">
+            <div class="pricing-grid">
+                <!-- WP Card 1 -->
+                <div class="pricing-card">
+                    <div class="card-header">
+                        <div class="card-header-content">
+                             <div>
+                                <h2>پایه وردپرس</h2>
+                                <p class="price">650,000 <span>تومان/ماهانه</span></p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="features-list">
+                            <li><span class="icon icon-times">❌</span>پشتیبانی تلفنی 24 ساعته</li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت اول: <strong>1 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت دوم: <strong>3 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت سوم: <strong>5 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف متخصصان: <strong>سوم</strong></li>
+                            <li><span class="icon icon-check">✔</span>پشتیبان‌گیری هفتگی</li>
+                            <li><span class="icon icon-times">❌</span>گزارش رتبه محصولات (ترب و...)</li>
+                            <li><span class="icon icon-times">❌</span>تولید محتوا و مقاله</li>
+                            <li><span class="icon icon-times">❌</span>تهیه بنر گرافیکی</li>
+                        </ul>
+                    </div>
+                </div>
+                 <!-- WP Card 2 -->
+                <div class="pricing-card">
+                    <div class="card-header">
+                         <div class="card-header-content">
+                            <div>
+                                <h2>استاندارد وردپرس</h2>
+                                <p class="price">990,000 <span>تومان/ماهانه</span></p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="features-list">
+                             <li><span class="icon icon-check">✔</span>پشتیبانی تلفنی (ساعات اداری)</li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت اول: <strong>2 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت دوم: <strong>6 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت سوم: <strong>10 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف متخصصان: <strong>دوم</strong></li>
+                            <li><span class="icon icon-check">✔</span>پشتیبان‌گیری روزانه</li>
+                            <li><span class="icon icon-check">✔</span>گزارش ماهانه رتبه (تا 5 محصول)</li>
+                            <li><span class="icon icon-check">✔</span>تولید محتوا: <strong>1 مقاله</strong></li>
+                            <li><span class="icon icon-times">❌</span>تهیه بنر گرافیکی</li>
+                        </ul>
+                    </div>
+                </div>
+                 <!-- WP Card 3 (Popular) -->
+                <div class="pricing-card">
+                    <div class="popular-badge">محبوب‌ترین</div>
+                    <div class="card-header">
+                         <div class="card-header-content">
+                            <div>
+                                <h2>تجاری وردپرس</h2>
+                                <p class="price">1,400,000 <span>تومان/ماهانه</span></p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="features-list">
+                            <li><span class="icon icon-check">✔</span>پشتیبانی تلفنی 24 ساعته</li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت اول: <strong>4 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت دوم: <strong>8 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت سوم: <strong>15 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف متخصصان: <strong>دوم (بالا)</strong></li>
+                            <li><span class="icon icon-check">✔</span>پشتیبان‌گیری روزانه (چندین نسخه)</li>
+                            <li><span class="icon icon-check">✔</span>گزارش هفتگی رتبه (تا 15 محصول)</li>
+                            <li><span class="icon icon-check">✔</span>تولید محتوا: <strong>3 مقاله</strong></li>
+                            <li><span class="icon icon-check">✔</span>تهیه بنر گرافیکی: <strong>2 عدد</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                 <!-- WP Card 4 -->
+                <div class="pricing-card">
+                    <div class="card-header">
+                         <div class="card-header-content">
+                            <div>
+                                <h2>حرفه‌ای وردپرس</h2>
+                                <p class="price">2,500,000 <span>تومان/ماهانه</span></p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="features-list">
+                            <li><span class="icon icon-check">✔</span>پشتیبانی تلفنی 24 ساعته (۷ روز هفته)</li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت اول: <strong>6 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت دوم: <strong>12 عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت سوم: <strong>نامحدود</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف متخصصان: <strong>اول</strong></li>
+                            <li><span class="icon icon-check">✔</span>پشتیبان‌گیری روزانه + قبل از تغییر</li>
+                            <li><span class="icon icon-check">✔</span>گزارش روزانه رتبه (تا 30 محصول)</li>
+                            <li><span class="icon icon-check">✔</span>تولید محتوا: <strong>6 مقاله</strong></li>
+                            <li><span class="icon icon-check">✔</span>تهیه بنر گرافیکی: <strong>5 عدد</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- WP Card 5 -->
+                <div class="pricing-card">
+		    <div class="popular-badge">به صرفه‌ترین</div>
+                    <div class="card-header">
+                        <div class="card-header-content">
+                            <div>
+                                <h2>ویژه وردپرس (VIP)</h2>
+                                <p class="price">3,500,000 <span>تومان/ماهانه</span></p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                         <ul class="features-list">
+                            <li><span class="icon icon-check">✔</span>پشتیبانی تلفنی ۲۴ ساعته + خط ویژه</li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت اول: <strong>۱۰ عدد</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت دوم: <strong>نامحدود</strong></li>
+                            <li><span class="icon icon-check">✔</span>تسک با اولویت سوم: <strong>نامحدود</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف متخصصان: <strong>ویژه (فوری)</strong></li>
+                            <li><span class="icon icon-check">✔</span>پشتیبان‌گیری آنی + روزانه</li>
+                            <li><span class="icon icon-check">✔</span>گزارش روزانه + تحلیل رقبا</li>
+                            <li><span class="icon icon-check">✔</span>تولید محتوا: <strong>۱۰ مقاله + استراتژی</strong></li>
+                            <li><span class="icon icon-check">✔</span>تهیه بنر گرافیکی: <strong>۱۰ عدد + کمپین</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                 <!-- WP Card 6 -->
+                <div class="pricing-card">
+                    <div class="card-header">
+                        <div class="card-header-content">
+                            <div>
+                                <h2>سازمانی وردپرس</h2>
+                                <p class="price contact-price">تماس بگیرید</p>
+                            </div>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                         <ul class="features-list">
+                            <li><span class="icon icon-check">✔</span>مدیر پروژه و پشتیبان اختصاصی</li>
+                            <li><span class="icon icon-check">✔</span>تعداد تسک: <strong>کاملاً سفارشی</strong></li>
+                            <li><span class="icon icon-check">✔</span>اولویت در صف متخصصان: <strong>تیم اختصاصی</strong></li>
+                            <li><span class="icon icon-check">✔</span>زیرساخت پشتیبان‌گیری اختصاصی</li>
+                            <li><span class="icon icon-check">✔</span>گزارش‌های تحلیلی و مدیریتی سفارشی</li>
+                            <li><span class="icon icon-check">✔</span>استراتژی کامل محتوا و دیجیتال مارکتینگ</li>
+                            <li><span class="icon icon-check">✔</span>طراحی بصری و هویت برند</li>
+                             <li><span class="icon icon-check">✔</span>و هرآنچه شما نیاز دارید...</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tab functionality
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const planContents = document.querySelectorAll('.plan-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Deactivate all
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    planContents.forEach(content => content.classList.remove('active'));
+
+                    // Activate clicked
+                    button.classList.add('active');
+                    const target = document.querySelector(button.dataset.target);
+                    if (target) {
+                        target.classList.add('active');
+                    }
+                });
+            });
+
+            // Accordion (card toggle) functionality
+            const cardHeaders = document.querySelectorAll('.card-header');
+
+            cardHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const card = header.parentElement;
+                    const toggleIcon = header.querySelector('.toggle-icon');
+                    
+                    card.classList.toggle('active');
+
+                    if (card.classList.contains('active')) {
+                        toggleIcon.textContent = '×';
+                    } else {
+                        toggleIcon.textContent = '+';
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
