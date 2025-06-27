@@ -32,10 +32,16 @@
 
     <!-- داشبورد اصلی -->
     <div id="dashboard-container" class="hidden">
+        <!-- لایه تیره برای منوی موبایل -->
+        <div id="sidebar-overlay"></div>
+        
         <!-- منوی ناوبری سمت راست -->
         <nav id="dashboard-nav">
+            <div class="nav-header">
+                <h3>پنل شما</h3>
+                <button id="sidebar-close-btn" class="sidebar-control-btn"><i class="fas fa-times"></i></button>
+            </div>
             <div id="user-identifier" class="user-identifier"></div>
-            <div class="nav-header"><h3>پنل شما</h3></div>
             <ul>
                 <li><a href="#" class="nav-link active" data-target="content-tasks"><i class="fas fa-tasks"></i><span>وظایف</span></a></li>
                 <li><a href="#" class="nav-link" data-target="content-billing"><i class="fas fa-file-invoice-dollar"></i><span>امور مالی</span></a></li>
@@ -47,10 +53,14 @@
 
         <!-- محتوای اصلی -->
         <main id="dashboard-content">
+            <header class="main-header">
+                <button id="menu-toggle-btn" class="sidebar-control-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>لیست وظایف شما</h1>
+            </header>
             
             <section id="content-tasks" class="content-section active">
-                <h1>لیست وظایف شما</h1>
-
                 <!-- فرم افزودن وظیفه -->
                 <div class="card add-task-card">
                     <h2>افزودن وظیفه جدید</h2>
@@ -61,12 +71,22 @@
                                 <input type="text" id="task-title" placeholder="مثلا: تغییر رنگ دکمه‌ها" required>
                             </div>
                             <div class="form-group">
-                                <label for="task-priority">اولویت</label>
-                                <select id="task-priority" required>
-                                    <option value="high">فوری (انجام تا ۲۴ ساعت)</option>
-                                    <option value="normal">عادی (انجام تا یک هفته)</option>
-                                    <option value="low">کم (انجام در بازه منعطف)</option>
-                                </select>
+                                <label for="task-priority-trigger">اولویت</label>
+                                <div class="custom-dropdown" data-name="priority">
+                                    <!-- این دکمه چیزی است که کاربر می‌بیند -->
+                                    <button type="button" class="dropdown-trigger" id="task-priority-trigger">
+                                        <span class="selected-value">انتخاب کنید...</span>
+                                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                                    </button>
+                                    <!-- این لیست گزینه‌هاست که مخفی است و با کلیک ظاهر می‌شود -->
+                                    <ul class="dropdown-options">
+                                        <li data-value="high">فوری (انجام تا ۲۴ ساعت)</li>
+                                        <li data-value="normal">عادی (انجام تا یک هفته)</li>
+                                        <li data-value="low">کم (انجام در بازه منعطف)</li>
+                                    </ul>
+                                    <!-- مقدار واقعی را در این input مخفی ذخیره می‌کنیم تا با فرم ارسال شود -->
+                                    <input type="hidden" name="priority" id="task-priority" required>
+                                </div>
                             </div>
                         </div>
                         <div class="form-row">
@@ -108,15 +128,8 @@
                 </div>
             </section>
 
-            <!-- بخش پشتیبانی (چت) -->
-            <section id="content-chat" class="content-section">
-                <!-- محتوای این بخش -->
-            </section>
-
             <!-- بخش مالی -->
             <section id="content-billing" class="content-section">
-                <h1>صورتحساب پروژه</h1>
-
                 <!-- فرم افزودن آیتم مالی (فقط برای پشتیبانی) -->
                 <div id="add-billing-item-form-container" class="card add-task-card hidden">
                     <h2>افزودن آیتم جدید به صورتحساب</h2>
@@ -179,9 +192,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
-
-
     <div id="custom-modal-backdrop" class="modal-backdrop">
         <div id="custom-modal" class="modal">
             <div id="modal-icon" class="modal-icon">
@@ -194,7 +204,7 @@
             </div>
         </div>
     </div>
-
     
+    <script src="script.js"></script>
 </body>
 </html>

@@ -1,19 +1,34 @@
 /* ---  Reset & Global Styles --- */
 :root {
-    --primary-color: #3b82f6; /* آبی مدرن */
+    /* Theme Colors */
+    --primary-color: #3b82f6; /* آبی مدرن اصلی */
     --primary-hover: #2563eb;
-    --dark-bg: #111827; /* پس‌زمینه منوی تیره */
-    --light-bg: #f3f4f6; /* پس‌زمینه محتوای روشن */
+    --primary-light: #60a5fa;
+    --primary-bg: #eff6ff;
+    --primary-border: #93c5fd;
+
+    /* General UI Colors */
+    --dark-bg: #111827;
+    --light-bg: #f3f4f6;
     --text-dark: #1f2937;
     --text-light: #f9fafb;
     --text-muted: #6b7280;
     --border-color: #e5e7eb;
     --card-bg: #ffffff;
+
+    /* Semantic Colors */
     --success-color: #10b981;
-    --pending-color: #f59e0b;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6; /* Using primary for low priority */
+
+    /* Layout & Design */
     --font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --border-radius: 8px;
     --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+    --sidebar-width: 260px;
+    --sidebar-width-collapsed: 80px;
+    --transition-speed: 0.3s;
 }
 
 * {
@@ -28,9 +43,14 @@ body {
     color: var(--text-dark);
     direction: rtl;
     line-height: 1.6;
+    font-feature-settings: "ss01";
+    -webkit-font-feature-settings: "ss01";
+    -moz-font-feature-settings: "ss01";
+    transition: margin-right var(--transition-speed) ease;
 }
 
 .hidden { display: none !important; }
+.error-message { color: var(--danger-color); font-size: 0.9rem; margin-top: 0.5rem; }
 
 /* --- Login Page Styles --- */
 #login-container {
@@ -40,7 +60,6 @@ body {
     height: 100vh;
     background-color: var(--dark-bg);
 }
-
 .login-box {
     background: var(--card-bg);
     padding: 2.5rem;
@@ -50,33 +69,22 @@ body {
     max-width: 400px;
     text-align: center;
 }
-
-.login-box h2 {
-    margin-bottom: 1.5rem;
-    color: var(--text-dark);
-}
-
-#login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-input[type="email"], input[type="password"], input[type="text"], textarea {
+.login-box h2 { margin-bottom: 1.5rem; color: var(--text-dark); }
+#login-form { display: flex; flex-direction: column; gap: 1rem; }
+input, textarea, select {
     padding: 0.75rem 1rem;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     font-size: 1rem;
     font-family: var(--font-family);
     transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: white;
 }
-
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
-
 button {
     padding: 0.75rem;
     background-color: var(--primary-color);
@@ -88,73 +96,55 @@ button {
     font-weight: 500;
     transition: background-color 0.2s;
 }
-
-button:hover {
-    background-color: var(--primary-hover);
-}
+button:hover:not(:disabled) { background-color: var(--primary-hover); }
+button:disabled { background-color: var(--text-muted); cursor: not-allowed; }
 
 /* --- Dashboard Layout --- */
-#dashboard-container {
-    display: flex;
-    min-height: 100vh;
-}
+#dashboard-container { display: flex; min-height: 100vh; position: relative; }
 
-/* --- Right Navigation Menu --- */
+/* --- Right Navigation Menu (Sidebar) --- */
 #dashboard-nav {
-    width: 260px;
+    width: var(--sidebar-width);
     background-color: var(--dark-bg);
     color: var(--text-light);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    padding: 1.5rem 0;
+    transition: width var(--transition-speed) ease;
+    z-index: 1001;
 }
-
 .nav-header {
-    padding: 0 1.5rem 1.5rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
     font-size: 1.25rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 72px; /* to match main-header */
 }
-
-#dashboard-nav ul {
-    list-style: none;
-    flex-grow: 1;
-    margin-top: 1.5rem;
-}
-
+.nav-header h3, #user-identifier, .nav-link span { transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease; }
+#dashboard-nav ul { list-style: none; flex-grow: 1; margin-top: 1.5rem; }
 .nav-link {
     display: flex;
     align-items: center;
     gap: 1rem;
     padding: 0.8rem 1.5rem;
-    color: #d1d5db; /* Light gray text */
+    color: #d1d5db;
     text-decoration: none;
     font-size: 1rem;
     transition: background-color 0.2s, color 0.2s;
     border-right: 4px solid transparent;
+    white-space: nowrap;
 }
-
-.nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--text-light);
-}
-
+.nav-link:hover { background-color: rgba(255, 255, 255, 0.05); color: var(--text-light); }
 .nav-link.active {
     background-color: rgba(59, 130, 246, 0.15);
     color: var(--text-light);
     border-right-color: var(--primary-color);
     font-weight: 500;
 }
-
-.nav-link i {
-    width: 20px;
-    text-align: center;
-}
-
-.nav-footer {
-    padding: 0 1rem;
-}
-
+.nav-link i { width: 20px; text-align: center; }
+.nav-footer { padding: 0 1rem; margin-top: auto; }
 #logout-btn {
     width: 100%;
     background-color: transparent;
@@ -164,31 +154,62 @@ button:hover {
     justify-content: center;
     gap: 0.75rem;
 }
-#logout-btn:hover {
-    background-color: #374151;
+#logout-btn:hover { background-color: #374151; }
+.user-identifier {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin-top: 1rem;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 1.5rem;
 }
+
+/* --- Collapsed Sidebar (Desktop) --- */
+#dashboard-container.sidebar-collapsed #dashboard-nav { width: var(--sidebar-width-collapsed); }
+#dashboard-container.sidebar-collapsed .nav-header h3,
+#dashboard-container.sidebar-collapsed #user-identifier,
+#dashboard-container.sidebar-collapsed .nav-link span,
+#dashboard-container.sidebar-collapsed #logout-btn span {
+    opacity: 0;
+    visibility: hidden;
+    width: 0;
+}
+#dashboard-container.sidebar-collapsed .nav-link { justify-content: center; }
+#dashboard-container.sidebar-collapsed #logout-btn { justify-content: center; }
+
+/* --- Sidebar Controls --- */
+.sidebar-control-btn {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#sidebar-close-btn { display: none; }
+#menu-toggle-btn { color: var(--text-dark); }
+
 
 /* --- Main Content Area --- */
 #dashboard-content {
     flex-grow: 1;
     padding: 2.5rem;
     overflow-y: auto;
+    transition: margin-right var(--transition-speed) ease;
 }
-
-.content-section {
-    display: none; /* All sections hidden by default */
-}
-
-.content-section.active {
-    display: block; /* Active section is shown */
-}
-
-#dashboard-content h1 {
-    margin-bottom: 2rem;
-    font-size: 1.8rem;
-    font-weight: 600;
-}
-
+.main-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+.main-header h1 { margin: 0; font-size: 1.8rem; font-weight: 600; }
+.content-section { display: none; }
+.content-section.active { display: block; }
 .card {
     background-color: var(--card-bg);
     border-radius: var(--border-radius);
@@ -196,229 +217,16 @@ button:hover {
     margin-bottom: 2rem;
     box-shadow: var(--shadow);
 }
+.card h2 { margin-bottom: 1rem; font-size: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
 
-.card h2 {
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.75rem;
-}
+/* --- Add Task Form --- */
+.add-task-card { background-color: var(--primary-bg); border: 1px solid var(--primary-border); }
+#add-task-form .form-row { display: flex; gap: 1.5rem; margin-bottom: 1rem; }
+#add-task-form .form-group { flex: 1; display: flex; flex-direction: column; }
+#add-task-form label { margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+#task-description { min-height: 80px; resize: vertical; }
 
-/* --- Specific Section Styles --- */
-
-/* Task List Styles */
-.card-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-}
-
-.task-item {
-    background: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    border-left: 5px solid var(--pending-color); /* Yellow for pending */
-}
-
-.task-item.completed {
-    border-left-color: var(--success-color); /* Green for completed */
-}
-
-.task-item.completed p {
-    text-decoration: line-through;
-    color: var(--text-muted);
-}
-
-.task-item p { margin: 5px 0; }
-.task-item .note {
-    font-size: 0.9em;
-    color: var(--text-muted);
-    background: var(--light-bg);
-    padding: 8px;
-    border-radius: 4px;
-    margin-top: 10px;
-}
-
-/* Billing Table */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-th, td {
-    padding: 12px 15px;
-    text-align: right;
-    border-bottom: 1px solid var(--border-color);
-}
-
-th {
-    background-color: var(--light-bg);
-    font-weight: 600;
-}
-
-tbody tr:hover {
-    background-color: #f9fafb;
-}
-
-
-
-/* ---  تمام استایل‌های قبلی سر جای خود باقی می‌مانند --- */
-/* ... (کدهای قبلی را اینجا کپی کنید) ... */
-
-/* --- جدید: استایل‌های رابط کاربری چت --- */
-
-.chat-container {
-    display: flex;
-    flex-direction: column;
-    height: 75vh; /* ارتفاع چت باکس */
-    padding: 0;
-}
-
-.chat-history {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.chat-message {
-    padding: 0.75rem 1rem;
-    border-radius: var(--border-radius);
-    max-width: 70%;
-    display: flex;
-    flex-direction: column;
-}
-
-/* پیام‌های ارسال شده توسط مشتری (sent) */
-.chat-message.sent {
-    background-color: var(--primary-color);
-    color: var(--text-light);
-    align-self: flex-end; /* هم‌ترازی به سمت چپ (چون در حالت RTL هستیم) */
-    border-bottom-left-radius: 0;
-}
-
-/* پیام‌های دریافت شده از پشتیبان (received) */
-.chat-message.received {
-    background-color: var(--light-bg);
-    color: var(--text-dark);
-    align-self: flex-start; /* هم‌ترازی به سمت راست */
-    border-bottom-right-radius: 0;
-}
-
-.chat-message .message-text {
-    margin-bottom: 0.5rem;
-}
-
-.chat-message .message-meta {
-    font-size: 0.75rem;
-    opacity: 0.8;
-    text-align: left; /* زمان و تیک‌ها همیشه چپ‌چین باشند */
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.message-meta .status-ticks {
-    direction: ltr; /* تیک‌ها باید LTR باشند */
-}
-.message-meta .status-ticks .fa-check-double {
-    color: #4ade80; /* رنگ سبز/آبی برای تیک دوم */
-}
-
-.chat-form {
-    display: flex;
-    padding: 1rem;
-    border-top: 1px solid var(--border-color);
-    gap: 0.5rem;
-}
-
-#chat-message-input {
-    flex-grow: 1;
-}
-
-.chat-form button {
-    flex-shrink: 0; /* جلوگیری از کوچک شدن دکمه */
-    width: 100px;
-}
-
-/* استایل شماره حساب در بخش مالی */
-.account-number {
-    background-color: var(--light-bg);
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    text-align: center;
-    font-size: 1.2rem;
-    letter-spacing: 2px;
-    margin: 1rem 0;
-    font-family: monospace;
-}
-
-
-/* در انتهای style.css اضافه شود */
-.no-message {
-    text-align: center;
-    color: var(--text-muted);
-    padding: 2rem;
-    align-self: center;
-    justify-self: center;
-    margin: auto;
-}
-
-
-/* در انتهای فایل style.css اضافه شود */
-.user-identifier {
-    color: #9ca3af; /* یک خاکستری روشن */
-    font-size: 0.875rem; /* 14px */
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    text-align: center;
-    white-space: nowrap; /* جلوگیری از شکستن خط در ایمیل‌های طولانی */
-    overflow: hidden;
-    text-overflow: ellipsis; /* اگر ایمیل خیلی طولانی بود، سه نقطه (...) نشان می‌دهد */
-    padding: 0 0.5rem;
-}
-
-
-/* در انتهای style.css */
-
-/* استایل فرم افزودن وظیفه */
-.add-task-card {
-    background-color: #eef2ff; /* یک پس‌زمینه آبی ملایم */
-    border: 1px solid #c7d2fe;
-}
-
-#add-task-form .form-row {
-    display: flex;
-    gap: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-#add-task-form .form-group {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-#add-task-form label {
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    font-size: 0.9rem;
-}
-
-select {
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-    font-family: var(--font-family);
-    background-color: white;
-}
-
-/* استایل بخش نمایش سهمیه */
+/* --- Task Quota --- */
 .task-quota-info {
     margin-top: 1rem;
     padding: 1rem;
@@ -427,520 +235,470 @@ select {
     border: 1px solid var(--border-color);
     display: flex;
     justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1rem;
     text-align: center;
 }
-
-.quota-item strong {
-    display: block;
-    font-size: 1.5rem;
-    color: var(--primary-color);
-}
-.quota-item.limit-reached strong {
-    color: #ef4444; /* قرمز برای زمانی که سهمیه تمام شده */
-}
-.quota-item span {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-}
-
-.task-item.high-priority {
-    border-left-color: #ef4444; /* قرمز برای اولویت بالا */
-}
-
-
-/* استایل صفحه در انتظار تایید */
-.pending-page {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background-color: var(--light-bg);
-}
-
-.pending-box {
-    background: var(--card-bg);
-    padding: 3rem;
-    border-radius: var(--border-radius);
-    text-align: center;
-    max-width: 600px;
-    box-shadow: var(--shadow);
-}
-
-.pending-box i {
-    font-size: 3rem;
-    color: var(--pending-color);
-    margin-bottom: 1.5rem;
-}
-
-.pending-box h2 {
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-}
-
-.pending-box p {
-    color: var(--text-muted);
-    line-height: 1.8;
-    margin-bottom: 2rem;
-}
-.btn-secondary {
-    background-color: #6b7280;
-}
-.btn-secondary:hover {
-    background-color: #4b5563;
-}
-
-
+.quota-item { display: flex; flex-direction: column; gap: 0.25rem; }
+.quota-item strong { font-size: 1.2rem; color: var(--primary-color); }
+.quota-item.limit-reached strong { color: var(--danger-color); }
+.quota-item span { font-size: 0.9rem; color: var(--text-muted); }
 
 /*
 ===================================================================
-بخش استایل‌های ادغام شده از سیستم مدیریت وظایف (Task Manager)
+بخش استایل‌های مدیریت وظایف (Task Manager) - تم آبی
 ===================================================================
 */
 
-/* --- متغیرهای رنگ و استایل پایه --- */
-:root {
-  --green-dark: #2e7d32;
-  --green: #43a047;
-  --green-light: #66bb6a;
-  --green-bg: #e8f5e9;
-  --green-bg-light: #f1f8e9;
-  --gray-light: #f7f9fc;
-  --gray-border: #e0e0e0;
-  --text-dark: #333;
-  --text-light: #6c757d;
-  --danger: #e53935;
-  --danger-hover: #c62828;
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 25px rgba(46, 125, 50, 0.15);
-}
-
-/* --- استایل‌های اختصاصی برای ادغام در پنل --- */
-.tasks-manager-container {
-  margin-top: 2rem;
-  border-top: 1px solid var(--gray-border);
-  padding-top: 1.5rem;
-}
+.tasks-manager-container { margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; }
 .tasks-manager-container .bottom-tabs {
-  position: static; /* از حالت fixed خارج می‌شود */
-  box-shadow: none;
-  border-bottom: 1px solid var(--gray-border);
-  padding: 0;
-  margin-bottom: 1.5rem;
-  justify-content: flex-start;
-  gap: 0;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0;
 }
 .tasks-manager-container .tab-btn {
-  border-radius: 8px 8px 0 0;
-  transform: none !important; /* حذف انیمیشن جابجایی */
-  box-shadow: none !important;
-  border: 1px solid transparent;
-  padding: 0.8rem 1.5rem;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid transparent;
+    padding: 0.8rem 1.5rem;
+    background: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--text-muted);
 }
 .tasks-manager-container .tab-btn.active {
-  background-color: white;
-  color: var(--green-dark);
-  border-color: var(--gray-border) var(--gray-border) white;
-  border-bottom-color: white;
-  position: relative;
-  top: 1px;
+    background-color: white;
+    color: var(--primary-color);
+    border-color: var(--border-color) var(--border-color) white;
+    position: relative;
+    top: 1px;
+    font-weight: 600;
 }
-.tasks-manager-container .tab-btn:not(.active):hover {
-    background-color: var(--gray-light);
-    color: var(--text-dark);
-}
+.tasks-manager-container .tab-btn:not(.active):hover { background-color: var(--light-bg); color: var(--text-dark); }
 .tasks-section { display: none; flex-direction: column; }
 .tasks-section.active { display: flex; }
 .form-group.full-width { flex-basis: 100%; }
-#task-description { width: 100%; min-height: 80px; resize: vertical; padding: 10px; font-family: 'Vazirmatn', sans-serif; }
 
-/* --- کارت‌های وظیفه (Task Cards) --- */
+/* Task Cards */
 .task {
-  background: white; border-radius: 1rem; box-shadow: var(--shadow-sm);
-  transition: all 0.3s ease; border: 1px solid var(--gray-border);
+  background: white; border-radius: 1rem; box-shadow: var(--shadow);
+  transition: all 0.3s ease; border: 1px solid var(--border-color);
   margin-bottom: 1.25rem;
 }
-.task:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--green-light); }
+.task:hover { transform: translateY(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-color: var(--primary-light); }
 .task-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; cursor: pointer; gap: 1rem; }
-.task-header .task-main-title { font-size: 1.15rem; color: var(--green-dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-grow: 1; min-width: 0; }
-.toggle-icon { color: var(--green); transition: transform 0.3s ease; font-size: 0.9rem; }
+.task-header .task-main-title { font-size: 1.15rem; color: var(--primary-hover); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-grow: 1; min-width: 0; }
+.toggle-icon { color: var(--primary-color); transition: transform 0.3s ease; font-size: 0.9rem; }
 .task.expanded .toggle-icon { transform: rotate(180deg); }
 .task-details { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.5s ease-out, opacity 0.3s ease-in; display: flex; flex-direction: column; }
 .task.expanded .task-details { max-height: 1500px; opacity: 1; }
-.task-details-main-content { padding: 1.25rem; border-top: 1px solid var(--gray-border); flex-grow: 1; overflow-y: auto; }
+.task-details-main-content { padding: 1.25rem; border-top: 1px solid var(--border-color); flex-grow: 1; overflow-y: auto; }
 .task-details-main-content p { margin: 0 0 1rem; font-size: 1rem; color: var(--text-dark); }
-.task-creator-info { font-size: 0.8rem; color: var(--text-light); border-top: 1px dashed var(--gray-border); padding-top: 0.75rem; margin-top: 1rem; }
-.actions-footer { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.25rem; border-top: 1px solid var(--gray-border); background-color: var(--gray-light); flex-direction: row-reverse; flex-shrink: 0; border-radius: 0 0 1rem 1rem; }
+.task-creator-info { font-size: 0.8rem; color: var(--text-muted); border-top: 1px dashed var(--border-color); padding-top: 0.75rem; margin-top: 1rem; }
+.actions-footer { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.25rem; border-top: 1px solid var(--border-color); background-color: var(--light-bg); flex-direction: row-reverse; flex-shrink: 0; border-radius: 0 0 1rem 1rem; }
 .action-buttons { display: flex; gap: 0.25rem; }
-.task-date-footer { font-size: 0.8rem; color: var(--text-light); }
-.action-btn { background: none; border: none; color: var(--text-light); font-size: 1.1rem; padding: 0.5rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+.task-date-footer { font-size: 0.8rem; color: var(--text-muted); }
+.action-btn { background: none; border: none; color: var(--text-muted); font-size: 1.1rem; padding: 0.5rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
 .action-btn:hover { background-color: white; }
-.action-btn.archive:hover, .action-btn.restore:hover, .action-btn.add-step-trigger-btn:hover { color: var(--green-dark); }
-.action-btn.delete:hover { color: var(--danger); }
+.action-btn.archive:hover, .action-btn.restore:hover, .action-btn.add-step-trigger-btn:hover, .action-btn.edit-task:hover { color: var(--primary-hover); }
+.action-btn.delete:hover { color: var(--danger-color); }
 
-/* --- مراحل وظیفه (Workflow) --- */
-.workflow-list { list-style: none; padding-inline-start: 0; color: var(--text-light); font-size: 0.9rem; margin-bottom: 1.25rem; }
+/* Workflow Steps */
+.workflow-list { list-style: none; padding-inline-start: 0; margin-bottom: 1.25rem; }
 .workflow-step { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0.25rem; border-radius: 6px; transition: background-color 0.2s; }
-.workflow-step:hover { background-color: var(--green-bg-light); }
+.workflow-step:hover { background-color: var(--primary-bg); }
 .drag-handle { cursor: grab; color: #b0bec5; padding-top: 2px; }
 .drag-handle:active { cursor: grabbing; }
-.workflow-step .checkbox { width: 18px; height: 18px; min-width: 18px; border: 2px solid var(--green-light); border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s, border-color 0.2s; margin-top: 2px; }
+.workflow-step .checkbox { width: 18px; height: 18px; min-width: 18px; border: 2px solid var(--primary-light); border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-top: 2px; }
 .workflow-step .checkbox i { color: white; font-size: 12px; transform: scale(0); transition: transform 0.2s ease; }
-.workflow-step.completed .checkbox { background-color: var(--green); border-color: var(--green); }
+.workflow-step.completed .checkbox { background-color: var(--primary-color); border-color: var(--primary-color); }
 .workflow-step.completed .checkbox i { transform: scale(1); }
-.workflow-step.completed .step-title { text-decoration: line-through; color: var(--text-light); }
-.step-main { display: flex; align-items: center; flex-grow: 1; overflow: hidden; }
-.step-title { color: var(--text-dark); cursor: pointer; word-break: break-word; }
-.step-actions { display: flex; margin-right: auto; }
-.step-actions button { background: none; border: none; color: var(--text-light); cursor: pointer; padding: 0.25rem 0.5rem; }
-.step-actions button:hover { color: var(--green-dark); }
-.step-actions .delete-step-btn:hover { color: var(--danger); }
+.workflow-step.completed .step-title { text-decoration: line-through; color: var(--text-muted); }
+.step-main { display: flex; align-items: center; flex-grow: 1; overflow: hidden; gap: 1rem; }
+.step-title { color: var(--text-dark); cursor: pointer; word-break: break-word; flex-grow: 1; }
+.step-duration { color: var(--primary-color); font-weight: 500; font-size: 0.85rem; white-space: nowrap; flex-shrink: 0; }
+.step-actions { display: flex; align-items: center; gap: 0.25rem; }
+.step-actions button { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 4px; }
+.step-actions button:hover { color: var(--primary-hover); background-color: white; }
+.step-actions .delete-step-btn:hover { color: var(--danger-color); }
 .new-step-input-wrapper { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.25rem; animation: fadeInDown 0.4s ease-out; }
-.dynamic-new-step-input { flex-grow: 1; padding: 0.6rem 0.8rem; border: 1.5px solid var(--green); border-radius: 6px; outline: none; font-family: 'Vazirmatn', sans-serif; font-size: 0.9rem; background-color: var(--green-bg-light); }
+.dynamic-new-step-input { flex-grow: 1; padding: 0.6rem 0.8rem; border: 1.5px solid var(--primary-color); border-radius: 6px; outline: none; font-family: 'Vazirmatn', sans-serif; font-size: 0.9rem; background-color: var(--primary-bg); }
 .new-step-input-wrapper button { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0.5rem; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
-.new-step-input-wrapper .save-new-step-btn { color: var(--green); }
-.new-step-input-wrapper .save-new-step-btn:hover { background-color: var(--green-bg); color: var(--green-dark); }
-.new-step-input-wrapper .cancel-new-step-btn { color: var(--text-light); }
-.new-step-input-wrapper .cancel-new-step-btn:hover { background-color: #fbe9e7; color: var(--danger); }
+.new-step-input-wrapper .save-new-step-btn { color: var(--primary-color); }
+.new-step-input-wrapper .save-new-step-btn:hover { background-color: var(--primary-bg); color: var(--primary-hover); }
+.new-step-input-wrapper .cancel-new-step-btn { color: var(--text-muted); }
+.new-step-input-wrapper .cancel-new-step-btn:hover { background-color: #fbe9e7; color: var(--danger-color); }
 
-/* --- حالت ویرایش --- */
+/* Edit Mode */
 .edit-main-title-input, .workflow-step .edit-input { display: none; }
 .task.edit-mode .task-main-title, .workflow-step.editing .step-main { display: none; }
 .task.edit-mode .edit-main-title-input, .workflow-step.editing .edit-input { display: block; }
-.edit-main-title-input { width: 100%; font-size: 1.15rem; font-weight: bold; color: var(--green-dark); border: 2px solid var(--green); border-radius: 8px; padding: 0.25rem 0.5rem; font-family: 'Vazirmatn', sans-serif; outline: none; }
-.workflow-step .edit-input { flex-grow: 1; padding: 0.25rem 0.5rem; font-size: 0.9rem; border: 1px solid var(--green); border-radius: 4px; }
+.edit-main-title-input { width: 100%; font-size: 1.15rem; font-weight: bold; color: var(--primary-hover); border: 2px solid var(--primary-color); border-radius: 8px; padding: 0.25rem 0.5rem; font-family: 'Vazirmatn', sans-serif; outline: none; }
+.workflow-step .edit-input { flex-grow: 1; padding: 0.25rem 0.5rem; font-size: 0.9rem; border: 1px solid var(--primary-color); border-radius: 4px; }
 .task.edit-mode .task-header { cursor: default; }
 .workflow-step .delete-step-btn { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
 .task.edit-mode .delete-step-btn { opacity: 1; pointer-events: auto; }
-.task.edit-mode .step-title { cursor: text; background-color: var(--green-bg-light); padding: 0.1rem 0.4rem; border-radius: 4px; }
+.task.edit-mode .step-title { cursor: text; background-color: var(--primary-bg); padding: 0.1rem 0.4rem; border-radius: 4px; }
 .task.edit-mode .action-btn.edit-task i::before { content: "\f00c"; font-weight: 900; }
 
-/* --- سایر استایل‌ها --- */
-.empty-msg { text-align: center; font-style: italic; color: var(--text-light); margin-top: 2rem; background: var(--green-bg-light); padding: 2rem; border-radius: 1rem; border: 2px dashed var(--green-light); }
-
-/* --- انیمیشن‌ها --- */
-@keyframes dropIn { from { opacity: 0; transform: translateY(-50px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.task.newly-created { animation: dropIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards; }
+/* Empty State & Animations */
+.empty-msg { text-align: center; font-style: italic; color: var(--text-muted); margin-top: 2rem; background: var(--primary-bg); padding: 2rem; border-radius: 1rem; border: 2px dashed var(--primary-light); }
 @keyframes fadeInDown { from { opacity: 0; transform: translate3d(0, -20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
-.workflow-step.newly-added { animation: fadeInDown 0.4s ease-out; }
 @keyframes slideFadeOutLeft { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-30px); max-height: 0; padding: 0; margin: 0; border: 0; } }
 .workflow-step.is-deleting { animation: slideFadeOutLeft 0.35s ease-in-out forwards; }
 @keyframes slideFadeOutDown { from { opacity: 1; transform: translateY(0); max-height: 500px; } to { opacity: 0; transform: translateY(50px); max-height: 0; padding: 0; margin-bottom: 0; border-width: 0; } }
 .task.is-removing { animation: slideFadeOutDown 0.4s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards; }
 
 
+/* Time Input Form */
+.time-input-form { display: flex; gap: 5px; padding: 8px 10px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; }
+.time-input-form.hidden { display: none; }
+.time-input-form input { flex-grow: 1; padding: 5px; }
+.time-input-form button { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
+.time-input-form .save-time-btn { background-color: var(--success-color); color: white; }
+.time-input-form .cancel-time-btn { background-color: #ecf0f1; }
 
-/* ======================== */
-/* استایل‌های مودال سفارشی */
-/* ======================== */
+/* --- Billing Section --- */
+.billing-table-container { margin-top: 20px; overflow-x: auto; }
+#billing-table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 0.95rem; }
+#billing-table th, #billing-table td { padding: 12px 15px; border-bottom: 1px solid var(--border-color); text-align: right; }
+#billing-table th { background-color: #f8f9fa; font-weight: 600; }
+#billing-table tbody tr:hover { background-color: #f5f5f5; }
+#billing-table td.amount { font-family: 'Vazirmatn', monospace, sans-serif; text-align: center; }
+#billing-table .task-row .task-icon { color: var(--primary-color); }
+#billing-table .service-row .service-icon { color: var(--warning-color); }
+#billing-table .payment-row .payment-icon { color: var(--success-color); }
+#billing-table i { margin-left: 8px; }
+#billing-table .payment-amount { color: var(--success-color); }
+#billing-tfoot tr.summary-row td { font-weight: bold; border-top: 2px solid #ccc; }
+#billing-tfoot tr.balance-row td { font-size: 1.1rem; font-weight: bold; background-color: #fcf8e3; }
+.delete-billing-item-btn { background: none; border: none; color: var(--danger-color); cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
+.delete-billing-item-btn:hover { opacity: 1; }
+.form-group.large { flex-grow: 2; }
 
-.modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
+/* --- Pending Page --- */
+.pending-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: var(--light-bg); }
+.pending-box { background: var(--card-bg); padding: 3rem; border-radius: var(--border-radius); text-align: center; max-width: 600px; box-shadow: var(--shadow); }
+.pending-box i { font-size: 3rem; color: var(--warning-color); margin-bottom: 1.5rem; }
+.pending-box h2 { margin-bottom: 1rem; font-size: 1.5rem; }
+.pending-box p { color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem; }
+.btn-secondary { background-color: #6b7280; }
+.btn-secondary:hover { background-color: #4b5563; }
+
+/* --- Custom Modal --- */
+.modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1050; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.modal-backdrop.visible { opacity: 1; visibility: visible; }
+.modal { background-color: #ffffff; padding: 25px 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); width: 90%; max-width: 450px; text-align: center; transform: translateY(-30px) scale(0.95); transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+.modal-backdrop.visible .modal { transform: translateY(0) scale(1); }
+.modal-icon { font-size: 48px; margin-bottom: 20px; }
+.modal-icon.error { color: var(--danger-color); }
+.modal-icon.success { color: var(--success-color); }
+.modal h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.5rem; }
+.modal p { font-size: 1rem; line-height: 1.6; color: #555; margin-bottom: 25px; }
+.modal-buttons { display: flex; justify-content: center; gap: 15px; }
+.modal-button { padding: 10px 25px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.2s; font-family: 'Vazirmatn', sans-serif; }
+.modal-button:hover { transform: translateY(-2px); }
+.modal-button.primary { background-color: var(--primary-color); color: white; }
+.modal-button.secondary { background-color: #ecf0f1; color: #333; border: 1px solid #bdc3c7; }
+
+
+/*
+===================================================================
+بخش ریسپانسیو سازی (Media Queries)
+===================================================================
+*/
+
+/* Mobile & Tablet Styles (up to 1024px) */
+@media (max-width: 1024px) {
+    #menu-toggle-btn { display: flex; }
+    .nav-header #sidebar-close-btn { display: flex; }
+    .nav-header h3 { flex-grow: 1; text-align: right; }
+    
+    #dashboard-nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        transform: translateX(100%);
+        box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+        z-index: 1100;
+        transition: transform var(--transition-speed) ease;
+    }
+    body.sidebar-open #dashboard-nav { transform: translateX(0); }
+    
+    #sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1050;
+        display: none;
+    }
+    body.sidebar-open #sidebar-overlay { display: block; }
+    
+    /* Ensure main content doesn't get a margin */
+    #dashboard-content { margin-right: 0; }
+    
+    /* Disable desktop collapse feature */
+    #dashboard-container.sidebar-collapsed #dashboard-nav { width: var(--sidebar-width); }
+    #dashboard-container.sidebar-collapsed .nav-header h3,
+    #dashboard-container.sidebar-collapsed #user-identifier,
+    #dashboard-container.sidebar-collapsed .nav-link span,
+    #dashboard-container.sidebar-collapsed #logout-btn span {
+        opacity: 1;
+        visibility: visible;
+        width: auto;
+    }
+}
+
+/* Tablet and smaller styles (up to 768px) */
+@media (max-width: 768px) {
+    #dashboard-content { padding: 1.5rem; }
+    .main-header { margin-bottom: 1.5rem; }
+    .main-header h1 { font-size: 1.5rem; }
+    
+    .add-task-form .form-row,
+    .add-billing-item-form .form-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .task-quota-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .quota-item { flex-direction: row; justify-content: space-between; width: 100%; }
+    .quota-item:first-child { display: none; } /* Hide "سهمیه باقی مانده" on mobile */
+    .quota-item strong { font-size: 1rem; }
+    
+    .login-box {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}
+
+/* Very small mobile screens (up to 480px) */
+@media (max-width: 480px) {
+    #dashboard-content { padding: 1rem; }
+    .card { padding: 1rem; }
+    .actions-footer {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .task-header {
+        flex-wrap: wrap;
+    }
+    .task-main-title {
+        flex-basis: 100%;
+        order: 1;
+    }
+    .toggle-icon { order: 2; }
+    .total-task-time { order: 3; }
+}
+
+
+/* --- 1. بهبود ظاهر کلی کارت فرم --- */
+.add-task-card {
+    background-color: var(--card-bg); /* بازگشت به پس‌زمینه سفید و تمیز */
+    border: 1px solid var(--border-color); /* یک حاشیه استاندارد */
+    padding: 0; /* پدینگ داخلی را حذف می‌کنیم تا خودمان مدیریت کنیم */
+}
+
+.add-task-card h2 {
+    padding: 1rem 1.5rem;
+    margin: 0;
+    font-size: 1.1rem; /* کمی کوچک‌تر و ظریف‌تر */
+    background-color: #f9fafb; /* یک پس‌زمینه خیلی روشن برای سربرگ */
+    border-bottom: 1px solid var(--border-color);
+}
+
+.add-task-card form {
+    padding: 1.5rem; /* فرم اصلی پدینگ داخلی می‌گیرد */
+}
+
+/* --- 2. بازطراحی کامل دراپ‌دان‌ها --- */
+.select-wrapper {
+    position: relative; /* برای جای‌گذاری آیکون سفارشی */
+}
+
+.select-wrapper::after {
+    content: '\f078'; /* کد آیکون شورون-پایین از FontAwesome */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    left: 1rem; /* در سمت چپ قرار می‌گیرد (چون سایت RTL است) */
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none; /* مهم: باعث می‌شود کلیک از روی آیکون عبور کند و به select برسد */
+    transition: transform 0.2s ease;
+}
+
+.select-wrapper select {
+    -webkit-appearance: none; /* حذف ظاهر پیش‌فرض در کروم و سافاری */
+    -moz-appearance: none;    /* حذف ظاهر پیش‌فرض در فایرفاکس */
+    appearance: none;        /* حذف ظاهر پیش‌فرض استاندارد */
+    padding-left: 2.5rem; /* ایجاد فضا برای آیکون سفارشی */
+    cursor: pointer;
+}
+
+/* چرخش آیکون هنگام باز شدن دراپ‌دان (یک افکت زیبا) */
+.select-wrapper select:focus + ::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* --- 3. بهبود فیلدهای ورودی و دکمه --- */
+
+/* بهبود برچسب‌ها (Labels) */
+#add-task-form label,
+#add-billing-item-form label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+/* بهبود فیلدهای ورودی و ناحیه متنی */
+#add-task-form input,
+#add-task-form textarea,
+#add-billing-item-form input {
+    background-color: var(--light-bg); /* پس‌زمینه کمی تیره‌تر برای کنتراست */
+    border: 2px solid transparent; /* حاشیه نامرئی برای جلوگیری از پرش در حالت فوکوس */
+    transition: all 0.2s ease-in-out;
+}
+
+#add-task-form input:focus,
+#add-task-form textarea:focus,
+#add-billing-item-form input:focus {
+    background-color: var(--card-bg);
+    border-color: var(--primary-color); /* فقط حاشیه تغییر رنگ می‌دهد */
+    box-shadow: none; /* سایه پیش‌فرض را حذف می‌کنیم */
+}
+
+/* بهبود دکمه ثبت */
+#add-task-form button[type="submit"],
+#add-billing-item-form button[type="submit"] {
+    font-weight: 600;
+    padding: 0.85rem 1.5rem;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    transition: all 0.2s ease-in-out;
+}
+
+#add-task-form button[type="submit"]:hover:not(:disabled),
+#add-billing-item-form button[type="submit"]:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+
+
+/* --- استایل‌های کامپوننت دراپ‌دان سفارشی (Custom Dropdown) --- */
+
+.custom-dropdown {
+    position: relative;
+}
+
+.dropdown-trigger {
     width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
+    text-align: right;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: var(--light-bg);
+    border: 2px solid transparent;
+    border-radius: var(--border-radius);
+    font-family: var(--font-family);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.dropdown-trigger:focus,
+.custom-dropdown.open .dropdown-trigger {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: var(--card-bg);
+}
+
+.dropdown-icon {
+    color: var(--text-muted);
+    transition: transform 0.3s ease;
+}
+
+.custom-dropdown.open .dropdown-icon {
+    transform: rotate(180deg);
+}
+
+.dropdown-options {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    width: 100%;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    list-style: none;
+    padding: 0.5rem;
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: auto;
+
+    /* در ابتدا مخفی است */
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
 }
 
-.modal-backdrop.visible {
+.custom-dropdown.open .dropdown-options {
     opacity: 1;
     visibility: visible;
+    transform: translateY(0);
 }
 
-.modal {
-    background-color: #ffffff;
-    padding: 25px 30px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    width: 90%;
-    max-width: 450px;
-    text-align: center;
-    transform: translateY(-30px) scale(0.95);
-    transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-
-.modal-backdrop.visible .modal {
-    transform: translateY(0) scale(1);
-}
-
-.modal-icon {
-    font-size: 48px;
-    margin-bottom: 20px;
-}
-
-.modal-icon.error {
-    color: var(--danger, #e74c3c);
-}
-
-.modal-icon.success {
-    color: var(--success, #2ecc71);
-}
-
-.modal h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-    color: #333;
-}
-
-.modal p {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #555;
-    margin-bottom: 25px;
-}
-
-.modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-
-.modal-button {
-    padding: 10px 25px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
+.dropdown-options li {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
-    font-family: 'Vazirmatn', sans-serif;
+    transition: background-color 0.2s ease;
 }
 
-.modal-button:hover {
-    transform: translateY(-2px);
+.dropdown-options li:hover {
+    background-color: var(--primary-bg);
 }
 
-.modal-button.primary {
-    background-color: var(--primary-color, #3498db);
-    color: white;
-}
-
-.modal-button.secondary {
-    background-color: #ecf0f1;
-    color: #333;
-    border: 1px solid #bdc3c7;
-}
-
-
-
-/* استایل‌های فرم ثبت زمان دستی */
-.step-actions {
-    margin-right: auto; /* دکمه ها را به سمت چپ هل میدهد */
-    display: flex;
-    align-items: center;
-}
-
-.step-actions .set-time-btn {
-    background: none;
-    border: none;
-    color: var(--primary-color, #3498db);
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 5px;
-    margin-left: 8px;
-}
-
-.time-input-form {
-    display: flex;
-    gap: 5px;
-    padding: 8px 10px 8px 50px; /* ایجاد فاصله از چپ */
-    background-color: #f8f9fa;
-    border-top: 1px solid #e9ecef;
-}
-
-.time-input-form.hidden {
-    display: none;
-}
-
-.time-input-form input {
-    flex-grow: 1;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.time-input-form button {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-.time-input-form .save-time-btn {
-    background-color: var(--success, #2ecc71);
-    color: white;
-}
-.time-input-form .cancel-time-btn {
-    background-color: #ecf0f1;
-}
-
-
-
-/* ===================================== */
-/* استایل‌های بهبود یافته برای مراحل وظیفه */
-/* ===================================== */
-
-.step-main {
-    display: flex; /* کلید اصلی: فعال کردن Flexbox */
-    align-items: center; /* تراز عمودی همه آیتم ها در وسط */
-    width: 100%;
-    gap: 15px; /* ایجاد فاصله بین آیتم ها (عنوان، زمان، اکشن ها) */
-}
-
-.step-main .step-title {
-    flex-grow: 1; /* جادو اینجاست: عنوان تمام فضای خالی را میگیرد */
-    /* این کار باعث میشود بقیه آیتم ها به سمت چپ هل داده شوند */
-}
-
-.step-main .step-duration {
-    color: #007bff; /* رنگ آبی برای تاکید بیشتر */
+.dropdown-options li.selected {
+    background-color: var(--primary-color);
+    color: rgb(113, 113, 113);
     font-weight: 500;
-    font-size: 0.85rem;
-    white-space: nowrap; /* جلوگیری از شکستن خط در متن زمان */
-    flex-shrink: 0; /* جلوگیری از کوچک شدن در فضاهای کم */
-}
-
-.step-main .step-actions {
-    display: flex; /* دکمه های اکشن هم در یک ردیف باشند */
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0; /* جلوگیری از کوچک شدن در فضاهای کم */
-    
-    /* هر margin اضافی از قبل را حذف کنید */
-    margin-right: 0; 
-    margin-left: 0;
-}
-
-/* استایل دکمه ثبت زمان را کمی بهبود میدهیم */
-.step-actions .set-time-btn {
-    background: none;
-    border: none;
-    color: var(--primary-color, #3498db);
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 5px;
-    /* margin-left دیگر نیاز نیست چون از gap استفاده میکنیم */
 }
 
 
-/* ======================== */
-/* استایل‌های بخش امور مالی */
-/* ======================== */
-.billing-table-container {
-    margin-top: 20px;
-    overflow-x: auto; /* برای نمایش بهتر در موبایل */
+/* --- اصلاحیه هماهنگی رنگ دراپ‌دان سفارشی --- */
+
+/* 1. اطمینان از رنگ خوانای متن در دکمه اصلی (Trigger) */
+.dropdown-trigger .selected-value {
+    color: var(--text-dark); /* همیشه رنگ متن تیره و خوانا باشد */
+    font-weight: 500;
 }
 
-#billing-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.95rem;
+/* 2. تغییر استایل گزینه انتخاب شده در لیست باز شده */
+.dropdown-options li.selected {
+    background-color: var(--primary-bg); /* پس‌زمینه آبی بسیار روشن */
+    color: var(--primary-hover); /* رنگ متن آبی تیره */
+    font-weight: 600; /* کمی برجسته‌تر */
 }
 
-#billing-table th, #billing-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #e0e0e0;
-    text-align: right;
-}
-
-#billing-table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-    color: #333;
-}
-
-#billing-table tbody tr:hover {
-    background-color: #f5f5f5;
-}
-
-#billing-table td.amount {
-    font-family: monospace; /* برای تراز بهتر اعداد */
-    direction: ltr;
-    text-align: left;
-}
-
-#billing-table .task-row .task-icon { color: var(--primary-color); }
-#billing-table .service-row .service-icon { color: var(--warning); }
-#billing-table .payment-row .payment-icon { color: var(--success); }
-
-#billing-table i {
-    margin-left: 8px;
-}
-
-#billing-table .payment-amount {
-    color: var(--success);
-}
-
-#billing-tfoot tr.summary-row td {
-    font-weight: bold;
-    color: #555;
-    border-top: 2px solid #ccc;
-}
-
-#billing-tfoot tr.balance-row td {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #000;
-    background-color: #fcf8e3;
-}
-
-.delete-billing-item-btn {
-    background: none;
-    border: none;
-    color: #e74c3c;
-    cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.2s;
-}
-
-.delete-billing-item-btn:hover {
-    opacity: 1;
-}
-
-.form-group.large {
-    flex-grow: 2; /* باعث میشود فیلد توضیحات بزرگتر شود */
+/* 3. بهبود استایل هاور برای گزینه‌ها */
+.dropdown-options li:not(.selected):hover {
+    background-color: #f3f4f6; /* یک خاکستری خیلی ملایم برای هاور */
+    color: var(--text-dark);
 }
 
 
-/* ======================== */
-/* بهبود نمایش اعداد فارسی */
-/* ======================== */
 
-/* این کد به تمام المان‌ها میگوید که اگر فونت وزیرمتن دارند،
-   اعداد را هم با گلیف‌های فارسی آن نمایش دهند. */
-body, input, textarea, button, select, table {
-    font-feature-settings: "ss01"; /* فعال کردن جایگزینی اعداد فارسی در فونت وزیرمتن */
-    -webkit-font-feature-settings: "ss01"; /* برای مرورگرهای WebKit مثل کروم و سافاری */
-    -moz-font-feature-settings: "ss01"; /* برای فایرفاکس */
-}
-
-
-/* ======================================= */
-/* تضمین نمایش صحیح فونت برای اعداد فارسی */
-/* ======================================= */
-
-#billing-table td.amount {
-    /* ۱. اعمال مستقیم فونت وزیرمتن */
-    font-family: 'Vazirmatn', sans-serif;
-    
-    /* ۲. این ویژگی را حذف یا کامنت میکنیم چون دیگر نیازی به آن نیست 
-       و ممکن است تداخل ایجاد کند. */
-    /* font-feature-settings: "ss01"; */
-
-    text-align: center;
-
-    /* ۴. برای نمایش بهتر اعداد لاتین داخل پرانتز یا ... */
-    unicode-bidi: bidi-override;
-}
-
-/* این استایل را برای اطمینان به کل جدول هم میدهیم */
-#billing-table {
-    font-family: 'Vazirmatn', sans-serif;
-}

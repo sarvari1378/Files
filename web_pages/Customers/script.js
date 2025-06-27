@@ -1,5 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ===================================
+    // بخش ۰: کنترل UI و سایدبار
+    // ===================================
+    const menuToggleBtn = document.getElementById('menu-toggle-btn');
+    const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const dashboardContainer = document.getElementById('dashboard-container');
+    const mainHeaderTitle = document.querySelector('#dashboard-content h1');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const toggleSidebar = () => {
+        // در دسکتاپ، سایدبار کوچک و بزرگ میشود
+        if (window.innerWidth > 1024) {
+            dashboardContainer.classList.toggle('sidebar-collapsed');
+        } else { // در موبایل و تبلت، سایدبار باز و بسته میشود
+            document.body.classList.toggle('sidebar-open');
+        }
+    };
+
+    if (menuToggleBtn) menuToggleBtn.addEventListener('click', toggleSidebar);
+    if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', toggleSidebar);
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', () => document.body.classList.remove('sidebar-open'));
+
+    // ===================================
     // بخش ۱: تنظیمات و متغیرهای سراسری
     // ===================================
     const API_BASE_URL = 'https://customers.gacica1374.workers.dev'; 
@@ -9,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // المان‌های DOM
     const loginContainer = document.getElementById('login-container');
-    const dashboardContainer = document.getElementById('dashboard-container');
+    // dashboardContainer بالاتر تعریف شد
     const pendingContainer = document.getElementById('pending-container');
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
@@ -81,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         authToken = null;
         isTaskSectionInitialized = false;
         isBillingSectionInitialized = false;
+        document.body.classList.remove('sidebar-open');
     };
     
     const showDashboardForUser = (user) => {
@@ -90,6 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
             pendingContainer.classList.add('hidden');
             document.getElementById('user-identifier').textContent = user.name;
             document.getElementById('logout-btn').addEventListener('click', showLogin);
+            
+            // Set initial view
+            navLinks.forEach(l => l.classList.remove('active'));
+            document.querySelector('.nav-link[data-target="content-tasks"]').classList.add('active');
+            
+            // Initialize the first section
             initializeTaskSection();
         } else if (user.status === 'pending') {
             dashboardContainer.classList.add('hidden');
@@ -97,7 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('logout-pending-btn').addEventListener('click', showLogin);
         }
     };
-
+    
+    // کدهای دیگر بدون تغییر باقی می‌مانند...
+    // ... (کپی کردن بقیه محتوای script.js از اینجا به بعد) ...
     // =======================================================================
     // بخش ۳: منطق مدیریت وظایف (Task Manager)
     // =======================================================================
@@ -155,9 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const shamsiDate = new persianDate(new Date(task.createdAt)).format('dddd D MMMM YYYY - HH:mm');
             
             const priorityMap = {
-                high: '<span style="color:var(--danger);">فوری</span>',
-                normal: '<span style="color:var(--warning);">عادی</span>',
-                low: '<span style="color:var(--success);">کم</span>',
+                high: '<span style="color:var(--danger-color);">فوری</span>',
+                normal: '<span style="color:var(--warning-color);">عادی</span>',
+                low: '<span style="color:var(--info-color);">کم</span>',
             };
             const priorityText = `<strong>اولویت:</strong> ${priorityMap[task.priority] || 'نامشخص'}`;
             
@@ -215,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitButton.disabled = false;
                 return;
             }
-            taskQuotaInfo.style.display = 'block';
+            taskQuotaInfo.style.display = 'flex';
             const now = new Date();
             const currentMonth = now.getMonth();
             const currentYear = now.getFullYear();
@@ -231,10 +263,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const remainingNormal = TASK_QUOTAS.normal - usedNormal;
             const remainingLow = TASK_QUOTAS.low - usedLow;
             taskQuotaInfo.innerHTML = `
-                <span>سهمیه باقی‌مانده این ماه:</span> 
-                <span>فوری: <strong>${remainingHigh}</strong> از ${TASK_QUOTAS.high}</span> 
-                <span>عادی: <strong>${remainingNormal}</strong> از ${TASK_QUOTAS.normal}</span>
-                <span>کم: <strong>${remainingLow}</strong> از ${TASK_QUOTAS.low}</span>`;
+                <div class="quota-item"><span>سهمیه باقی‌مانده این ماه:</span></div>
+                <div class="quota-item"><span>فوری: <strong>${remainingHigh}</strong> از ${TASK_QUOTAS.high}</span></div>
+                <div class="quota-item"><span>عادی: <strong>${remainingNormal}</strong> از ${TASK_QUOTAS.normal}</span></div>
+                <div class="quota-item"><span>کم: <strong>${remainingLow}</strong> از ${TASK_QUOTAS.low}</span></div>`;
         };
         
         const renderTasks = (tasks, container) => { 
@@ -529,7 +561,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         document.getElementById('task-priority').addEventListener('change', () => {
-            // برای سادگی، فقط لیست را رفرش میکنیم تا تابع updateQuotaDisplay کارش را بکند
             fetchAndRender();
         });
 
@@ -559,7 +590,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // اینجا منطق بررسی سهمیه در کلاینت را اضافه میکنیم تا مودال را نمایش دهیم
             if(currentUser.id === 'PMirshokraei'){
                 const quotaInfoText = taskQuotaInfo.innerHTML;
                 let isQuotaReached = false;
@@ -642,13 +672,11 @@ document.addEventListener('DOMContentLoaded', () => {
             let totalPayment = 0;
             let grandTotalMinutes = 0;
 
-            // ثابت های جدید برای منطق محاسبه کف هزینه
             const MINIMUM_HOURS = 12;
             const MINIMUM_MINUTES = MINIMUM_HOURS * 60;
             const HOURLY_RATE = 290000;
-            const UNUSED_HOURS_RATE = HOURLY_RATE / 2; // نرخ ساعت های استفاده نشده
+            const UNUSED_HOURS_RATE = HOURLY_RATE / 2; 
 
-            // مرحله ۱: رندر کردن وظایف فعال (بدون تغییر)
             const activeTasks = tasks.filter(task => !task.archived && task.workflow.reduce((acc, step) => acc + (step.duration || 0), 0) > 0);
             
             activeTasks.forEach(task => {
@@ -668,10 +696,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 tableBody.appendChild(row);
             });
 
-            // مرحله ۲: رندر کردن آیتم های مالی دستی (بدون تغییر)
             billingItems.sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
             billingItems.forEach(item => {
-                // ... (این بخش کد بدون تغییر باقی میماند)
                 const row = document.createElement('tr');
                 if (item.type === 'service') {
                     totalCost += item.amount;
@@ -707,14 +733,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 tableBody.appendChild(row);
             });
-
-            // ================== مرحله ۳: محاسبه و افزودن هزینه ساعات باقی مانده ==================
+            
             let unusedTimeCost = 0;
             if (grandTotalMinutes < MINIMUM_MINUTES) {
                 const remainingMinutes = MINIMUM_MINUTES - grandTotalMinutes;
                 unusedTimeCost = (remainingMinutes / 60) * UNUSED_HOURS_RATE;
 
-                // افزودن ردیف جدید به بدنه جدول
                 const unusedTimeRow = document.createElement('tr');
                 unusedTimeRow.className = 'service-row';
                 unusedTimeRow.innerHTML = `
@@ -726,10 +750,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 tableBody.appendChild(unusedTimeRow);
             }
             
-            // هزینه نهایی شامل هزینه واقعی کارها و هزینه ساعات استفاده نشده است
             const finalTotalCost = totalCost + unusedTimeCost;
 
-            // ================== مرحله ۴: رندر کردن فوتر جدول (با منطق جدید) ==================
             const balance = finalTotalCost - totalPayment;
             tableFoot.innerHTML = `
                 <tr class="summary-row">
@@ -805,7 +827,6 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchAndRenderBillingData();
         isBillingSectionInitialized = true;
     }
-
     
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -830,17 +851,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(data.error || 'خطایی رخ داد');
             }
             
-            // *** اصلاح کلیدی اینجاست ***
-            // دیگر نیازی به جستجو و پیدا کردن کاربر نیست.
-            // ورکر آبجکت کامل کاربر را برای ما ارسال می‌کند.
             authToken = data.token;
-            currentUser = data.user; // این آبجکت شامل id, name, email, status است
+            currentUser = data.user;
             
-            // مستقیماً اطلاعات دریافتی را در localStorage ذخیره می‌کنیم
             localStorage.setItem('authToken', authToken);
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             
-            // و داشبورد را با آن نمایش می‌دهیم
             showDashboardForUser(currentUser);
 
         } catch (error) {
@@ -851,8 +867,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
-    const navLinks = document.querySelectorAll('.nav-link');
     const contentSections = document.querySelectorAll('.content-section');
     navLinks.forEach(link => { 
         link.addEventListener('click', (e) => { 
@@ -864,8 +878,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 section.classList.toggle('active', section.id === targetId); 
             });
             
+            // Update main header title
+            const sectionTitle = document.querySelector(`#${targetId}`).querySelector('h1, h2');
+            if(mainHeaderTitle && sectionTitle) {
+                mainHeaderTitle.textContent = sectionTitle.textContent;
+            }
+            
             if (targetId === 'content-billing' && !isBillingSectionInitialized) {
                 initializeBillingSection();
+            }
+
+            // Close sidebar on mobile after clicking a link
+            if (window.innerWidth <= 1024) {
+                document.body.classList.remove('sidebar-open');
             }
         }); 
     });
@@ -886,3 +911,69 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     checkLoginStatus();
 });
+
+    // --- منطق دراپ‌دان سفارشی ---
+    function initializeCustomDropdowns() {
+        const dropdowns = document.querySelectorAll('.custom-dropdown');
+
+        dropdowns.forEach(dropdown => {
+            const trigger = dropdown.querySelector('.dropdown-trigger');
+            const optionsList = dropdown.querySelector('.dropdown-options');
+            const options = dropdown.querySelectorAll('.dropdown-options li');
+            const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+            const selectedValueSpan = trigger.querySelector('.selected-value');
+
+            // باز و بسته کردن لیست
+            trigger.addEventListener('click', () => {
+                dropdown.classList.toggle('open');
+            });
+
+            // انتخاب یک گزینه
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    // حذف کلاس 'selected' از همه گزینه‌ها
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // افزودن کلاس 'selected' به گزینه کلیک شده
+                    option.classList.add('selected');
+                    
+                    // به‌روزرسانی مقدار در input مخفی و متن دکمه
+                    hiddenInput.value = option.dataset.value;
+                    selectedValueSpan.textContent = option.textContent;
+                    
+                    // بستن دراپ‌دان
+                    dropdown.classList.remove('open');
+                    
+                    // ایجاد یک رویداد 'change' روی input مخفی برای سازگاری
+                    hiddenInput.dispatchEvent(new Event('change'));
+                });
+            });
+            
+            // اگر یک مقدار پیش‌فرض وجود دارد، آن را تنظیم کن
+            const initialValue = hiddenInput.value;
+            const initialOption = Array.from(options).find(opt => opt.dataset.value === initialValue);
+            if (initialOption) {
+                selectedValueSpan.textContent = initialOption.textContent;
+                initialOption.classList.add('selected');
+            } else if (options.length > 0) {
+                // انتخاب گزینه اول به عنوان پیش‌فرض اگر چیزی انتخاب نشده بود
+                // options[0].click(); // می‌توانید این خط را فعال کنید تا همیشه اولین گزینه انتخاب شود
+            }
+        });
+
+        // بستن دراپ‌دان با کلیک بیرون از آن
+        document.addEventListener('click', (e) => {
+            dropdowns.forEach(dropdown => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                }
+            });
+        });
+    }
+
+    // این تابع را در رویداد اصلی فراخوانی کنید
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeCustomDropdowns(); // <<<<< فراخوانی تابع جدید
+
+        // ... بقیه کدهای شما ...
+    });
