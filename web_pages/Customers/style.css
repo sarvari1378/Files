@@ -488,3 +488,459 @@ select {
 .btn-secondary:hover {
     background-color: #4b5563;
 }
+
+
+
+/*
+===================================================================
+بخش استایل‌های ادغام شده از سیستم مدیریت وظایف (Task Manager)
+===================================================================
+*/
+
+/* --- متغیرهای رنگ و استایل پایه --- */
+:root {
+  --green-dark: #2e7d32;
+  --green: #43a047;
+  --green-light: #66bb6a;
+  --green-bg: #e8f5e9;
+  --green-bg-light: #f1f8e9;
+  --gray-light: #f7f9fc;
+  --gray-border: #e0e0e0;
+  --text-dark: #333;
+  --text-light: #6c757d;
+  --danger: #e53935;
+  --danger-hover: #c62828;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 25px rgba(46, 125, 50, 0.15);
+}
+
+/* --- استایل‌های اختصاصی برای ادغام در پنل --- */
+.tasks-manager-container {
+  margin-top: 2rem;
+  border-top: 1px solid var(--gray-border);
+  padding-top: 1.5rem;
+}
+.tasks-manager-container .bottom-tabs {
+  position: static; /* از حالت fixed خارج می‌شود */
+  box-shadow: none;
+  border-bottom: 1px solid var(--gray-border);
+  padding: 0;
+  margin-bottom: 1.5rem;
+  justify-content: flex-start;
+  gap: 0;
+}
+.tasks-manager-container .tab-btn {
+  border-radius: 8px 8px 0 0;
+  transform: none !important; /* حذف انیمیشن جابجایی */
+  box-shadow: none !important;
+  border: 1px solid transparent;
+  padding: 0.8rem 1.5rem;
+}
+.tasks-manager-container .tab-btn.active {
+  background-color: white;
+  color: var(--green-dark);
+  border-color: var(--gray-border) var(--gray-border) white;
+  border-bottom-color: white;
+  position: relative;
+  top: 1px;
+}
+.tasks-manager-container .tab-btn:not(.active):hover {
+    background-color: var(--gray-light);
+    color: var(--text-dark);
+}
+.tasks-section { display: none; flex-direction: column; }
+.tasks-section.active { display: flex; }
+.form-group.full-width { flex-basis: 100%; }
+#task-description { width: 100%; min-height: 80px; resize: vertical; padding: 10px; font-family: 'Vazirmatn', sans-serif; }
+
+/* --- کارت‌های وظیفه (Task Cards) --- */
+.task {
+  background: white; border-radius: 1rem; box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease; border: 1px solid var(--gray-border);
+  margin-bottom: 1.25rem;
+}
+.task:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--green-light); }
+.task-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; cursor: pointer; gap: 1rem; }
+.task-header .task-main-title { font-size: 1.15rem; color: var(--green-dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-grow: 1; min-width: 0; }
+.toggle-icon { color: var(--green); transition: transform 0.3s ease; font-size: 0.9rem; }
+.task.expanded .toggle-icon { transform: rotate(180deg); }
+.task-details { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.5s ease-out, opacity 0.3s ease-in; display: flex; flex-direction: column; }
+.task.expanded .task-details { max-height: 1500px; opacity: 1; }
+.task-details-main-content { padding: 1.25rem; border-top: 1px solid var(--gray-border); flex-grow: 1; overflow-y: auto; }
+.task-details-main-content p { margin: 0 0 1rem; font-size: 1rem; color: var(--text-dark); }
+.task-creator-info { font-size: 0.8rem; color: var(--text-light); border-top: 1px dashed var(--gray-border); padding-top: 0.75rem; margin-top: 1rem; }
+.actions-footer { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.25rem; border-top: 1px solid var(--gray-border); background-color: var(--gray-light); flex-direction: row-reverse; flex-shrink: 0; border-radius: 0 0 1rem 1rem; }
+.action-buttons { display: flex; gap: 0.25rem; }
+.task-date-footer { font-size: 0.8rem; color: var(--text-light); }
+.action-btn { background: none; border: none; color: var(--text-light); font-size: 1.1rem; padding: 0.5rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+.action-btn:hover { background-color: white; }
+.action-btn.archive:hover, .action-btn.restore:hover, .action-btn.add-step-trigger-btn:hover { color: var(--green-dark); }
+.action-btn.delete:hover { color: var(--danger); }
+
+/* --- مراحل وظیفه (Workflow) --- */
+.workflow-list { list-style: none; padding-inline-start: 0; color: var(--text-light); font-size: 0.9rem; margin-bottom: 1.25rem; }
+.workflow-step { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0.25rem; border-radius: 6px; transition: background-color 0.2s; }
+.workflow-step:hover { background-color: var(--green-bg-light); }
+.drag-handle { cursor: grab; color: #b0bec5; padding-top: 2px; }
+.drag-handle:active { cursor: grabbing; }
+.workflow-step .checkbox { width: 18px; height: 18px; min-width: 18px; border: 2px solid var(--green-light); border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s, border-color 0.2s; margin-top: 2px; }
+.workflow-step .checkbox i { color: white; font-size: 12px; transform: scale(0); transition: transform 0.2s ease; }
+.workflow-step.completed .checkbox { background-color: var(--green); border-color: var(--green); }
+.workflow-step.completed .checkbox i { transform: scale(1); }
+.workflow-step.completed .step-title { text-decoration: line-through; color: var(--text-light); }
+.step-main { display: flex; align-items: center; flex-grow: 1; overflow: hidden; }
+.step-title { color: var(--text-dark); cursor: pointer; word-break: break-word; }
+.step-actions { display: flex; margin-right: auto; }
+.step-actions button { background: none; border: none; color: var(--text-light); cursor: pointer; padding: 0.25rem 0.5rem; }
+.step-actions button:hover { color: var(--green-dark); }
+.step-actions .delete-step-btn:hover { color: var(--danger); }
+.new-step-input-wrapper { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.25rem; animation: fadeInDown 0.4s ease-out; }
+.dynamic-new-step-input { flex-grow: 1; padding: 0.6rem 0.8rem; border: 1.5px solid var(--green); border-radius: 6px; outline: none; font-family: 'Vazirmatn', sans-serif; font-size: 0.9rem; background-color: var(--green-bg-light); }
+.new-step-input-wrapper button { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0.5rem; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+.new-step-input-wrapper .save-new-step-btn { color: var(--green); }
+.new-step-input-wrapper .save-new-step-btn:hover { background-color: var(--green-bg); color: var(--green-dark); }
+.new-step-input-wrapper .cancel-new-step-btn { color: var(--text-light); }
+.new-step-input-wrapper .cancel-new-step-btn:hover { background-color: #fbe9e7; color: var(--danger); }
+
+/* --- حالت ویرایش --- */
+.edit-main-title-input, .workflow-step .edit-input { display: none; }
+.task.edit-mode .task-main-title, .workflow-step.editing .step-main { display: none; }
+.task.edit-mode .edit-main-title-input, .workflow-step.editing .edit-input { display: block; }
+.edit-main-title-input { width: 100%; font-size: 1.15rem; font-weight: bold; color: var(--green-dark); border: 2px solid var(--green); border-radius: 8px; padding: 0.25rem 0.5rem; font-family: 'Vazirmatn', sans-serif; outline: none; }
+.workflow-step .edit-input { flex-grow: 1; padding: 0.25rem 0.5rem; font-size: 0.9rem; border: 1px solid var(--green); border-radius: 4px; }
+.task.edit-mode .task-header { cursor: default; }
+.workflow-step .delete-step-btn { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.task.edit-mode .delete-step-btn { opacity: 1; pointer-events: auto; }
+.task.edit-mode .step-title { cursor: text; background-color: var(--green-bg-light); padding: 0.1rem 0.4rem; border-radius: 4px; }
+.task.edit-mode .action-btn.edit-task i::before { content: "\f00c"; font-weight: 900; }
+
+/* --- سایر استایل‌ها --- */
+.empty-msg { text-align: center; font-style: italic; color: var(--text-light); margin-top: 2rem; background: var(--green-bg-light); padding: 2rem; border-radius: 1rem; border: 2px dashed var(--green-light); }
+
+/* --- انیمیشن‌ها --- */
+@keyframes dropIn { from { opacity: 0; transform: translateY(-50px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.task.newly-created { animation: dropIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards; }
+@keyframes fadeInDown { from { opacity: 0; transform: translate3d(0, -20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+.workflow-step.newly-added { animation: fadeInDown 0.4s ease-out; }
+@keyframes slideFadeOutLeft { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-30px); max-height: 0; padding: 0; margin: 0; border: 0; } }
+.workflow-step.is-deleting { animation: slideFadeOutLeft 0.35s ease-in-out forwards; }
+@keyframes slideFadeOutDown { from { opacity: 1; transform: translateY(0); max-height: 500px; } to { opacity: 0; transform: translateY(50px); max-height: 0; padding: 0; margin-bottom: 0; border-width: 0; } }
+.task.is-removing { animation: slideFadeOutDown 0.4s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards; }
+
+
+
+/* ======================== */
+/* استایل‌های مودال سفارشی */
+/* ======================== */
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-backdrop.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background-color: #ffffff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    transform: translateY(-30px) scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.modal-backdrop.visible .modal {
+    transform: translateY(0) scale(1);
+}
+
+.modal-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.modal-icon.error {
+    color: var(--danger, #e74c3c);
+}
+
+.modal-icon.success {
+    color: var(--success, #2ecc71);
+}
+
+.modal h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.modal p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 25px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.modal-button {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+.modal-button:hover {
+    transform: translateY(-2px);
+}
+
+.modal-button.primary {
+    background-color: var(--primary-color, #3498db);
+    color: white;
+}
+
+.modal-button.secondary {
+    background-color: #ecf0f1;
+    color: #333;
+    border: 1px solid #bdc3c7;
+}
+
+
+
+/* استایل‌های فرم ثبت زمان دستی */
+.step-actions {
+    margin-right: auto; /* دکمه ها را به سمت چپ هل میدهد */
+    display: flex;
+    align-items: center;
+}
+
+.step-actions .set-time-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color, #3498db);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 5px;
+    margin-left: 8px;
+}
+
+.time-input-form {
+    display: flex;
+    gap: 5px;
+    padding: 8px 10px 8px 50px; /* ایجاد فاصله از چپ */
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.time-input-form.hidden {
+    display: none;
+}
+
+.time-input-form input {
+    flex-grow: 1;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.time-input-form button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.time-input-form .save-time-btn {
+    background-color: var(--success, #2ecc71);
+    color: white;
+}
+.time-input-form .cancel-time-btn {
+    background-color: #ecf0f1;
+}
+
+
+
+/* ===================================== */
+/* استایل‌های بهبود یافته برای مراحل وظیفه */
+/* ===================================== */
+
+.step-main {
+    display: flex; /* کلید اصلی: فعال کردن Flexbox */
+    align-items: center; /* تراز عمودی همه آیتم ها در وسط */
+    width: 100%;
+    gap: 15px; /* ایجاد فاصله بین آیتم ها (عنوان، زمان، اکشن ها) */
+}
+
+.step-main .step-title {
+    flex-grow: 1; /* جادو اینجاست: عنوان تمام فضای خالی را میگیرد */
+    /* این کار باعث میشود بقیه آیتم ها به سمت چپ هل داده شوند */
+}
+
+.step-main .step-duration {
+    color: #007bff; /* رنگ آبی برای تاکید بیشتر */
+    font-weight: 500;
+    font-size: 0.85rem;
+    white-space: nowrap; /* جلوگیری از شکستن خط در متن زمان */
+    flex-shrink: 0; /* جلوگیری از کوچک شدن در فضاهای کم */
+}
+
+.step-main .step-actions {
+    display: flex; /* دکمه های اکشن هم در یک ردیف باشند */
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0; /* جلوگیری از کوچک شدن در فضاهای کم */
+    
+    /* هر margin اضافی از قبل را حذف کنید */
+    margin-right: 0; 
+    margin-left: 0;
+}
+
+/* استایل دکمه ثبت زمان را کمی بهبود میدهیم */
+.step-actions .set-time-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color, #3498db);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 5px;
+    /* margin-left دیگر نیاز نیست چون از gap استفاده میکنیم */
+}
+
+
+/* ======================== */
+/* استایل‌های بخش امور مالی */
+/* ======================== */
+.billing-table-container {
+    margin-top: 20px;
+    overflow-x: auto; /* برای نمایش بهتر در موبایل */
+}
+
+#billing-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+#billing-table th, #billing-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: right;
+}
+
+#billing-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+#billing-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+#billing-table td.amount {
+    font-family: monospace; /* برای تراز بهتر اعداد */
+    direction: ltr;
+    text-align: left;
+}
+
+#billing-table .task-row .task-icon { color: var(--primary-color); }
+#billing-table .service-row .service-icon { color: var(--warning); }
+#billing-table .payment-row .payment-icon { color: var(--success); }
+
+#billing-table i {
+    margin-left: 8px;
+}
+
+#billing-table .payment-amount {
+    color: var(--success);
+}
+
+#billing-tfoot tr.summary-row td {
+    font-weight: bold;
+    color: #555;
+    border-top: 2px solid #ccc;
+}
+
+#billing-tfoot tr.balance-row td {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #000;
+    background-color: #fcf8e3;
+}
+
+.delete-billing-item-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.delete-billing-item-btn:hover {
+    opacity: 1;
+}
+
+.form-group.large {
+    flex-grow: 2; /* باعث میشود فیلد توضیحات بزرگتر شود */
+}
+
+
+/* ======================== */
+/* بهبود نمایش اعداد فارسی */
+/* ======================== */
+
+/* این کد به تمام المان‌ها میگوید که اگر فونت وزیرمتن دارند،
+   اعداد را هم با گلیف‌های فارسی آن نمایش دهند. */
+body, input, textarea, button, select, table {
+    font-feature-settings: "ss01"; /* فعال کردن جایگزینی اعداد فارسی در فونت وزیرمتن */
+    -webkit-font-feature-settings: "ss01"; /* برای مرورگرهای WebKit مثل کروم و سافاری */
+    -moz-font-feature-settings: "ss01"; /* برای فایرفاکس */
+}
+
+
+/* ======================================= */
+/* تضمین نمایش صحیح فونت برای اعداد فارسی */
+/* ======================================= */
+
+#billing-table td.amount {
+    /* ۱. اعمال مستقیم فونت وزیرمتن */
+    font-family: 'Vazirmatn', sans-serif;
+    
+    /* ۲. این ویژگی را حذف یا کامنت میکنیم چون دیگر نیازی به آن نیست 
+       و ممکن است تداخل ایجاد کند. */
+    /* font-feature-settings: "ss01"; */
+
+    text-align: center;
+
+    /* ۴. برای نمایش بهتر اعداد لاتین داخل پرانتز یا ... */
+    unicode-bidi: bidi-override;
+}
+
+/* این استایل را برای اطمینان به کل جدول هم میدهیم */
+#billing-table {
+    font-family: 'Vazirmatn', sans-serif;
+}

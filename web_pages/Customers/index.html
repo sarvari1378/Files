@@ -3,36 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پنل کاربری حرفه‌ای</title>
+    <title>پنل پشتیبانی</title>
+    <!-- کتابخانه‌های مورد نیاز برای مدیریت وظایف -->
+    <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    
+    <!-- فونت و آیکون‌ها -->
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- فایل استایل اصلی -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- بخش لاگین بدون تغییر -->
+    <!-- بخش لاگین -->
     <div id="login-container">
         <div class="login-box">
             <h2>ورود به پنل کاربری</h2>
             <form id="login-form">
-                <input type="email" id="email" placeholder="ایمیل" required>
-                <input type="password" id="password" placeholder="رمز عبور" required>
+                <input type="text" id="username" name="username" placeholder="نام کاربری" required>
+                <input type="password" id="password" name="password" placeholder="رمز عبور" required>
                 <button type="submit">ورود</button>
                 <p id="login-error" class="error-message"></p>
             </form>
         </div>
     </div>
 
-    <!-- داشبورد اصلی با ساختار جدید -->
+    <!-- داشبورد اصلی -->
     <div id="dashboard-container" class="hidden">
         <!-- منوی ناوبری سمت راست -->
         <nav id="dashboard-nav">
             <div id="user-identifier" class="user-identifier"></div>
             <div class="nav-header"><h3>پنل شما</h3></div>
             <ul>
-                <!-- تب پیشخوان حذف شد -->
                 <li><a href="#" class="nav-link active" data-target="content-tasks"><i class="fas fa-tasks"></i><span>وظایف</span></a></li>
-                <li><a href="#" class="nav-link" data-target="content-chat"><i class="fas fa-comments"></i><span>پشتیبانی (چت)</span></a></li>
                 <li><a href="#" class="nav-link" data-target="content-billing"><i class="fas fa-file-invoice-dollar"></i><span>امور مالی</span></a></li>
             </ul>
             <div class="nav-footer">
@@ -43,11 +48,10 @@
         <!-- محتوای اصلی -->
         <main id="dashboard-content">
             
-            <!-- در فایل index.html -->
             <section id="content-tasks" class="content-section active">
                 <h1>لیست وظایف شما</h1>
 
-                <!-- <<< فرم جدید برای افزودن وظیفه >>> -->
+                <!-- فرم افزودن وظیفه -->
                 <div class="card add-task-card">
                     <h2>افزودن وظیفه جدید</h2>
                     <form id="add-task-form">
@@ -59,9 +63,16 @@
                             <div class="form-group">
                                 <label for="task-priority">اولویت</label>
                                 <select id="task-priority" required>
-                                    <option value="normal">عادی (انجام در یک هفته)</option>
-                                    <option value="high">با اولویت (انجام تا ۲۴ ساعت)</option>
+                                    <option value="high">فوری (انجام تا ۲۴ ساعت)</option>
+                                    <option value="normal">عادی (انجام تا یک هفته)</option>
+                                    <option value="low">کم (انجام در بازه منعطف)</option>
                                 </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                             <div class="form-group full-width">
+                                <label for="task-description">توضیحات (اختیاری)</label>
+                                <textarea id="task-description" placeholder="جزئیات بیشتری در مورد وظیفه بنویسید..."></textarea>
                             </div>
                         </div>
                         <button type="submit">ثبت وظیفه</button>
@@ -71,61 +82,119 @@
                         <!-- اطلاعات سهمیه اینجا نمایش داده می‌شود -->
                     </div>
                 </div>
-                <!-- <<< پایان فرم جدید >>> -->
-
-                <div id="tasks-list" class="card-container">
-                    <!-- وظایف به صورت کارت‌های داینامیک اینجا اضافه می‌شوند -->
+                
+                <!-- بخش مدیریت وظایف -->
+                <div class="tasks-manager-container">
+                    <div class="bottom-tabs">
+                        <button class="tab-btn active" data-target="active-tasks-section">
+                            <i class="fas fa-list-check"></i>
+                            <span>کارهای فعال</span>
+                        </button>
+                        <button class="tab-btn" data-target="archived-tasks-section">
+                            <i class="fas fa-box-archive"></i>
+                            <span>بایگانی</span>
+                        </button>
+                    </div>
+                    <div class="tasks-wrapper">
+                        <section id="active-tasks-section" class="tasks-section active">
+                            <div id="active-tasks"></div>
+                            <div id="active-empty" class="empty-msg" style="display:none;">لیست کارهای فعال شما خالی است!</div>
+                        </section>
+                        <section id="archived-tasks-section" class="tasks-section">
+                            <div id="archived-tasks"></div>
+                            <div id="archived-empty" class="empty-msg" style="display:none;">آرشیو شما خالی است.</div>
+                        </section>
+                    </div>
                 </div>
             </section>
 
-            <!-- جدید: بخش پشتیبانی به شکل چت -->
+            <!-- بخش پشتیبانی (چت) -->
             <section id="content-chat" class="content-section">
-                <h1>چت با پشتیبانی</h1>
-                <div class="chat-container card">
-                    <div id="chat-history" class="chat-history">
-                        <!-- پیام‌های چت اینجا لود می‌شوند -->
-                    </div>
-                    <form id="chat-form" class="chat-form">
-                        <input type="text" id="chat-message-input" placeholder="پیام خود را تایپ کنید..." autocomplete="off">
-                        <button type="submit"><i class="fas fa-paper-plane"></i> ارسال</button>
+                <!-- محتوای این بخش -->
+            </section>
+
+            <!-- بخش مالی -->
+            <section id="content-billing" class="content-section">
+                <h1>صورتحساب پروژه</h1>
+
+                <!-- فرم افزودن آیتم مالی (فقط برای پشتیبانی) -->
+                <div id="add-billing-item-form-container" class="card add-task-card hidden">
+                    <h2>افزودن آیتم جدید به صورتحساب</h2>
+                    <form id="add-billing-item-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="billing-item-type">نوع آیتم</label>
+                                <select id="billing-item-type" required>
+                                    <option value="service">خدمات اضافی</option>
+                                    <option value="payment">واریزی مشتری</option>
+                                </select>
+                            </div>
+                            <div class="form-group large">
+                                <label for="billing-item-description">توضیحات</label>
+                                <input type="text" id="billing-item-description" placeholder="مثلا: هزینه خرید دامنه یا واریزی فاز اول" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="billing-item-amount">مبلغ (تومان)</label>
+                                <input type="number" id="billing-item-amount" placeholder="290000" required min="0">
+                            </div>
+                        </div>
+                        <button type="submit">افزودن آیتم</button>
                     </form>
                 </div>
+
+                <!-- جدول صورتحساب -->
+                <div class="billing-table-container">
+                    <table id="billing-table">
+                        <thead>
+                            <tr>
+                                <th>شرح خدمات / واریزی</th>
+                                <th>زمان صرف شده</th>
+                                <th>مبلغ (تومان)</th>
+                                <th></th> <!-- ستون خالی برای دکمه حذف -->
+                            </tr>
+                        </thead>
+                        <tbody id="billing-tbody">
+                            <!-- ردیف ها با جاوااسکریپت اضافه میشوند -->
+                        </tbody>
+                        <tfoot id="billing-tfoot">
+                            <!-- جمع کل با جاوااسکریپت اضافه میشود -->
+                        </tfoot>
+                    </table>
+                    <div id="billing-empty" class="empty-msg" style="display:none;">هنوز هیچ آیتمی برای نمایش در صورتحساب وجود ندارد.</div>
+                </div>
             </section>
 
-            <!-- جدید: بخش مالی با محتوای استاتیک -->
-            <section id="content-billing" class="content-section">
-                 <h1>امور مالی و قرارداد</h1>
-                 <div class="card">
-                    <h2>نحوه تسویه حساب</h2>
-                    <p>در حال حاضر تسویه حساب به صورت آنلاین امکان‌پذیر نمی‌باشد.</p>
-                    <p>لطفاً مبلغ فاکتور خود را به شماره کارت زیر واریز نمایید:</p>
-                    <p class="account-number"><strong>۶۰۳۷-۹۹۷۹-۱۱۱۱-۲۲۲۲</strong></p>
-                    <p>به نام: [نام شما]</p>
-                    <p>پس از واریز، لطفاً تصویر رسید را از طریق بخش **پشتیبانی (چت)** برای ما ارسال کنید تا تسویه حساب شما در سیستم ثبت گردد.</p>
-                 </div>
-                 <div class="card">
-                    <h2>وضعیت قرارداد</h2>
-                    <!-- اطلاعات زمان تعهد به اینجا منتقل شد -->
-                    <p id="commitment-info">در حال بارگذاری...</p>
-                 </div>
-            </section>
         </main>
     </div>
 
-
+    <!-- صفحه انتظار -->
     <div id="pending-container" class="container pending-page hidden">
         <div class="pending-box">
             <i class="fas fa-hourglass-half"></i>
             <h2>اکانت شما در انتظار تایید است</h2>
             <p>
-                حساب کاربری شما با موفقیت ایجاد شده است، تمامی وظایف شما ثبت شده و در حال انجام می باشد اما برای دسترسی به امکانات پنل، نیاز به تایید توسط ادمین دارد.
-                <br>
-                این فاصله به منظور یکپارچه سازی وظایف، بررسی و ثبت آنها می‌باشد به محض تایید، شما قادر به استفاده از تمام بخش‌ها خواهید بود. از شکیبایی شما سپاسگزاریم.
+                حساب کاربری شما با موفقیت ایجاد شده است اما برای دسترسی به امکانات پنل، نیاز به تایید توسط ادمین دارد.
             </p>
             <button id="logout-pending-btn" class="btn-secondary">خروج</button>
         </div>
     </div>
 
     <script src="script.js"></script>
+
+
+    <div id="custom-modal-backdrop" class="modal-backdrop">
+        <div id="custom-modal" class="modal">
+            <div id="modal-icon" class="modal-icon">
+                <!-- آیکون در اینجا با جاوااسکریپت قرار میگیرد -->
+            </div>
+            <h2 id="modal-title">عنوان مودال</h2>
+            <p id="modal-message">پیام مودال در اینجا قرار می‌گیرد.</p>
+            <div id="modal-buttons" class="modal-buttons">
+                <!-- دکمه‌ها در اینجا با جاوااسکریپت قرار میگیرند -->
+            </div>
+        </div>
+    </div>
+
+    
 </body>
 </html>

@@ -1,385 +1,882 @@
-// ===================================
-// تنظیمات و متغیرهای سراسری
-// ===================================
-const WORKER_URL = 'https://customers.gacica1374.workers.dev'; // آدرس ورکر خود را اینجا قرار دهید
+document.addEventListener('DOMContentLoaded', () => {
+    // ===================================
+    // بخش ۱: تنظیمات و متغیرهای سراسری
+    // ===================================
+    const API_BASE_URL = 'https://customers.gacica1374.workers.dev'; 
+    const TASKS_API_URL = 'https://mirshokraei.gacica1374.workers.dev'; 
 
-// ===================================
-// المنت‌های اصلی DOM
-// ===================================
-// صفحات اصلی
-const loginContainer = document.getElementById('login-container');
-const dashboardContainer = document.getElementById('dashboard-container');
-const pendingContainer = document.getElementById('pending-container');
+    const TASK_QUOTAS = { high: 1, normal: 6, low: 12 };
 
-// فرم‌ها و دکمه‌ها
-const loginForm = document.getElementById('login-form');
-const logoutBtn = document.getElementById('logout-btn');
-const logoutPendingBtn = document.getElementById('logout-pending-btn');
-
-// ناوبری و اطلاعات کاربر
-const navLinks = document.querySelectorAll('.nav-link');
-const contentSections = document.querySelectorAll('.content-section');
-const userIdentifierElement = document.getElementById('user-identifier');
-
-// بخش چت
-const chatHistory = document.getElementById('chat-history');
-const chatForm = document.getElementById('chat-form');
-const chatMessageInput = document.getElementById('chat-message-input');
-
-// بخش وظایف
-const tasksList = document.getElementById('tasks-list');
-const addTaskForm = document.getElementById('add-task-form');
-const addTaskError = document.getElementById('add-task-error');
-const taskQuotaInfo = document.getElementById('task-quota-info');
-
-// Modal ویرایش وظیفه
-const editModal = document.getElementById('edit-task-modal');
-const editTaskForm = document.getElementById('edit-task-form');
-const closeModalBtn = document.getElementById('close-modal-btn');
-
-// ===================================
-// رویدادها (Event Listeners)
-// ===================================
-document.addEventListener('DOMContentLoaded', checkLoginStatus);
-loginForm.addEventListener('submit', handleLogin);
-logoutBtn.addEventListener('click', handleLogout);
-logoutPendingBtn.addEventListener('click', handleLogout);
-chatForm.addEventListener('submit', handleSendMessage);
-addTaskForm.addEventListener('submit', handleAddTask);
-tasksList.addEventListener('click', handleTaskActions);
-editTaskForm.addEventListener('submit', handleSaveTask);
-closeModalBtn.addEventListener('click', () => editModal.classList.add('hidden'));
-
-// رویداد برای مدیریت تب‌ها
-navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        navLinks.forEach(l => l.classList.remove('active'));
-        contentSections.forEach(s => s.classList.remove('active'));
-        link.classList.add('active');
-        const targetSection = document.getElementById(link.dataset.target);
-        if (targetSection) {
-            targetSection.classList.add('active');
-        }
-    });
-});
-
-// ===================================
-// مدیریت وضعیت و نمایش صفحات
-// ===================================
-function checkLoginStatus() {
-    const token = localStorage.getItem('user_token');
-    const userStatus = localStorage.getItem('user_status');
-    if (token && userStatus) {
-        if (userStatus === 'active') {
-            showDashboard();
-            fetchAllData(token);
-            updateUserInfo();
-        } else {
-            showPendingPage();
-        }
-    } else {
-        showLogin();
-    }
-}
-
-function showLogin() {
-    loginContainer.style.display = 'flex';
-    dashboardContainer.classList.add('hidden');
-    pendingContainer.classList.add('hidden');
-}
-
-function showDashboard() {
-    loginContainer.style.display = 'none';
-    dashboardContainer.classList.remove('hidden');
-    pendingContainer.classList.add('hidden');
-    document.querySelector('.nav-link')?.click();
-}
-
-function showPendingPage() {
-    loginContainer.style.display = 'none';
-    dashboardContainer.classList.add('hidden');
-    pendingContainer.classList.remove('hidden');
-}
-
-// ===================================
-// مدیریت احراز هویت (ورود و خروج)
-// ===================================
-async function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    // المان‌های DOM
+    const loginContainer = document.getElementById('login-container');
+    const dashboardContainer = document.getElementById('dashboard-container');
+    const pendingContainer = document.getElementById('pending-container');
+    const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
-    loginError.textContent = '';
+    
+    const modalBackdrop = document.getElementById('custom-modal-backdrop');
+    const modalIcon = document.getElementById('modal-icon');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const modalButtons = document.getElementById('modal-buttons');
 
-    try {
-        const response = await fetch(`${WORKER_URL}/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
+    let currentUser = null;
+    let authToken = null;
+    let isTaskSectionInitialized = false;
+    let isBillingSectionInitialized = false;
+
+    // ===================================
+    // بخش ۲: توابع کمکی و مدیریت UI عمومی
+    // ===================================
+
+    function formatDuration(totalMinutes) {
+        if (!totalMinutes || totalMinutes <= 0) return '';
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        let result = '';
+        if (hours > 0) result += `${hours} ساعت `;
+        if (minutes > 0) result += `${minutes} دقیقه`;
+        return result.trim() || '0 دقیقه';
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+
+    function showCustomModal({ type = 'error', title, message, buttons = [{ text: 'باشه', className: 'primary' }] }) {
+        modalIcon.innerHTML = type === 'error' ? '<i class="fas fa-exclamation-circle"></i>' : '<i class="fas fa-check-circle"></i>';
+        modalIcon.className = `modal-icon ${type}`;
+        modalTitle.textContent = title;
+        modalMessage.innerHTML = message;
+        modalButtons.innerHTML = '';
+        buttons.forEach(btnInfo => {
+            const button = document.createElement('button');
+            button.textContent = btnInfo.text;
+            button.className = `modal-button ${btnInfo.className}`;
+            button.onclick = () => {
+                closeModal();
+                if (btnInfo.onClick) btnInfo.onClick();
+            };
+            modalButtons.appendChild(button);
         });
-        const result = await response.json();
-        
-        if (response.ok) {
-            localStorage.setItem('user_token', result.token);
-            localStorage.setItem('user_email', result.user.email);
-
-            // مهم: ذخیره وضعیت کاربر
-            localStorage.setItem('user_status', result.user.status);
-            
-            if (result.user.status === 'active') {
-                showDashboard();
-                fetchAllData(result.token);
-                updateUserInfo();
-            } else {
-                showPendingPage();
-            }
-        } else {
-            throw new Error(result.error || 'خطا در ورود');
-        }
-    } catch (error) {
-        loginError.textContent = error.message;
+        modalBackdrop.classList.add('visible');
     }
-}
 
-function handleLogout() {
-    localStorage.removeItem('user_token');
-    localStorage.removeItem('user_email');
-    localStorage.removeItem('user_status');
-    if (userIdentifierElement) userIdentifierElement.textContent = '';
-    showLogin();
-}
-
-function updateUserInfo() {
-    const userEmail = localStorage.getItem('user_email');
-    if (userEmail && userIdentifierElement) {
-        userIdentifierElement.textContent = userEmail;
+    function closeModal() {
+        modalBackdrop.classList.remove('visible');
     }
-}
 
-// ===================================
-// توابع دریافت و نمایش داده‌ها
-// ===================================
-function fetchAllData(token) {
-    fetchChatHistory(token);
-    fetchTasks(token);
-    fetchCommitment(token);
-}
-
-async function fetchWithAuth(endpoint, token, options = {}) {
-    const defaultOptions = {
-        headers: {
-            'Authorization': `Bearer ${token}`,
+    const showLogin = () => {
+        loginContainer.classList.remove('hidden');
+        dashboardContainer.classList.add('hidden');
+        pendingContainer.classList.add('hidden');
+        localStorage.clear();
+        currentUser = null;
+        authToken = null;
+        isTaskSectionInitialized = false;
+        isBillingSectionInitialized = false;
+    };
+    
+    const showDashboardForUser = (user) => {
+        loginContainer.classList.add('hidden');
+        if (user.status === 'active') {
+            dashboardContainer.classList.remove('hidden');
+            pendingContainer.classList.add('hidden');
+            document.getElementById('user-identifier').textContent = user.name;
+            document.getElementById('logout-btn').addEventListener('click', showLogin);
+            initializeTaskSection();
+        } else if (user.status === 'pending') {
+            dashboardContainer.classList.add('hidden');
+            pendingContainer.classList.remove('hidden');
+            document.getElementById('logout-pending-btn').addEventListener('click', showLogin);
         }
     };
-    const finalOptions = { ...defaultOptions, ...options };
-    if (finalOptions.body) {
-        finalOptions.headers['Content-Type'] = 'application/json';
-    }
 
-    const response = await fetch(`${WORKER_URL}${endpoint}`, finalOptions);
-    const result = await response.json();
+    // =======================================================================
+    // بخش ۳: منطق مدیریت وظایف (Task Manager)
+    // =======================================================================
+    function initializeTaskSection() {
+        if (isTaskSectionInitialized) return;
 
-    if (!response.ok) {
-        if (response.status === 401) handleLogout();
-        // اگر کاربر در انتظار تایید باشد و درخواستی بفرستد
-        if (result.errorCode === 'ACCOUNT_PENDING') {
-            showPendingPage();
-        }
-        throw new Error(result.error || 'خطا در ارتباط با سرور');
-    }
-    return result;
-}
+        const activeContainer = document.getElementById('active-tasks');
+        const archivedContainer = document.getElementById('archived-tasks');
+        const activeEmpty = document.getElementById('active-empty');
+        const archivedEmpty = document.getElementById('archived-empty');
+        const taskTabs = document.querySelectorAll('.tasks-manager-container .tab-btn');
+        const addTaskForm = document.getElementById('add-task-form');
+        const taskQuotaInfo = document.getElementById('task-quota-info');
 
-// --- بخش چت ---
-async function fetchChatHistory(token) {
-    chatHistory.innerHTML = '<p>در حال بارگذاری تاریخچه چت...</p>';
-    try {
-        const data = await fetchWithAuth('/chat', token);
-        chatHistory.innerHTML = '';
-        if (data.messages && data.messages.length > 0) {
-            data.messages.forEach(renderMessage);
-        } else {
-            chatHistory.innerHTML = '<p class="no-message">هنوز پیامی رد و بدل نشده است.</p>';
-        }
-    } catch (error) {
-        chatHistory.innerHTML = `<p class="error-message">خطا در بارگذاری چت: ${error.message}</p>`;
-    }
-}
+        const removeTaskCard = (cardElement) => { cardElement.classList.add('is-removing'); cardElement.addEventListener('animationend', () => { cardElement.remove(); checkEmptyStates(); }); };
+        const checkEmptyStates = () => { activeEmpty.style.display = activeContainer.children.length === 0 ? 'block' : 'none'; archivedEmpty.style.display = archivedContainer.children.length === 0 ? 'block' : 'none'; };
 
-async function handleSendMessage(e) {
-    e.preventDefault();
-    const messageText = chatMessageInput.value.trim();
-    if (!messageText) return;
+        const createStepElement = (stepData) => {
+            const li = document.createElement('li');
+            li.className = `workflow-step ${stepData.done ? 'completed' : ''}`;
+            li.dataset.stepId = stepData.id;
 
-    chatMessageInput.value = '';
-    const token = localStorage.getItem('user_token');
-    try {
-        await fetchWithAuth('/chat', token, {
-            method: 'POST',
-            body: JSON.stringify({ text: messageText })
-        });
-        await fetchChatHistory(token); // رفرش چت برای نمایش پیام جدید
-    } catch (error) {
-        console.error('Failed to send message:', error);
-    }
-}
+            const durationDisplay = stepData.duration > 0 
+                ? `<span class="step-duration"><i class="fas fa-stopwatch"></i> ${formatDuration(stepData.duration)}</span>` 
+                : '<span class="step-duration"></span>';
 
-function renderMessage(message) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `chat-message ${message.sender === 'customer' ? 'sent' : 'received'}`;
-    const statusIcon = message.sender === 'customer' ? `<span class="status-ticks"><i class="fas fa-check"></i>${message.status === 'seen' ? '<i class="fas fa-check-double"></i>' : ''}</span>` : '';
-    messageDiv.innerHTML = `
-        <div class="message-text">${message.text}</div>
-        <div class="message-meta">
-            <span>${new Date(message.timestamp).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}</span>
-            ${statusIcon}
-        </div>
-    `;
-    chatHistory.appendChild(messageDiv);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-}
+            const setTimeButton = currentUser.name === 'پشتیبانی' 
+                ? `<button class="set-time-btn" title="ثبت زمان"><i class="fas fa-user-clock"></i></button>` 
+                : '';
+            
+            li.innerHTML = `<span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+                            <div class="checkbox" role="checkbox" aria-checked="${stepData.done}"><i class="fas fa-check"></i></div>
+                            <div class="step-main">
+                                <span class="step-title">${escapeHtml(stepData.title)}</span>
+                                ${durationDisplay}
+                                <div class="step-actions">
+                                    ${setTimeButton}
+                                    <button class="delete-step-btn" title="حذف"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
+                            <input type="text" class="edit-input" value="${escapeHtml(stepData.title)}" />
+                            <div class="time-input-form hidden">
+                                <input type="number" class="time-input" placeholder="زمان (دقیقه)" min="0" value="${stepData.duration || ''}">
+                                <button class="save-time-btn"><i class="fas fa-check"></i></button>
+                                <button class="cancel-time-btn"><i class="fas fa-times"></i></button>
+                            </div>`;
+            return li;
+        };
 
-// --- بخش وظایف ---
-async function fetchTasks(token) {
-    try {
-        const data = await fetchWithAuth('/tasks', token);
-        const myUserId = localStorage.getItem('user_token').replace('fake-token-for-', '');
-        
-        tasksList.innerHTML = '';
-        if (data.tasks.length === 0) {
-            tasksList.innerHTML = '<p>هیچ وظیفه‌ای ثبت نشده است.</p>';
-        } else {
-            data.tasks.sort((a, b) => new Date(b.date) - new Date(a.date)); // مرتب‌سازی بر اساس جدیدترین
-            data.tasks.forEach(task => {
-                const taskDiv = document.createElement('div');
-                taskDiv.className = `task-item ${task.completed ? 'completed' : ''} ${task.priority === 'high' ? 'high-priority' : ''}`;
+        const addTaskToDOM = (task) => {
+            const div = document.createElement('div');
+            div.className = 'task';
+            div.dataset.taskId = task.id;
+            const isArchived = task.archived;
+            const shamsiDate = new persianDate(new Date(task.createdAt)).format('dddd D MMMM YYYY - HH:mm');
+            
+            const priorityMap = {
+                high: '<span style="color:var(--danger);">فوری</span>',
+                normal: '<span style="color:var(--warning);">عادی</span>',
+                low: '<span style="color:var(--success);">کم</span>',
+            };
+            const priorityText = `<strong>اولویت:</strong> ${priorityMap[task.priority] || 'نامشخص'}`;
+            
+            let creatorDisplayName = task.creatorId; 
+            if (task.creatorId === 'PMirshokraei') creatorDisplayName = 'مشتری';
+            else if (task.creatorId === 'sajedsarvari') creatorDisplayName = 'پشتیبانی';
+            const creatorInfo = task.creatorId ? `<div class="task-creator-info"><i class="fas fa-user-edit"></i> ایجاد شده توسط: <strong>${escapeHtml(creatorDisplayName)}</strong></div>` : '';
 
-                let controlsHTML = '<div class="task-controls">';
-                if (myUserId === 'PMirshokraei') { // مشتری
-                    if (!task.completed) controlsHTML += `<button class="task-control-btn delete" data-task-id="${task.id}" title="حذف"><i class="fas fa-trash-alt"></i></button>`;
-                } else { // پشتیبان
-                    const completeIcon = task.completed ? 'fa-undo' : 'fa-check';
-                    const completeTitle = task.completed ? 'بازگردانی' : 'تکمیل';
-                    const completeClass = task.completed ? 'uncomplete' : 'complete';
-                    controlsHTML += `<button class="task-control-btn edit" data-task-id="${task.id}" title="ویرایش"><i class="fas fa-pencil-alt"></i></button>`;
-                    controlsHTML += `<button class="task-control-btn ${completeClass}" data-task-id="${task.id}" title="${completeTitle}"><i class="fas ${completeIcon}"></i></button>`;
-                }
-                controlsHTML += '</div>';
-                
-                const createdByText = task.createdBy === 'PMirshokraei' ? 'توسط مشتری' : 'توسط پشتیبانی';
-                const createdByClass = task.createdBy === 'PMirshokraei' ? 'by-customer' : 'by-support';
+            const totalDurationMinutes = (task.workflow || []).reduce((acc, step) => acc + (step.duration || 0), 0);
+            const totalDurationFormatted = formatDuration(totalDurationMinutes);
+            const totalTimeDisplay = totalDurationMinutes > 0 ? `<span class="total-task-time"><i class="fas fa-clock"></i> ${totalDurationFormatted}</span>` : '';
 
-                taskDiv.innerHTML = `
-                    ${controlsHTML}
-                    <p><strong>${task.title}</strong></p>
-                    <div class="task-meta">
-                        <small>تاریخ ثبت: ${new Date(task.date).toLocaleDateString('fa-IR')}</small>
-                        <span class="created-by ${createdByClass}">${createdByText}</span>
+            div.innerHTML = `
+                <div class="task-header">
+                    <span class="toggle-icon fas fa-chevron-down"></span>
+                    <strong class="task-main-title" title="${escapeHtml(task.title)}">${escapeHtml(task.title)}</strong>
+                    <input type="text" class="edit-main-title-input" value="${escapeHtml(task.title)}" />
+                    ${totalTimeDisplay}
+                </div>
+                <div class="task-details">
+                    <div class="task-details-main-content">
+                        <p>${escapeHtml(task.description) || '<i>بدون توضیحات</i>'}</p>
+                        <p>${priorityText}</p>
+                        <ul class="workflow-list"></ul>
+                        ${creatorInfo}
                     </div>
-                    ${task.note ? `<div class="note"><strong>نکته:</strong> ${task.note}</div>` : ''}
-                `;
-                tasksList.appendChild(taskDiv);
+                    <div class="actions-footer">
+                        <div class="action-buttons">
+                            ${!isArchived ? 
+                                `<button class="action-btn add-step-trigger-btn" title="افزودن مرحله"><i class="fas fa-plus"></i></button>
+                                <button class="action-btn edit-task" title="ویرایش وظیفه"><i class="fas fa-pencil-alt"></i></button>
+                                <button class="action-btn archive" title="بایگانی"><i class="fas fa-archive"></i></button>
+                                <button class="action-btn delete" title="حذف"><i class="fas fa-trash-alt"></i></button>` : 
+                                `<button class="action-btn restore" title="بازیابی"><i class="fas fa-undo-alt"></i></button>
+                                <button class="action-btn delete" title="حذف کامل"><i class="fas fa-trash-alt"></i></button>`
+                            }
+                        </div>
+                        <span class="task-date-footer">${shamsiDate}</span>
+                    </div>
+                </div>`;
+            
+            const workflowList = div.querySelector('.workflow-list');
+            (task.workflow || []).forEach(stepData => {
+                const stepElement = createStepElement(stepData);
+                workflowList.appendChild(stepElement);
             });
-        }
-        updateQuotaInfo(data.quota);
-    } catch (error) {
-        tasksList.innerHTML = `<p class="error-message">${error.message}</p>`;
-    }
-}
+            
+            return div;
+        };
+                
+        const updateQuotaDisplay = (allTasks) => {
+            const submitButton = addTaskForm.querySelector('button[type="submit"]');
+            if (currentUser.id !== 'PMirshokraei') {
+                taskQuotaInfo.style.display = 'none';
+                submitButton.disabled = false;
+                return;
+            }
+            taskQuotaInfo.style.display = 'block';
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const customerTasksThisMonth = allTasks.filter(task => {
+                if (task.creatorId !== 'PMirshokraei' || task.archived) return false;
+                const taskDate = new Date(task.createdAt);
+                return taskDate.getMonth() === currentMonth && taskDate.getFullYear() === currentYear;
+            });
+            const usedHigh = customerTasksThisMonth.filter(t => t.priority === 'high').length;
+            const usedNormal = customerTasksThisMonth.filter(t => t.priority === 'normal').length;
+            const usedLow = customerTasksThisMonth.filter(t => t.priority === 'low').length;
+            const remainingHigh = TASK_QUOTAS.high - usedHigh;
+            const remainingNormal = TASK_QUOTAS.normal - usedNormal;
+            const remainingLow = TASK_QUOTAS.low - usedLow;
+            taskQuotaInfo.innerHTML = `
+                <span>سهمیه باقی‌مانده این ماه:</span> 
+                <span>فوری: <strong>${remainingHigh}</strong> از ${TASK_QUOTAS.high}</span> 
+                <span>عادی: <strong>${remainingNormal}</strong> از ${TASK_QUOTAS.normal}</span>
+                <span>کم: <strong>${remainingLow}</strong> از ${TASK_QUOTAS.low}</span>`;
+        };
+        
+        const renderTasks = (tasks, container) => { 
+            container.innerHTML = ''; 
+            tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            tasks.forEach(taskData => { 
+                const taskElement = addTaskToDOM(taskData); 
+                container.appendChild(taskElement); 
+                initializeTaskInteractions(taskElement, taskData); 
+            }); 
+        };
+        
+        const fetchAndRender = async (only = null) => {
+            try {
+                const res = await fetch(`${TASKS_API_URL}/tasks`);
+                if (!res.ok) throw new Error('خطا در دریافت داده‌ها');
+                const allTasks = await res.json();
+                const userVisibleTasks = allTasks;
+                if (only !== 'archived') renderTasks(userVisibleTasks.filter(t => !t.archived), activeContainer);
+                if (only !== 'active') renderTasks(userVisibleTasks.filter(t => t.archived), archivedContainer);
+                checkEmptyStates();
+                updateQuotaDisplay(allTasks);
+            } catch (e) { 
+                console.error(e); 
+                activeContainer.innerHTML = `<div class="error-message">${e.message}</div>`; 
+            }
+        };
+        
+        const initializeTaskInteractions = (taskCard, taskData) => {
+            const isArchived = taskData.archived;
+            const workflowList = taskCard.querySelector('.workflow-list');
 
-async function handleAddTask(e) {
-    e.preventDefault();
-    const title = document.getElementById('task-title').value;
-    const priority = document.getElementById('task-priority').value;
-    const token = localStorage.getItem('user_token');
-    addTaskError.textContent = '';
-    
-    try {
-        await fetchWithAuth('/tasks', token, {
-            method: 'POST',
-            body: JSON.stringify({ title, priority })
+            taskCard.querySelector('.task-header').addEventListener('click', (e) => {
+                if (!e.target.closest('.edit-main-title-input')) {
+                    taskCard.classList.toggle('expanded');
+                }
+            });
+
+            taskCard.querySelector('.actions-footer .delete').onclick = async () => {
+                if (!confirm('آیا برای حذف این وظیفه مطمئن هستید؟ این عمل غیرقابل بازگشت است.')) return;
+                removeTaskCard(taskCard);
+                try {
+                    await fetch(`${TASKS_API_URL}/tasks/${taskData.id}`, { method: 'DELETE' });
+                } catch (err) {
+                    alert("خطا در حذف وظیفه.");
+                    fetchAndRender();
+                }
+            };
+
+            taskCard.querySelectorAll('.workflow-step').forEach(stepElement => {
+                initializeStepInteractions(stepElement, taskData, taskCard);
+            });
+
+            if (!isArchived) {
+                new Sortable(workflowList, {
+                    animation: 150,
+                    handle: '.drag-handle',
+                    ghostClass: 'step-ghost',
+                    onEnd: async (evt) => {
+                        const newOrderIds = Array.from(evt.target.children).map(li => li.dataset.stepId);
+                        try {
+                            await fetch(`${TASKS_API_URL}/tasks/${taskData.id}/workflow/reorder`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ order: newOrderIds }),
+                            });
+                        } catch (err) {
+                            alert('خطا در ذخیره ترتیب جدید.');
+                            fetchAndRender();
+                        }
+                    },
+                });
+
+                taskCard.querySelector('.actions-footer .archive').onclick = async () => {
+                    removeTaskCard(taskCard);
+                    try {
+                        await fetch(`${TASKS_API_URL}/tasks/${taskData.id}/archive`, { method: 'POST' });
+                        fetchAndRender('archived'); 
+                    } catch (err) {
+                        alert("خطا در بایگانی.");
+                        fetchAndRender();
+                    }
+                };
+
+                const addStepTriggerBtn = taskCard.querySelector('.add-step-trigger-btn');
+                addStepTriggerBtn.addEventListener('click', () => {
+                    if (workflowList.querySelector('.new-step-input-wrapper')) return;
+                    const newStepLi = document.createElement('li');
+                    newStepLi.className = 'new-step-input-wrapper';
+                    newStepLi.innerHTML = `<input type="text" class="dynamic-new-step-input" placeholder="عنوان مرحله جدید..."><button class="save-new-step-btn" title="تایید"><i class="fas fa-check"></i></button><button class="cancel-new-step-btn" title="انصراف"><i class="fas fa-times"></i></button>`;
+                    workflowList.appendChild(newStepLi);
+                    const inputField = newStepLi.querySelector('.dynamic-new-step-input');
+                    inputField.focus();
+
+                    const saveNewStep = async () => {
+                        const stepName = inputField.value.trim();
+                        if (!stepName) return;
+                        newStepLi.querySelector('.save-new-step-btn').disabled = true;
+                        try {
+                            const res = await fetch(`${TASKS_API_URL}/tasks/${taskData.id}/workflow`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ step: stepName }) });
+                            if (!res.ok) throw new Error('خطا در افزودن مرحله');
+                            const updatedTask = await res.json();
+                            const newCard = addTaskToDOM(updatedTask);
+                            taskCard.replaceWith(newCard);
+                            initializeTaskInteractions(newCard, updatedTask);
+                            newCard.classList.add('expanded');
+                        } catch (err) {
+                            alert(err.message);
+                            newStepLi.remove();
+                        }
+                    };
+
+                    newStepLi.querySelector('.save-new-step-btn').onclick = saveNewStep;
+                    newStepLi.querySelector('.cancel-new-step-btn').onclick = () => newStepLi.remove();
+                    inputField.onkeydown = (e) => {
+                        if (e.key === 'Enter') saveNewStep();
+                        if (e.key === 'Escape') newStepLi.remove();
+                    };
+                });
+
+                const editTaskBtn = taskCard.querySelector('.action-btn.edit-task');
+                const mainTitleSpan = taskCard.querySelector('.task-main-title');
+                const mainTitleInput = taskCard.querySelector('.edit-main-title-input');
+                let originalMainTitleValue = '';
+                editTaskBtn.addEventListener('click', () => {
+                    const isInEditMode = taskCard.classList.toggle('edit-mode');
+                    if (isInEditMode) {
+                        originalMainTitleValue = mainTitleSpan.textContent.trim();
+                        taskCard.querySelectorAll('.step-title').forEach(st => st.style.cursor = 'pointer');
+                    } else {
+                         taskCard.querySelectorAll('.step-title').forEach(st => st.style.cursor = 'default');
+                    }
+                });
+                const saveMainTitle = async () => {
+                    const newTitle = mainTitleInput.value.trim();
+                    if (newTitle && newTitle !== originalMainTitleValue) {
+                        try {
+                            await fetch(`${TASKS_API_URL}/tasks/${taskData.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: newTitle }) });
+                            mainTitleSpan.textContent = newTitle;
+                            mainTitleSpan.title = newTitle;
+                            taskData.title = newTitle;
+                        } catch (err) {
+                            alert('خطا در ذخیره عنوان.');
+                            mainTitleInput.value = originalMainTitleValue;
+                        }
+                    } else {
+                        mainTitleInput.value = originalMainTitleValue;
+                    }
+                };
+                mainTitleInput.addEventListener('blur', saveMainTitle);
+                mainTitleInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') mainTitleInput.blur();
+                    if (e.key === 'Escape') {
+                        mainTitleInput.value = originalMainTitleValue;
+                        mainTitleInput.blur();
+                    }
+                });
+            } else {
+                taskCard.querySelector('.actions-footer .restore').onclick = async () => {
+                    removeTaskCard(taskCard);
+                    try {
+                        await fetch(`${TASKS_API_URL}/tasks/${taskData.id}/restore`, { method: 'POST' });
+                        fetchAndRender('active');
+                    } catch (err) {
+                        alert("خطا در بازیابی.");
+                        fetchAndRender();
+                    }
+                };
+            }
+        };
+
+        const initializeStepInteractions = (stepElement, taskData, taskCard) => {
+            const stepId = stepElement.dataset.stepId;
+            const titleSpan = stepElement.querySelector('.step-title');
+
+            stepElement.querySelector('.checkbox').onclick = async () => {
+                const isCompleted = !stepElement.classList.contains('completed');
+                try {
+                    fetch(`${TASKS_API_URL}/tasks/${taskData.id}/workflow/${stepId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ done: isCompleted })
+                    });
+                    stepElement.classList.toggle('completed', isCompleted);
+                    taskData.workflow.find(s => s.id === stepId).done = isCompleted;
+                } catch (err) {
+                    alert("خطا در به‌روزرسانی وضعیت. لطفا صفحه را رفرش کنید.");
+                }
+            };
+
+            stepElement.querySelector('.delete-step-btn').onclick = async () => {
+                if (!confirm(`آیا از حذف مرحله "${titleSpan.textContent}" مطمئن هستید؟`)) return;
+                stepElement.classList.add('is-deleting');
+                try {
+                    await fetch(`${TASKS_API_URL}/tasks/${taskData.id}/workflow/${stepId}`, { method: 'DELETE' });
+                    const stepIndex = taskData.workflow.findIndex(s => s.id === stepId);
+                    if (stepIndex > -1) taskData.workflow.splice(stepIndex, 1);
+                    const newCard = addTaskToDOM(taskData);
+                    taskCard.replaceWith(newCard);
+                    initializeTaskInteractions(newCard, taskData);
+                    newCard.classList.add('expanded');
+                } catch (err) {
+                    alert("خطا در حذف مرحله.");
+                    stepElement.classList.remove('is-deleting');
+                    fetchAndRender();
+                }
+            };
+
+            let originalStepTitle = '';
+            const editInput = stepElement.querySelector('.edit-input');
+            titleSpan.onclick = (e) => {
+                if (taskCard.classList.contains('edit-mode')) {
+                    e.stopPropagation();
+                    originalStepTitle = titleSpan.textContent.trim();
+                    stepElement.classList.add('editing');
+                    editInput.focus();
+                    editInput.select();
+                }
+            };
+            const saveStepEdit = async () => {
+                stepElement.classList.remove('editing');
+                const newTitle = editInput.value.trim();
+                if (newTitle && newTitle !== originalStepTitle) {
+                    try {
+                        await fetch(`${TASKS_API_URL}/tasks/${taskData.id}/workflow/${stepId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: newTitle }) });
+                        titleSpan.textContent = newTitle;
+                        taskData.workflow.find(s => s.id === stepId).title = newTitle;
+                    } catch (err) {
+                        alert(err.message);
+                        editInput.value = originalStepTitle;
+                    }
+                } else {
+                    editInput.value = originalStepTitle;
+                }
+            };
+            editInput.onblur = saveStepEdit;
+            editInput.onkeydown = (e) => {
+                if (e.key === 'Enter') saveStepEdit();
+                if (e.key === 'Escape') {
+                    editInput.value = originalStepTitle;
+                    editInput.blur();
+                }
+            };
+            
+            const setTimeBtn = stepElement.querySelector('.set-time-btn');
+            if (setTimeBtn) {
+                const timeForm = stepElement.querySelector('.time-input-form');
+                const timeInput = timeForm.querySelector('.time-input');
+                const saveTimeBtn = timeForm.querySelector('.save-time-btn');
+                const cancelTimeBtn = timeForm.querySelector('.cancel-time-btn');
+
+                setTimeBtn.onclick = () => {
+                    timeForm.classList.toggle('hidden');
+                    if (!timeForm.classList.contains('hidden')) {
+                        timeInput.focus();
+                        timeInput.select();
+                    }
+                };
+
+                cancelTimeBtn.onclick = () => timeForm.classList.add('hidden');
+
+                const saveTime = async () => {
+                    const duration = parseInt(timeInput.value, 10);
+                    if (isNaN(duration) || duration < 0) {
+                        alert('لطفاً یک عدد معتبر برای دقیقه وارد کنید.');
+                        return;
+                    }
+                    saveTimeBtn.disabled = true;
+                    try {
+                        const res = await fetch(`${TASKS_API_URL}/tasks/${taskData.id}/workflow/${stepId}/time`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ duration: duration })
+                        });
+                        if (!res.ok) throw new Error('خطا در ذخیره زمان');
+                        const updatedTask = await res.json();
+                        const newCard = addTaskToDOM(updatedTask);
+                        taskCard.replaceWith(newCard);
+                        initializeTaskInteractions(newCard, updatedTask);
+                        newCard.classList.add('expanded');
+                    } catch (err) {
+                        alert(err.message);
+                        saveTimeBtn.disabled = false;
+                    }
+                };
+                saveTimeBtn.onclick = saveTime;
+                timeInput.onkeydown = (e) => {
+                    if (e.key === 'Enter') saveTime();
+                    if (e.key === 'Escape') cancelTimeBtn.click();
+                };
+            }
+        };
+
+        document.getElementById('task-priority').addEventListener('change', () => {
+            // برای سادگی، فقط لیست را رفرش میکنیم تا تابع updateQuotaDisplay کارش را بکند
+            fetchAndRender();
         });
-        addTaskForm.reset();
-        await fetchTasks(token);
-    } catch (error) {
-        addTaskError.textContent = error.message;
+
+        taskTabs.forEach(tab => { 
+            tab.addEventListener('click', () => { 
+                taskTabs.forEach(t => t.classList.remove('active')); 
+                tab.classList.add('active'); 
+                const targetId = tab.getAttribute('data-target'); 
+                document.querySelectorAll('.tasks-wrapper .tasks-section').forEach(section => { 
+                    section.classList.toggle('active', section.id === targetId); 
+                }); 
+            }); 
+        });
+
+        addTaskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('task-title').value.trim();
+            const priority = document.getElementById('task-priority').value;
+            const description = document.getElementById('task-description').value.trim();
+
+            if (!title) {
+                showCustomModal({ type: 'error', title: 'خطای ورودی', message: 'عنوان وظیفه نمی‌تواند خالی باشد.' });
+                return;
+            }
+            if (!currentUser || !currentUser.id) {
+                showCustomModal({ type: 'error', title: 'خطای کاربر', message: 'اطلاعات کاربر یافت نشد.' });
+                return;
+            }
+            
+            // اینجا منطق بررسی سهمیه در کلاینت را اضافه میکنیم تا مودال را نمایش دهیم
+            if(currentUser.id === 'PMirshokraei'){
+                const quotaInfoText = taskQuotaInfo.innerHTML;
+                let isQuotaReached = false;
+                if(priority === 'high' && quotaInfoText.includes('فوری: <strong>0</strong>')) isQuotaReached = true;
+                if(priority === 'normal' && quotaInfoText.includes('عادی: <strong>0</strong>')) isQuotaReached = true;
+                if(priority === 'low' && quotaInfoText.includes('کم: <strong>0</strong>')) isQuotaReached = true;
+
+                if(isQuotaReached){
+                    showCustomModal({
+                        type: 'error',
+                        title: 'ظرفیت تکمیل شد',
+                        message: 'متاسفانه ظرفیت شما برای این اولویت به پایان رسیده است.'
+                    });
+                    return;
+                }
+            }
+
+
+            const submitButton = addTaskForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'در حال ثبت...';
+
+            const newTaskPayload = {
+                title, description, priority, creatorId: currentUser.id,
+            };
+
+            try {
+                const response = await fetch(`${TASKS_API_URL}/tasks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newTaskPayload),
+                });
+                
+                const resData = await response.json(); 
+                if (!response.ok) {
+                    throw new Error(resData.error || `خطا در سرور: ${response.status}`);
+                }
+                
+                addTaskForm.reset();
+                await fetchAndRender(); 
+
+            } catch (err) {
+                showCustomModal({
+                    type: 'error',
+                    title: 'عملیات ناموفق',
+                    message: err.message
+                });
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'ثبت وظیفه';
+            }
+        });
+
+        fetchAndRender();
+        isTaskSectionInitialized = true;
     }
-}
 
-function updateQuotaInfo(quota) {
-    const remainingNormal = quota.normal.total - quota.normal.used;
-    const remainingHigh = quota.high.total - quota.high.used;
-    taskQuotaInfo.innerHTML = `
-        <div class="quota-item ${remainingNormal <= 0 ? 'limit-reached' : ''}">
-            <strong>${remainingNormal}</strong><span>وظیفه عادی باقی‌مانده</span>
-        </div>
-        <div class="quota-item ${remainingHigh <= 0 ? 'limit-reached' : ''}">
-            <strong>${remainingHigh}</strong><span>وظیفه با اولویت باقی‌مانده</span>
-        </div>
-    `;
-}
+    // =======================================================================
+    // بخش ۴: منطق امور مالی (Billing)
+    // =======================================================================
+    function initializeBillingSection() {
+        if (isBillingSectionInitialized) return;
+        
+        const HOURLY_RATE = 290000;
 
-async function handleTaskActions(event) {
-    const button = event.target.closest('.task-control-btn');
-    if (!button) return;
-    const taskId = button.dataset.taskId;
-    
-    if (button.classList.contains('delete')) {
-        if (confirm('آیا از حذف این وظیفه مطمئن هستید؟')) await handleDeleteTask(taskId);
-    } else if (button.classList.contains('edit')) {
-        await openEditModal(taskId);
-    } else if (button.classList.contains('complete') || button.classList.contains('uncomplete')) {
-        await handleToggleComplete(taskId, button.classList.contains('complete'));
+        const formContainer = document.getElementById('add-billing-item-form-container');
+        const form = document.getElementById('add-billing-item-form');
+        const tableBody = document.getElementById('billing-tbody');
+        const tableFoot = document.getElementById('billing-tfoot');
+        const billingEmptyMsg = document.getElementById('billing-empty');
+
+        if (currentUser.name === 'پشتیبانی') {
+            formContainer.classList.remove('hidden');
+        }
+
+        function renderBillingTable(tasks, billingItems) {
+            tableBody.innerHTML = '';
+            tableFoot.innerHTML = '';
+            let totalCost = 0;
+            let totalPayment = 0;
+            let grandTotalMinutes = 0;
+
+            // ثابت های جدید برای منطق محاسبه کف هزینه
+            const MINIMUM_HOURS = 12;
+            const MINIMUM_MINUTES = MINIMUM_HOURS * 60;
+            const HOURLY_RATE = 290000;
+            const UNUSED_HOURS_RATE = HOURLY_RATE / 2; // نرخ ساعت های استفاده نشده
+
+            // مرحله ۱: رندر کردن وظایف فعال (بدون تغییر)
+            const activeTasks = tasks.filter(task => !task.archived && task.workflow.reduce((acc, step) => acc + (step.duration || 0), 0) > 0);
+            
+            activeTasks.forEach(task => {
+                const totalMinutes = task.workflow.reduce((acc, step) => acc + (step.duration || 0), 0);
+                grandTotalMinutes += totalMinutes;
+                const cost = (totalMinutes / 60) * HOURLY_RATE;
+                totalCost += cost;
+
+                const row = document.createElement('tr');
+                row.className = 'task-row';
+                row.innerHTML = `
+                    <td><i class="fas fa-tasks task-icon"></i> ${escapeHtml(task.title)}</td>
+                    <td>${formatDuration(totalMinutes)}</td>
+                    <td class="amount">${Math.round(cost).toLocaleString('fa-IR')}</td>
+                    <td></td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // مرحله ۲: رندر کردن آیتم های مالی دستی (بدون تغییر)
+            billingItems.sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
+            billingItems.forEach(item => {
+                // ... (این بخش کد بدون تغییر باقی میماند)
+                const row = document.createElement('tr');
+                if (item.type === 'service') {
+                    totalCost += item.amount;
+                    row.className = 'service-row';
+                    row.innerHTML = `
+                        <td><i class="fas fa-plus-circle service-icon"></i> ${escapeHtml(item.description)}</td>
+                        <td>-</td>
+                        <td class="amount">${item.amount.toLocaleString('fa-IR')}</td>
+                        <td></td>`;
+                } else {
+                    totalPayment += item.amount;
+                    row.className = 'payment-row';
+                    row.innerHTML = `
+                        <td><i class="fas fa-check-circle payment-icon"></i> ${escapeHtml(item.description)}</td>
+                        <td>-</td>
+                        <td class="amount payment-amount">- ${item.amount.toLocaleString('fa-IR')}</td>
+                        <td></td>`;
+                }
+                if (currentUser.name === 'پشتیبانی') {
+                    const deleteBtnCell = row.cells[3];
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-billing-item-btn';
+                    deleteBtn.title = 'حذف این آیتم';
+                    deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    deleteBtn.onclick = async () => {
+                        if (!confirm(`آیا از حذف آیتم «${item.description}» مطمئن هستید؟`)) return;
+                        try {
+                            await fetch(`${TASKS_API_URL}/billing/${item.id}`, { method: 'DELETE' });
+                            fetchAndRenderBillingData();
+                        } catch (err) { alert('خطا در حذف آیتم.'); }
+                    };
+                    deleteBtnCell.appendChild(deleteBtn);
+                }
+                tableBody.appendChild(row);
+            });
+
+            // ================== مرحله ۳: محاسبه و افزودن هزینه ساعات باقی مانده ==================
+            let unusedTimeCost = 0;
+            if (grandTotalMinutes < MINIMUM_MINUTES) {
+                const remainingMinutes = MINIMUM_MINUTES - grandTotalMinutes;
+                unusedTimeCost = (remainingMinutes / 60) * UNUSED_HOURS_RATE;
+
+                // افزودن ردیف جدید به بدنه جدول
+                const unusedTimeRow = document.createElement('tr');
+                unusedTimeRow.className = 'service-row';
+                unusedTimeRow.innerHTML = `
+                    <td><i class="fas fa-hourglass-half service-icon"></i> با ضریب نصف قیمت باقی مانده از حداقل ساعت پکیج</td>
+                    <td>${formatDuration(remainingMinutes)}</td>
+                    <td class="amount">${Math.round(unusedTimeCost).toLocaleString('fa-IR')}</td>
+                    <td></td>
+                `;
+                tableBody.appendChild(unusedTimeRow);
+            }
+            
+            // هزینه نهایی شامل هزینه واقعی کارها و هزینه ساعات استفاده نشده است
+            const finalTotalCost = totalCost + unusedTimeCost;
+
+            // ================== مرحله ۴: رندر کردن فوتر جدول (با منطق جدید) ==================
+            const balance = finalTotalCost - totalPayment;
+            tableFoot.innerHTML = `
+                <tr class="summary-row">
+                    <td><strong>جمع کل</strong></td>
+                    <td><strong>${formatDuration(grandTotalMinutes)}</strong></td>
+                    <td class="amount"><strong>${Math.round(finalTotalCost).toLocaleString('fa-IR')}</strong></td>
+                    <td></td>
+                </tr>
+                <tr class="summary-row">
+                    <td colspan="2">جمع کل واریزی‌ها</td>
+                    <td class="amount payment-amount">- ${Math.round(totalPayment).toLocaleString('fa-IR')}</td>
+                    <td></td>
+                </tr>
+                <tr class="balance-row">
+                    <td colspan="2"><strong>مانده حساب نهایی</strong></td>
+                    <td class="amount"><strong>${Math.round(balance).toLocaleString('fa-IR')}</strong></td>
+                    <td></td>
+                </tr>
+            `;
+            
+            billingEmptyMsg.style.display = tableBody.children.length === 0 ? 'block' : 'none';
+        }
+
+        async function fetchAndRenderBillingData() {
+            try {
+                const [tasksRes, billingRes] = await Promise.all([
+                    fetch(`${TASKS_API_URL}/tasks`),
+                    fetch(`${TASKS_API_URL}/billing`)
+                ]);
+
+                if (!tasksRes.ok || !billingRes.ok) throw new Error('خطا در دریافت اطلاعات مالی');
+
+                const tasks = await tasksRes.json();
+                const billingItems = await billingRes.json();
+
+                renderBillingTable(tasks, billingItems);
+
+            } catch(err) {
+                console.error(err);
+                tableBody.innerHTML = `<tr><td colspan="4" class="error-message">${err.message}</td></tr>`;
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const type = document.getElementById('billing-item-type').value;
+            const description = document.getElementById('billing-item-description').value.trim();
+            const amount = parseInt(document.getElementById('billing-item-amount').value, 10);
+            
+            if (!description || isNaN(amount) || amount <= 0) {
+                alert('لطفا تمام فیلدها را با مقادیر معتبر پر کنید.');
+                return;
+            }
+
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            try {
+                await fetch(`${TASKS_API_URL}/billing`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, description, amount })
+                });
+                form.reset();
+                fetchAndRenderBillingData();
+            } catch (err) {
+                alert('خطا در ثبت آیتم جدید.');
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+
+        fetchAndRenderBillingData();
+        isBillingSectionInitialized = true;
     }
-}
 
-async function handleDeleteTask(taskId) {
-    const token = localStorage.getItem('user_token');
-    await fetchWithAuth(`/tasks/${taskId}`, token, { method: 'DELETE' });
-    await fetchTasks(token);
-}
+    // ===================================
+    // بخش ۵: راه اندازی اصلی و رویدادها
+    // ===================================
 
-async function handleToggleComplete(taskId, completed) {
-    const token = localStorage.getItem('user_token');
-    await fetchWithAuth(`/tasks/${taskId}`, token, { method: 'PUT', body: JSON.stringify({ completed }) });
-    await fetchTasks(token);
-}
-
-// --- بخش Modal ویرایش ---
-async function openEditModal(taskId) {
-    const token = localStorage.getItem('user_token');
-    const data = await fetchWithAuth('/tasks', token);
-    const task = data.tasks.find(t => t.id === taskId);
-    if (task) {
-        document.getElementById('edit-task-id').value = task.id;
-        document.getElementById('edit-task-title').value = task.title;
-        document.getElementById('edit-task-note').value = task.note || '';
-        editModal.classList.remove('hidden');
-    }
-}
-
-async function handleSaveTask(event) {
-    event.preventDefault();
-    const taskId = document.getElementById('edit-task-id').value;
-    const title = document.getElementById('edit-task-title').value;
-    const note = document.getElementById('edit-task-note').value;
-    const token = localStorage.getItem('user_token');
-    await fetchWithAuth(`/tasks/${taskId}`, token, {
-        method: 'PUT',
-        body: JSON.stringify({ title, note })
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const username = form.elements.username.value.trim();
+        const password = form.elements.password.value;
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'در حال بررسی...';
+        loginError.textContent = '';
+        try {
+            const usersDataForLogin = {
+                'PMirshokraei': 'mirshokraei@um.ac.ir',
+                'sajedsarvari': 'sajed.the.nerd@gmail.com'
+            };
+            const email = usersDataForLogin[username];
+            if (!email) throw new Error("نام کاربری یافت نشد.");
+            const response = await fetch(`${API_BASE_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'خطایی رخ داد');
+            authToken = data.token;
+            currentUser = data.user; 
+            currentUser.id = username;
+            currentUser.name = username === 'PMirshokraei' ? 'مشتری' : 'پشتیبانی';
+            localStorage.setItem('authToken', authToken);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showDashboardForUser(currentUser);
+        } catch (error) {
+            loginError.textContent = error.message;
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'ورود';
+        }
     });
-    editModal.classList.add('hidden');
-    await fetchTasks(token);
-}
 
-// --- بخش زمان تعهد ---
-async function fetchCommitment(token) {
-    const commitmentInfo = document.getElementById('commitment-info');
-    try {
-        const data = await fetchWithAuth('/commitment', token);
-        commitmentInfo.textContent = `قرارداد همکاری ما تا تاریخ ${new Date(data.date).toLocaleDateString('fa-IR')} معتبر است.`;
-    } catch (error) {
-        commitmentInfo.textContent = error.message;
-    }
-}
+    const navLinks = document.querySelectorAll('.nav-link');
+    const contentSections = document.querySelectorAll('.content-section');
+    navLinks.forEach(link => { 
+        link.addEventListener('click', (e) => { 
+            e.preventDefault();
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            const targetId = link.getAttribute('data-target');
+            contentSections.forEach(section => { 
+                section.classList.toggle('active', section.id === targetId); 
+            });
+            
+            if (targetId === 'content-billing' && !isBillingSectionInitialized) {
+                initializeBillingSection();
+            }
+        }); 
+    });
+
+    modalBackdrop.addEventListener('click', (e) => { if (e.target === modalBackdrop) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalBackdrop.classList.contains('visible')) closeModal(); });
+
+    const checkLoginStatus = () => {
+        const storedToken = localStorage.getItem('authToken');
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedToken && storedUser) {
+            authToken = storedToken;
+            currentUser = JSON.parse(storedUser);
+            showDashboardForUser(currentUser);
+        } else {
+            showLogin();
+        }
+    };
+    checkLoginStatus();
+});
