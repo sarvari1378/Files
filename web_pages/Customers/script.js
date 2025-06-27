@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let isTaskSectionInitialized = false;
     let isBillingSectionInitialized = false;
 
+
+
     // ===================================
     // بخش ۲: توابع کمکی و مدیریت UI عمومی
     // ===================================
@@ -804,40 +806,43 @@ document.addEventListener('DOMContentLoaded', () => {
         isBillingSectionInitialized = true;
     }
 
-    // ===================================
-    // بخش ۵: راه اندازی اصلی و رویدادها
-    // ===================================
-
+    
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const form = e.target;
-        const username = form.elements.username.value.trim();
+        const usernameOrEmail = form.elements.username.value.trim();
         const password = form.elements.password.value;
+        
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
         submitButton.textContent = 'در حال بررسی...';
         loginError.textContent = '';
+
         try {
-            const usersDataForLogin = {
-                'PMirshokraei': 'mirshokraei@um.ac.ir',
-                'sajedsarvari': 'sajed.the.nerd@gmail.com'
-            };
-            const email = usersDataForLogin[username];
-            if (!email) throw new Error("نام کاربری یافت نشد.");
             const response = await fetch(`${API_BASE_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ loginIdentifier: usernameOrEmail, password }),
             });
+
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'خطایی رخ داد');
+            if (!response.ok) {
+                throw new Error(data.error || 'خطایی رخ داد');
+            }
+            
+            // *** اصلاح کلیدی اینجاست ***
+            // دیگر نیازی به جستجو و پیدا کردن کاربر نیست.
+            // ورکر آبجکت کامل کاربر را برای ما ارسال می‌کند.
             authToken = data.token;
-            currentUser = data.user; 
-            currentUser.id = username;
-            currentUser.name = username === 'PMirshokraei' ? 'مشتری' : 'پشتیبانی';
+            currentUser = data.user; // این آبجکت شامل id, name, email, status است
+            
+            // مستقیماً اطلاعات دریافتی را در localStorage ذخیره می‌کنیم
             localStorage.setItem('authToken', authToken);
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            // و داشبورد را با آن نمایش می‌دهیم
             showDashboardForUser(currentUser);
+
         } catch (error) {
             loginError.textContent = error.message;
         } finally {
@@ -845,6 +850,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.textContent = 'ورود';
         }
     });
+
 
     const navLinks = document.querySelectorAll('.nav-link');
     const contentSections = document.querySelectorAll('.content-section');
