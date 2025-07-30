@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پخش کننده موزیک با ویژولایزر (نسخه نهایی)</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: #0d0d0d;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .main-container {
+            display: flex; justify-content: center; align-items: center;
+            width: 100%; height: 100%; padding: 20px; box-sizing: border-box;
+            transition: justify-content 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        #image-container {
+            width: 400px; height: 400px; cursor: pointer; border-radius: 50%;
+            overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        #image-container img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            transition: transform 0.4s ease;
+        }
+        #image-container:hover img { transform: scale(1.1); }
+        #visualizer-container {
+            width: 0; opacity: 0; display: flex; align-items: center;
+            justify-content: center; margin-right: 0;
+            transition: width 0.8s ease-in-out, opacity 0.5s ease-in-out 0.3s, margin-right 0.8s ease-in-out;
+            position: relative;
+        }
+        #visualizer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .main-container.active { justify-content: space-evenly; }
+        .main-container.active #image-container { width: 200px; height: 200px; }
+        .main-container.active #visualizer-container {
+            width: 450px; height: 450px; opacity: 1; margin-right: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="my-audio" src="Amir Abbas Golab - Che Shavad.mp3" crossOrigin="anonymous"></audio>
+
+    <div class="main-container" id="main-container">
+        <div id="image-container">
+            <img src="QR.JPG" alt="کاور موزیک">
+        </div>
+        <div id="visualizer-container">
+            <canvas id="visualizer"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const imageContainer = document.getElementById('image-container');
+        const mainContainer = document.getElementById('main-container');
+        const audioElement = document.getElementById('my-audio');
+        const canvasContainer = document.getElementById('visualizer-container');
+        const canvas = document.getElementById('visualizer');
+        const canvasCtx = canvas.getContext('2d');
+
+        let audioContext;
+        let analyser;
+        let isSetup = false; // یک فلگ برای جلوگیری از اجرای چندباره
+
+        imageContainer.addEventListener('click', () => {
+            // اگر قبلاً اجرا شده، کاری نکن
+            if (isSetup) return;
+
+            // مرحله ۱: بلافاصله درخواست پخش موزیک را بده
+            const playPromise = audioElement.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // موفقیت! موزیک در حال پخش است.
+                    // حالا بقیه کارها را انجام بده.
+
+                    isSetup = true; // فلگ را تنظیم کن تا دوباره اجرا نشود
+                    
+                    // مرحله ۲: فعال کردن انیمیشن‌ها
+                    mainContainer.classList.add('active');
+
+                    // مرحله ۳: ساختن AudioContext و ویژولایزر
+                    setupAudioContext();
+                    
+                    // مرحله ۴: شروع حلقه رسم ویژولایزر
+                    draw();
+
+                }).catch(error => {
+                    // خطا! مرورگر پخش را مسدود کرد.
+                    console.error("پخش موزیک توسط مرورگر مسدود شد:", error);
+                    alert("مرورگر شما اجازه پخش صدا را نداد. این یک محدودیت امنیتی است. لطفاً صفحه را رفرش کرده و دوباره امتحان کنید.");
+                });
+            }
+        });
+
+        function setupAudioContext() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioContext.createMediaElementSource(audioElement);
+            analyser = audioContext.createAnalyser();
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+            analyser.fftSize = 256;
+        }
+
+        function draw() {
+            requestAnimationFrame(draw);
+            
+            if (canvas.width !== canvasContainer.offsetWidth || canvas.height !== canvasContainer.offsetHeight) {
+                canvas.width = canvasContainer.offsetWidth;
+                canvas.height = canvasContainer.offsetHeight;
+            }
+
+            if (audioElement.paused || audioElement.ended) {
+                canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            analyser.getByteFrequencyData(dataArray);
+            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+            const hue = 250 + (average * 1.5);
+            
+            const bass = (dataArray[2] + dataArray[3] + dataArray[4]) / 3;
+            const pulseRadius = 20 + (bass * 0.35);
+            const pulseGradient = canvasCtx.createRadialGradient(centerX, centerY, 5, centerX, centerY, pulseRadius);
+            pulseGradient.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.8)`);
+            pulseGradient.addColorStop(1, `hsla(${hue}, 100%, 50%, 0)`);
+            
+            canvasCtx.fillStyle = pulseGradient;
+            canvasCtx.beginPath();
+            canvasCtx.arc(centerX, centerY, pulseRadius, 0, Math.PI * 2);
+            canvasCtx.fill();
+
+            const radius = 85;
+            canvasCtx.strokeStyle = `hsl(${hue}, 100%, 60%)`;
+            canvasCtx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+            canvasCtx.shadowBlur = 10;
+            canvasCtx.lineWidth = 4;
+            canvasCtx.lineCap = 'round';
+
+            for (let i = 0; i < bufferLength; i++) {
+                const barHeight = dataArray[i] * 0.6;
+                if (barHeight < 1) continue;
+
+                const angle = (i / bufferLength) * Math.PI * 2 - (Math.PI / 2);
+                const startX = centerX + radius * Math.cos(angle);
+                const startY = centerY + radius * Math.sin(angle);
+                const endX = centerX + (radius + barHeight) * Math.cos(angle);
+                const endY = centerY + (radius + barHeight) * Math.sin(angle);
+                
+                canvasCtx.beginPath();
+                canvasCtx.moveTo(startX, startY);
+                canvasCtx.lineTo(endX, endY);
+                canvasCtx.stroke();
+            }
+        }
+    </script>
+
+</body>
+</html>
