@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحه مقصد | خوش آمدید</title>
+    
+    <!-- 1. فراخوانی فونت وزیر از CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    
+    <style>
+        /* 2. استایل‌های کلی صفحه */
+        body {
+            margin: 0;
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #f4f7f9; /* یک پس‌زمینه خاکستری بسیار روشن */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* 3. استایل کادر اصلی */
+        .container {
+            background-color: #ffffff;
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px); /* افکت حرکتی کوچک هنگام هاور */
+        }
+
+        /* 4. استایل آیکون تیک */
+        .icon {
+            margin-bottom: 20px;
+        }
+
+        .icon svg {
+            width: 60px;
+            height: 60px;
+            fill: #28a745; /* رنگ سبز موفقیت */
+        }
+        
+        /* 5. استایل عناوین و پاراگراف */
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        p {
+            font-size: 18px;
+            color: #555;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="icon">
+            <!-- آیکون تیک SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 34z"/>
+            </svg>
+        </div>
+        <h1>خوش آمدید!</h1>
+        <p>شما با موفقیت به این صفحه منتقل شدید. این صفحه مقصد شماست.</p>
+    </div>
+
+</body>
+</html>
