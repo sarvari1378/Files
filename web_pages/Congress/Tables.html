@@ -17,7 +17,7 @@
     <header>
         <h1>جدول زمانبندی پخش برنامه‌ها</h1>
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="کد ۴ رقمی برنامه را وارد کنید...">
+            <input type="text" id="searchInput" placeholder="کد ۴ رقمی برنامه را وارد کنید..." inputmode="numeric" maxlength="4">
             <button id="searchButton">جستجو</button>
         </div>
         <p id="searchMessage"></p> <!-- برای نمایش پیام‌ها (یافت شد/نشد) -->
@@ -164,27 +164,43 @@
 
     </div>
 
-    <!-- اسکریپت‌ها باید در انتهای بادی باشند -->
-    <script>
-        // --- بخش ۱: پر کردن جدول با داده‌های نمونه برای تست ---
-        document.addEventListener('DOMContentLoaded', function() {
-            const cells = document.querySelectorAll('td');
-            cells.forEach(cell => {
-                const randomCode = Math.floor(1000 + Math.random() * 9000);
-                cell.textContent = randomCode;
-            });
-            if (cells.length > 50) {
-                cells[50].textContent = '1234';
-            }
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- بخش ۱: پر کردن جدول با داده‌های نمونه ---
+        const cells = document.querySelectorAll('td');
+        cells.forEach(cell => {
+            const randomCode = Math.floor(1000 + Math.random() * 9000);
+            cell.textContent = randomCode;
         });
+        if (cells.length > 50) {
+            cells[50].textContent = '1234';
+        }
 
-        // --- بخش ۲: منطق اصلی جستجو ---
         const searchInput = document.getElementById('searchInput');
         const searchButton = document.getElementById('searchButton');
         const searchMessage = document.getElementById('searchMessage');
 
+        // --- تابع جدید: برای تبدیل اعداد فارسی به انگلیسی ---
+        function convertPersianToEnglish(str) {
+            const persian = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۰"];
+            const english = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+            for (let i = 0; i < 10; i++) {
+                str = str.replace(new RegExp(persian[i], "g"), english[i]);
+            }
+            return str;
+        }
+
+        // --- رویداد جدید: برای محدود کردن ورودی فقط به عدد (فارسی و انگلیسی) ---
+        searchInput.addEventListener('input', function() {
+            // هر کاراکتری که عدد انگلیسی یا فارسی نیست را حذف کن
+            this.value = this.value.replace(/[^0-9۰-۹]/g, '');
+        });
+
+        // --- بخش ۲: منطق اصلی جستجو (با تغییرات) ---
         function performSearch() {
-            const query = searchInput.value.trim();
+            // اعمال تابع تبدیل اعداد فارسی به انگلیسی روی ورودی کاربر
+            const query = convertPersianToEnglish(searchInput.value.trim());
+
             const highlightedCell = document.querySelector('td.highlight');
             if (highlightedCell) {
                 highlightedCell.classList.remove('highlight');
@@ -208,13 +224,17 @@
                     block: 'center',
                     inline: 'center'
                 });
+                
                 const cellIndex = foundCell.cellIndex;
                 const table = foundCell.closest('table');
                 const headerCells = table.querySelectorAll('thead th');
                 const headerCell = headerCells[cellIndex];
                 const time = headerCell.textContent;
-                searchMessage.textContent = `کد ${query} در ساعت ${time} یافت شد.`;
+                const tvRow = foundCell.parentElement.querySelector('th').textContent;
+                
+                searchMessage.textContent = `کد ${query} در ${tvRow} ساعت ${time} یافت شد.`;
                 searchMessage.style.color = 'green';
+
             } else {
                 searchMessage.textContent = `کد "${query}" یافت نشد.`;
                 searchMessage.style.color = 'red';
@@ -227,7 +247,22 @@
                 performSearch();
             }
         });
-    </script>
+        
+        // --- بخش ۳: مدیریت سایه اسکرول ---
+        document.querySelectorAll('.table-wrapper').forEach(wrapper => {
+            wrapper.addEventListener('scroll', () => {
+                const isScrolledToEnd = wrapper.scrollLeft + wrapper.clientWidth >= wrapper.scrollWidth - 1;
+                if (isScrolledToEnd) {
+                    wrapper.classList.add('scrolled-to-end');
+                } else {
+                    wrapper.classList.remove('scrolled-to-end');
+                }
+            });
+        });
+    });
+</script>
+
+    
 
 </body>
 </html>
