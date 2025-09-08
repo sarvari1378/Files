@@ -118,3 +118,30 @@ tbody tr:hover {
 tbody tr:hover th, tbody tr:hover td {
     color: var(--dark-blue);
 }
+
+
+
+/* به این کلاس پوزیشن relative را اضافه کنید */
+.table-wrapper {
+    overflow-x: auto;
+    padding-bottom: 10px;
+    position: relative; /* این خط ضروری است */
+}
+
+/* افکت سایه برای نشان دادن قابلیت اسکرول */
+.table-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0; /* در RTL، سایه در سمت چپ قرار می‌گیرد */
+    width: 50px; /* عرض سایه */
+    height: 100%;
+    background: linear-gradient(to left, transparent, white 95%); /* از شفاف به رنگ پس‌زمینه */
+    pointer-events: none; /* اجازه می‌دهد تا روی محتوای زیر سایه کلیک شود */
+    transition: opacity 0.3s;
+}
+
+/* وقتی کاربر تا انتها اسکرول کرد، سایه محو می‌شود (با جاوااسکریپت) */
+.table-wrapper.scrolled-to-end::after {
+    opacity: 0;
+}
