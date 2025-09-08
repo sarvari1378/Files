@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جدول زمانبندی پخش</title>
+    <!-- اتصال به فایل استایل -->
+    <link rel="stylesheet" href="style.css">
+    <!-- افزودن فونت زیبای وزیرمتن برای خوانایی بهتر -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>جدول زمانبندی پخش برنامه‌ها</h1>
+        </header>
+
+        <!-- بلوک زمانی ۸ تا ۱۰ -->
+        <section class="schedule-block">
+            <h2>ساعت ۸:۰۰ الی ۱۰:۰۰</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>تلویزیون</th>
+                            <!-- تولید ستون‌های زمان با فاصله ۵ دقیقه -->
+                            <script>
+                                for (let hour = 8; hour < 10; hour++) {
+                                    for (let min = 0; min < 60; min += 5) {
+                                        const time = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+                                        document.write(`<th>${time}</th>`);
+                                    }
+                                }
+                            </script>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- تولید ۵ ردیف برای تلویزیون‌ها -->
+                        <script>
+                            for (let i = 1; i <= 5; i++) {
+                                document.write('<tr>');
+                                document.write(`<th>تلویزیون ${i}</th>`);
+                                // هر تلویزیون ۲۴ اسلات ۵ دقیقه‌ای در این بازه دارد
+                                for (let j = 0; j < 24; j++) {
+                                    document.write('<td></td>');
+                                }
+                                document.write('</tr>');
+                            }
+                        </script>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- بلوک زمانی ۱۰ تا ۱۲ -->
+        <section class="schedule-block">
+            <h2>ساعت ۱۰:۰۰ الی ۱۲:۰۰</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>تلویزیون</th>
+                            <script>
+                                for (let hour = 10; hour < 12; hour++) {
+                                    for (let min = 0; min < 60; min += 5) {
+                                        const time = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+                                        document.write(`<th>${time}</th>`);
+                                    }
+                                }
+                            </script>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <script>
+                            for (let i = 1; i <= 5; i++) {
+                                document.write('<tr>');
+                                document.write(`<th>تلویزیون ${i}</th>`);
+                                for (let j = 0; j < 24; j++) {
+                                    document.write('<td></td>');
+                                }
+                                document.write('</tr>');
+                            }
+                        </script>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- بلوک زمانی ۱۲ تا ۱۴ -->
+        <section class="schedule-block">
+            <h2>ساعت ۱۲:۰۰ الی ۱۴:۰۰</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>تلویزیون</th>
+                            <script>
+                                for (let hour = 12; hour < 14; hour++) {
+                                    for (let min = 0; min < 60; min += 5) {
+                                        const time = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+                                        document.write(`<th>${time}</th>`);
+                                    }
+                                }
+                            </script>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <script>
+                            for (let i = 1; i <= 5; i++) {
+                                document.write('<tr>');
+                                document.write(`<th>تلویزیون ${i}</th>`);
+                                for (let j = 0; j < 24; j++) {
+                                    document.write('<td></td>');
+                                }
+                                document.write('</tr>');
+                            }
+                        </script>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- بلوک زمانی ۱۴ تا ۱۶ -->
+        <section class="schedule-block">
+            <h2>ساعت ۱۴:۰۰ الی ۱۶:۰۰</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>تلویزیون</th>
+                            <script>
+                                for (let hour = 14; hour < 16; hour++) {
+                                    for (let min = 0; min < 60; min += 5) {
+                                        const time = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+                                        document.write(`<th>${time}</th>`);
+                                    }
+                                }
+                            </script>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <script>
+                            for (let i = 1; i <= 5; i++) {
+                                document.write('<tr>');
+                                document.write(`<th>تلویزیون ${i}</th>`);
+                                for (let j = 0; j < 24; j++) {
+                                    document.write('<td></td>');
+                                }
+                                document.write('</tr>');
+                            }
+                        </script>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>
