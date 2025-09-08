@@ -156,5 +156,97 @@
 
     </div>
 
+
+
+    <script>
+    // --- بخش ۱: پر کردن جدول با داده‌های نمونه برای تست ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const cells = document.querySelectorAll('td');
+        cells.forEach(cell => {
+            // ایجاد یک عدد تصادفی بین 1000 و 9999
+            const randomCode = Math.floor(1000 + Math.random() * 9000);
+            cell.textContent = randomCode;
+        });
+        // قرار دادن یک کد مشخص برای تست آسان
+        if (cells.length > 50) {
+            cells[50].textContent = '1234';
+        }
+    });
+
+
+    // --- بخش ۲: منطق اصلی جستجو ---
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    const searchMessage = document.getElementById('searchMessage');
+
+    function performSearch() {
+        const query = searchInput.value.trim();
+
+        // پاک کردن هایلایت‌های قبلی
+        const highlightedCell = document.querySelector('td.highlight');
+        if (highlightedCell) {
+            highlightedCell.classList.remove('highlight');
+        }
+
+        // اگر ورودی خالی بود، کاری نکن
+        if (!query) {
+            searchMessage.textContent = '';
+            return;
+        }
+
+        const allCells = document.querySelectorAll('td');
+        let foundCell = null;
+
+        // جستجو در تمام سلول‌ها برای پیدا کردن کد
+        for (const cell of allCells) {
+            if (cell.textContent.trim() === query) {
+                foundCell = cell;
+                break; // پس از پیدا کردن اولین مورد، حلقه را متوقف کن
+            }
+        }
+
+        if (foundCell) {
+            // اگر سلول پیدا شد:
+            // ۱. هایلایت کردن سلول
+            foundCell.classList.add('highlight');
+
+            // ۲. اسکرول کردن صفحه و جدول به سمت سلول
+            // این تابع هوشمندانه هم صفحه را اسکرول می‌کند و هم جدول را
+            foundCell.scrollIntoView({
+                behavior: 'smooth', // انیمیشن نرم برای اسکرول
+                block: 'center',    // سلول را در مرکز عمودی صفحه قرار بده
+                inline: 'center'    // سلول را در مرکز افقی جدول قرار بده
+            });
+            
+            // ۳. پیدا کردن زمان مربوطه از سرستون
+            const cellIndex = foundCell.cellIndex;
+            const table = foundCell.closest('table');
+            const headerCell = table.querySelector(`thead th:nth-child(${cellIndex + 1})`);
+            const time = headerCell.textContent;
+
+            // ۴. نمایش پیام موفقیت
+            searchMessage.textContent = `کد ${query} در ساعت ${time} یافت شد.`;
+            searchMessage.style.color = 'green';
+
+        } else {
+            // اگر سلول پیدا نشد:
+            searchMessage.textContent = `کد "${query}" یافت نشد.`;
+            searchMessage.style.color = 'red';
+        }
+    }
+
+    // اجرای جستجو با کلیک روی دکمه
+    searchButton.addEventListener('click', performSearch);
+
+    // اجرای جستجو با فشردن کلید Enter در فیلد ورودی
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            performSearch();
+        }
+    });
+
+</script>
+
+    
 </body>
 </html>
