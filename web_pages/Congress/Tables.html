@@ -210,7 +210,8 @@
                 });
                 const cellIndex = foundCell.cellIndex;
                 const table = foundCell.closest('table');
-                const headerCell = table.querySelector(`thead th:nth-child(${cellIndex + 1})`);
+                const headerCells = table.querySelectorAll('thead th');
+                const headerCell = headerCells[cellIndex];
                 const time = headerCell.textContent;
                 searchMessage.textContent = `کد ${query} در ساعت ${time} یافت شد.`;
                 searchMessage.style.color = 'green';
