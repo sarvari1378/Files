@@ -43,7 +43,7 @@ header h1 {
     border-radius: 8px;
     margin-bottom: 30px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden; /* برای اینکه گوشه‌های گرد به درستی نمایش داده شوند */
+    overflow: hidden;
 }
 
 .schedule-block h2 {
@@ -57,75 +57,8 @@ header h1 {
 /* پوشش جدول برای فعال کردن اسکرول افقی */
 .table-wrapper {
     overflow-x: auto;
-    padding-bottom: 10px; /* فضایی برای اسکرول بار */
-}
-
-/* استایل اصلی جدول */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 2000px; /* یک عرض حداقلی برای جلوگیری از فشرده شدن ستون‌ها */
-}
-
-th, td {
-    border: 1px solid var(--border-color);
-    padding: 12px 10px;
-    text-align: center;
-    vertical-align: middle;
-    white-space: nowrap; /* جلوگیری از شکستن متن در سلول‌ها */
-}
-
-/* استایل سرستون‌های جدول (زمان‌ها) */
-thead th {
-    background-color: #e9ecef;
-    color: var(--dark-blue);
-    font-weight: bold;
-    position: sticky; /* ثابت ماندن در بالای جدول هنگام اسکرول عمودی */
-    top: 0;
-    z-index: 2;
-}
-
-/* استایل سرستون‌های ردیف (نام تلویزیون‌ها) */
-tbody th {
-    background-color: #f8f9fa;
-    font-weight: bold;
-    position: sticky; /* ثابت ماندن در سمت راست جدول هنگام اسکرول افقی */
-    right: 0;
-    z-index: 1;
-}
-
-/* اطمینان از اینکه گوشه بالا-راست همیشه روی بقیه باشد */
-thead th:first-child {
-    position: sticky;
-    top: 0;
-    right: 0;
-    z-index: 3;
-}
-
-
-/* استایل ردیف‌های زوج برای خوانایی بهتر */
-tbody tr:nth-child(even) {
-    background-color: #f8f9fa;
-}
-
-/* تغییر رنگ ردیف‌ها هنگام هاور کردن موس */
-tbody tr:hover {
-    background-color: var(--gold);
-    color: var(--dark-blue);
-    cursor: pointer;
-}
-
-tbody tr:hover th, tbody tr:hover td {
-    color: var(--dark-blue);
-}
-
-
-
-/* به این کلاس پوزیشن relative را اضافه کنید */
-.table-wrapper {
-    overflow-x: auto;
     padding-bottom: 10px;
-    position: relative; /* این خط ضروری است */
+    position: relative;
 }
 
 /* افکت سایه برای نشان دادن قابلیت اسکرول */
@@ -133,19 +66,65 @@ tbody tr:hover th, tbody tr:hover td {
     content: '';
     position: absolute;
     top: 0;
-    left: 0; /* در RTL، سایه در سمت چپ قرار می‌گیرد */
-    width: 50px; /* عرض سایه */
+    left: 0;
+    width: 50px;
     height: 100%;
-    background: linear-gradient(to left, transparent, white 95%); /* از شفاف به رنگ پس‌زمینه */
-    pointer-events: none; /* اجازه می‌دهد تا روی محتوای زیر سایه کلیک شود */
+    background: linear-gradient(to left, transparent, white 95%);
+    pointer-events: none;
     transition: opacity 0.3s;
 }
 
-/* وقتی کاربر تا انتها اسکرول کرد، سایه محو می‌شود (با جاوااسکریپت) */
 .table-wrapper.scrolled-to-end::after {
     opacity: 0;
 }
 
+/* استایل اصلی جدول */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 2000px;
+}
+
+th, td {
+    border: 1px solid var(--border-color);
+    padding: 12px 10px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+thead th {
+    background-color: #e9ecef;
+    color: var(--dark-blue);
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+tbody th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    position: sticky;
+    right: 0;
+    z-index: 1;
+}
+
+thead th:first-child {
+    position: sticky;
+    top: 0;
+    right: 0;
+    z-index: 3;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+tbody tr:hover {
+    background-color: #fffde7;
+    cursor: pointer;
+}
 
 /* استایل بخش جستجو */
 .search-container {
@@ -163,6 +142,7 @@ tbody tr:hover th, tbody tr:hover td {
     font-family: 'Vazirmatn', sans-serif;
     font-size: 16px;
     outline: none;
+    text-align: center;
     transition: all 0.3s;
 }
 
@@ -185,24 +165,48 @@ tbody tr:hover th, tbody tr:hover td {
 }
 
 #searchButton:hover {
-    background-color: #ffca28; /* رنگ طلایی کمی روشن‌تر */
+    background-color: #ffca28;
 }
 
-/* استایل پیام جستجو */
 #searchMessage {
     margin-top: 10px;
     font-weight: bold;
-    min-height: 24px; /* جلوگیری از پرش صفحه هنگام نمایش پیام */
+    min-height: 24px;
     transition: color 0.3s;
 }
 
-/* --- کلاس اصلی برای هایلایت کردن سلول --- */
+/* کلاس اصلی برای هایلایت کردن سلول */
 td.highlight {
-    background-color: var(--gold) !important; /* !important برای اولویت بالاتر */
+    background-color: var(--gold) !important;
     color: var(--dark-blue) !important;
     outline: 3px solid var(--dark-blue);
     outline-offset: -3px;
     transform: scale(1.05);
     transition: transform 0.3s ease, background-color 0.3s ease;
     font-weight: bold;
+}
+
+/* استایل سفارشی اسکرول بار */
+.table-wrapper::-webkit-scrollbar {
+    height: 12px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #e9ecef;
+    border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background-color: var(--dark-blue);
+    border-radius: 10px;
+    border: 3px solid #e9ecef;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: var(--light-blue);
+}
+
+.table-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: var(--dark-blue) #e9ecef;
 }
