@@ -145,3 +145,64 @@ tbody tr:hover th, tbody tr:hover td {
 .table-wrapper.scrolled-to-end::after {
     opacity: 0;
 }
+
+
+/* استایل بخش جستجو */
+.search-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+#searchInput {
+    width: 300px;
+    padding: 10px 15px;
+    border: 2px solid var(--gold);
+    border-radius: 25px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+#searchInput:focus {
+    border-color: var(--light-blue);
+    box-shadow: 0 0 8px rgba(13, 71, 161, 0.5);
+}
+
+#searchButton {
+    padding: 10px 25px;
+    border: none;
+    background-color: var(--gold);
+    color: var(--dark-blue);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#searchButton:hover {
+    background-color: #ffca28; /* رنگ طلایی کمی روشن‌تر */
+}
+
+/* استایل پیام جستجو */
+#searchMessage {
+    margin-top: 10px;
+    font-weight: bold;
+    min-height: 24px; /* جلوگیری از پرش صفحه هنگام نمایش پیام */
+    transition: color 0.3s;
+}
+
+/* --- کلاس اصلی برای هایلایت کردن سلول --- */
+td.highlight {
+    background-color: var(--gold) !important; /* !important برای اولویت بالاتر */
+    color: var(--dark-blue) !important;
+    outline: 3px solid var(--dark-blue);
+    outline-offset: -3px;
+    transform: scale(1.05);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    font-weight: bold;
+}
