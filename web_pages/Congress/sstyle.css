@@ -1,0 +1,120 @@
+/* تنظیمات کلی و فونت */
+:root {
+    --dark-blue: #003366;
+    --light-blue: #0d47a1;
+    --gold: #ffc107;
+    --light-gray: #f4f7f6;
+    --border-color: #dee2e6;
+}
+
+body {
+    font-family: 'Vazirmatn', sans-serif;
+    background-color: var(--light-gray);
+    margin: 0;
+    padding: 20px;
+    direction: rtl;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* استایل هدر اصلی صفحه */
+header {
+    background: var(--dark-blue);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+/* استایل هر بلوک جدول */
+.schedule-block {
+    background-color: white;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* برای اینکه گوشه‌های گرد به درستی نمایش داده شوند */
+}
+
+.schedule-block h2 {
+    background-color: var(--light-blue);
+    color: white;
+    padding: 15px 20px;
+    margin: 0;
+    font-size: 1.5em;
+}
+
+/* پوشش جدول برای فعال کردن اسکرول افقی */
+.table-wrapper {
+    overflow-x: auto;
+    padding-bottom: 10px; /* فضایی برای اسکرول بار */
+}
+
+/* استایل اصلی جدول */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 2000px; /* یک عرض حداقلی برای جلوگیری از فشرده شدن ستون‌ها */
+}
+
+th, td {
+    border: 1px solid var(--border-color);
+    padding: 12px 10px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap; /* جلوگیری از شکستن متن در سلول‌ها */
+}
+
+/* استایل سرستون‌های جدول (زمان‌ها) */
+thead th {
+    background-color: #e9ecef;
+    color: var(--dark-blue);
+    font-weight: bold;
+    position: sticky; /* ثابت ماندن در بالای جدول هنگام اسکرول عمودی */
+    top: 0;
+    z-index: 2;
+}
+
+/* استایل سرستون‌های ردیف (نام تلویزیون‌ها) */
+tbody th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    position: sticky; /* ثابت ماندن در سمت راست جدول هنگام اسکرول افقی */
+    right: 0;
+    z-index: 1;
+}
+
+/* اطمینان از اینکه گوشه بالا-راست همیشه روی بقیه باشد */
+thead th:first-child {
+    position: sticky;
+    top: 0;
+    right: 0;
+    z-index: 3;
+}
+
+
+/* استایل ردیف‌های زوج برای خوانایی بهتر */
+tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* تغییر رنگ ردیف‌ها هنگام هاور کردن موس */
+tbody tr:hover {
+    background-color: var(--gold);
+    color: var(--dark-blue);
+    cursor: pointer;
+}
+
+tbody tr:hover th, tbody tr:hover td {
+    color: var(--dark-blue);
+}
