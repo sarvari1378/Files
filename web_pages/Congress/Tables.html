@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جدول زمانبندی پخش</title>
-    <!-- اتصال به فایل استایل -->
-    <link rel="stylesheet" href="style.css">
-    <!-- افزودن فونت زیبای وزیرمتن برای خوانایی بهتر -->
-    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
-</head>
+<header>
+    <h1>جدول زمانبندی پخش برنامه‌ها</h1>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="کد ۴ رقمی برنامه را وارد کنید...">
+        <button id="searchButton">جستجو</button>
+    </div>
+    <p id="searchMessage"></p> <!-- برای نمایش پیام‌ها (یافت شد/نشد) -->
+</header>
 <body>
 
     <div class="container">
