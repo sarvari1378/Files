@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-<header>
-    <h1>جدول زمانبندی پخش برنامه‌ها</h1>
-    <div class="search-container">
-        <input type="text" id="searchInput" placeholder="کد ۴ رقمی برنامه را وارد کنید...">
-        <button id="searchButton">جستجو</button>
-    </div>
-    <p id="searchMessage"></p> <!-- برای نمایش پیام‌ها (یافت شد/نشد) -->
-</header>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جدول زمانبندی پخش</title>
+    
+    <!-- این خط مهمترین بخش است که استایل‌ها را به صفحه متصل می‌کند -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- اتصال فونت وزیرمتن -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+</head>
 <body>
 
+    <!-- هدر اصلی صفحه که شامل جستجو است، باید داخل بادی باشد -->
+    <header>
+        <h1>جدول زمانبندی پخش برنامه‌ها</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="کد ۴ رقمی برنامه را وارد کنید...">
+            <button id="searchButton">جستجو</button>
+        </div>
+        <p id="searchMessage"></p> <!-- برای نمایش پیام‌ها (یافت شد/نشد) -->
+    </header>
+
     <div class="container">
-        <header>
-            <h1>جدول زمانبندی پخش پوستر‌ها</h1>
-        </header>
+        <!-- هدر دومی که اینجا بود حذف شد چون تکراری بود -->
 
         <!-- بلوک زمانی ۸ تا ۱۰ -->
         <section class="schedule-block">
@@ -23,7 +34,6 @@
                     <thead>
                         <tr>
                             <th>تلویزیون</th>
-                            <!-- تولید ستون‌های زمان با فاصله ۵ دقیقه -->
                             <script>
                                 for (let hour = 8; hour < 10; hour++) {
                                     for (let min = 0; min < 60; min += 5) {
@@ -35,12 +45,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- تولید ۵ ردیف برای تلویزیون‌ها -->
                         <script>
                             for (let i = 1; i <= 5; i++) {
                                 document.write('<tr>');
                                 document.write(`<th>تلویزیون ${i}</th>`);
-                                // هر تلویزیون ۲۴ اسلات ۵ دقیقه‌ای در این بازه دارد
                                 for (let j = 0; j < 24; j++) {
                                     document.write('<td></td>');
                                 }
@@ -156,97 +164,69 @@
 
     </div>
 
-
-
+    <!-- اسکریپت‌ها باید در انتهای بادی باشند -->
     <script>
-    // --- بخش ۱: پر کردن جدول با داده‌های نمونه برای تست ---
-    document.addEventListener('DOMContentLoaded', function() {
-        const cells = document.querySelectorAll('td');
-        cells.forEach(cell => {
-            // ایجاد یک عدد تصادفی بین 1000 و 9999
-            const randomCode = Math.floor(1000 + Math.random() * 9000);
-            cell.textContent = randomCode;
+        // --- بخش ۱: پر کردن جدول با داده‌های نمونه برای تست ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const cells = document.querySelectorAll('td');
+            cells.forEach(cell => {
+                const randomCode = Math.floor(1000 + Math.random() * 9000);
+                cell.textContent = randomCode;
+            });
+            if (cells.length > 50) {
+                cells[50].textContent = '1234';
+            }
         });
-        // قرار دادن یک کد مشخص برای تست آسان
-        if (cells.length > 50) {
-            cells[50].textContent = '1234';
-        }
-    });
 
+        // --- بخش ۲: منطق اصلی جستجو ---
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const searchMessage = document.getElementById('searchMessage');
 
-    // --- بخش ۲: منطق اصلی جستجو ---
-    const searchInput = document.getElementById('searchInput');
-    const searchButton = document.getElementById('searchButton');
-    const searchMessage = document.getElementById('searchMessage');
-
-    function performSearch() {
-        const query = searchInput.value.trim();
-
-        // پاک کردن هایلایت‌های قبلی
-        const highlightedCell = document.querySelector('td.highlight');
-        if (highlightedCell) {
-            highlightedCell.classList.remove('highlight');
-        }
-
-        // اگر ورودی خالی بود، کاری نکن
-        if (!query) {
-            searchMessage.textContent = '';
-            return;
-        }
-
-        const allCells = document.querySelectorAll('td');
-        let foundCell = null;
-
-        // جستجو در تمام سلول‌ها برای پیدا کردن کد
-        for (const cell of allCells) {
-            if (cell.textContent.trim() === query) {
-                foundCell = cell;
-                break; // پس از پیدا کردن اولین مورد، حلقه را متوقف کن
+        function performSearch() {
+            const query = searchInput.value.trim();
+            const highlightedCell = document.querySelector('td.highlight');
+            if (highlightedCell) {
+                highlightedCell.classList.remove('highlight');
+            }
+            if (!query) {
+                searchMessage.textContent = '';
+                return;
+            }
+            const allCells = document.querySelectorAll('td');
+            let foundCell = null;
+            for (const cell of allCells) {
+                if (cell.textContent.trim() === query) {
+                    foundCell = cell;
+                    break;
+                }
+            }
+            if (foundCell) {
+                foundCell.classList.add('highlight');
+                foundCell.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'center'
+                });
+                const cellIndex = foundCell.cellIndex;
+                const table = foundCell.closest('table');
+                const headerCell = table.querySelector(`thead th:nth-child(${cellIndex + 1})`);
+                const time = headerCell.textContent;
+                searchMessage.textContent = `کد ${query} در ساعت ${time} یافت شد.`;
+                searchMessage.style.color = 'green';
+            } else {
+                searchMessage.textContent = `کد "${query}" یافت نشد.`;
+                searchMessage.style.color = 'red';
             }
         }
 
-        if (foundCell) {
-            // اگر سلول پیدا شد:
-            // ۱. هایلایت کردن سلول
-            foundCell.classList.add('highlight');
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+    </script>
 
-            // ۲. اسکرول کردن صفحه و جدول به سمت سلول
-            // این تابع هوشمندانه هم صفحه را اسکرول می‌کند و هم جدول را
-            foundCell.scrollIntoView({
-                behavior: 'smooth', // انیمیشن نرم برای اسکرول
-                block: 'center',    // سلول را در مرکز عمودی صفحه قرار بده
-                inline: 'center'    // سلول را در مرکز افقی جدول قرار بده
-            });
-            
-            // ۳. پیدا کردن زمان مربوطه از سرستون
-            const cellIndex = foundCell.cellIndex;
-            const table = foundCell.closest('table');
-            const headerCell = table.querySelector(`thead th:nth-child(${cellIndex + 1})`);
-            const time = headerCell.textContent;
-
-            // ۴. نمایش پیام موفقیت
-            searchMessage.textContent = `کد ${query} در ساعت ${time} یافت شد.`;
-            searchMessage.style.color = 'green';
-
-        } else {
-            // اگر سلول پیدا نشد:
-            searchMessage.textContent = `کد "${query}" یافت نشد.`;
-            searchMessage.style.color = 'red';
-        }
-    }
-
-    // اجرای جستجو با کلیک روی دکمه
-    searchButton.addEventListener('click', performSearch);
-
-    // اجرای جستجو با فشردن کلید Enter در فیلد ورودی
-    searchInput.addEventListener('keyup', function(event) {
-        if (event.key === 'Enter') {
-            performSearch();
-        }
-    });
-
-</script>
-
-    
 </body>
 </html>
