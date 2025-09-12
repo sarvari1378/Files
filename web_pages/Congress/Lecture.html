@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جدول زمانبندی سخنرانی‌ها</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        /* تمام کدهای CSS شما از پروژه قبلی در اینجا قرار می‌گیرد */
+        /* ... (برای اختصار، کد CSS تکرار نشده است، شما باید آن را از فایل قبلی کپی کنید) ... */
+        :root{--dark-blue:#003366;--light-blue:#0d47a1;--gold:#ffc107;--light-gray:#f4f7f6;--border-color:#dee2e6}body{font-family:'Vazirmatn',sans-serif;background-color:var(--light-gray);margin:0;padding:20px;direction:rtl;color:#333}.container{max-width:1200px;margin:0 auto}header{background:var(--dark-blue);color:white;text-align:center;padding:20px;border-radius:8px;margin-bottom:30px;box-shadow:0 4px 10px rgba(0,0,0,.1)}header h1{margin:0;font-size:2em}.schedule-block{background-color:white;border-radius:8px;margin-bottom:30px;box-shadow:0 4px 10px rgba(0,0,0,.1);overflow:hidden}.schedule-block h2{background-color:var(--light-blue);color:white;padding:15px 20px;margin:0;font-size:1.5em}.table-wrapper{overflow-x:auto;padding-bottom:10px;position:relative}table{width:100%;border-collapse:collapse}th,td{border:1px solid var(--border-color);padding:12px 10px;text-align:center;vertical-align:middle;white-space:nowrap}tbody tr:nth-child(even){background-color:#f8f9fa}tbody tr:hover{background-color:#fffde7;cursor:pointer}tbody th{background-color:#f8f9fa;font-weight:700;position:sticky;right:0;z-index:1}thead th{position:sticky;background-color:#e9ecef;color:var(--dark-blue);font-weight:700;z-index:2}thead tr:first-child th{top:0}thead tr:nth-child(2) th{top:45px}thead tr:nth-child(2) th:first-child{right:0;z-index:3}.search-container{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:5px}#searchInput{width:90%;padding:10px 15px;border:2px solid var(--gold);border-radius:25px;font-family:'Vazirmatn',sans-serif;font-size:16px;outline:none;text-align:center;transition:all .3s}#searchInput:focus{border-color:var(--light-blue);box-shadow:0 0 8px rgba(13,71,161,.5)}#searchMessage{margin-top:10px;font-weight:700;min-height:24px;transition:color .3s}.highlight-row{background-color:var(--gold) !important;color:var(--dark-blue)}.highlight-row th,.highlight-row td{background-color:var(--gold) !important}.table-wrapper::-webkit-scrollbar{height:12px}.table-wrapper::-webkit-scrollbar-track{background:#e9ecef;border-radius:10px}.table-wrapper::-webkit-scrollbar-thumb{background-color:var(--dark-blue);border-radius:10px;border:3px solid #e9ecef}.table-wrapper::-webkit-scrollbar-thumb:hover{background-color:var(--light-blue)}.table-wrapper{scrollbar-width:thin;scrollbar-color:var(--dark-blue) #e9ecef}.view-switcher{display:flex;justify-content:center;gap:10px;margin-bottom:20px}.view-switcher button{padding:10px 20px;font-family:'Vazirmatn',sans-serif;font-size:16px;border:2px solid var(--light-blue);background-color:white;color:var(--light-blue);border-radius:25px;cursor:pointer;transition:all .3s}.view-switcher button.active{background-color:var(--light-blue);color:white}td div{line-height:1.4}td small{font-size:0.85em;color:#555}@media (max-width:768px){tbody th{position:static}thead tr:nth-child(2) th:first-child{right:unset}}
+        /* یک استایل جدید برای هایلایت کردن کل ردیف */
+        
+        /* هایلایت کردن فقط یک سلول */
+        td.highlight {
+            background-color: var(--gold) !important;
+            color: var(--dark-blue) !important;
+            outline: 3px solid var(--dark-blue);
+            outline-offset: -3px;
+            font-weight: bold;
+        }   
+
+        /* استایل برای محتوای داخل سلول */
+        td div { line-height: 1.4; }
+        td small { font-size: 0.85em; color: #555; }
+
+
+        /* === استایل‌های مودال === */
+.modal {
+    display: none; /* در ابتدا مخفی است */
+    position: fixed; /* روی تمام محتوا قرار می‌گیرد */
+    z-index: 1000; /* بالاترین لایه */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* برای اسکرول در صورت نیاز */
+    background-color: rgba(0,0,0,0.6); /* پس‌زمینه نیمه‌شفاف */
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* در مرکز صفحه (عمودی و افقی) */
+    padding: 25px 30px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px; /* حداکثر عرض */
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+    animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: var(--dark-blue);
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 10px;
+}
+
+.modal-content p {
+    font-size: 1.1em;
+    line-height: 1.6;
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    left: 15px; /* دکمه بستن در سمت چپ (چون صفحه فارسی است) */
+    top: 10px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* انیمیشن‌های مودال */
+@keyframes fadeIn {
+    from { background-color: rgba(0,0,0,0); }
+    to { background-color: rgba(0,0,0,0.6); }
+}
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+
+
+/* ... (سایر استایل‌های مودال) ... */
+
+.modal-content p {
+    font-size: 1.1em;
+    line-height: 1.6;
+}
+
+/* --- این قطعه کد جدید را اضافه کنید --- */
+#modalArticleTitle {
+    direction: ltr;      /* جهت‌گیری متن را چپ به راست می‌کند */
+    text-align: left;    /* تراز متن را چپ‌چین می‌کند */
+}
+
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>جدول زمانبندی سخنرانی‌ها</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="جستجوی کد، نام سخنران یا نام پانل...">
+            <p id="searchMessage"></p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="view-switcher">
+            <button id="viewByHallBtn" class="active">نمایش بر اساس سالن</button>
+            <button id="viewByPanelBtn">نمایش بر اساس پانل</button>
+        </div>
+        
+        <div id="hallViewContainer">
+            
+    <section class="schedule-block">
+        <h2>1</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th></th><th colspan="8">پنجشنبه</th><th colspan="8">چهارشنبه</th></tr><tr><th>نام پانل</th><th>8:15-8:30</th><th>8:30-8:45</th><th>8:45-9</th><th>9:15-9:25</th><th>9:25-9:35</th><th>9:35-9:45</th><th>8-8:15</th><th>9-9:15</th><th>10:30-10:45</th><th>10:45-11</th><th>11:25-11:15</th><th>11:25-11:35</th><th>11:35-11:45</th><th>11:45-11:55</th><th>11:55-12:05</th><th>11-11:15</th></tr></thead>
+                <tbody><tr><th>لیشمانیا</th><td data-search="محمد زینلی 1546 لیشمانیا" data-title="Epidemiological Status of Cutaneous Leishmaniasis in Iran"><div>محمد زینلی<br><small>کد: 1546</small></div></td><td data-search="علیرضا سازمند 1530 لیشمانیا" data-title="Canine leishmaniosis in Iran: it is not only Leishmania infantum"><div>علیرضا سازمند<br><small>کد: 1530</small></div></td><td data-search="سیامک مشهدی رفیعی 1512 لیشمانیا" data-title="A preliminary study of canine Leishmaniasis in Tehran province was referred to the Iranian pet hospital from 2015-2025"><div>سیامک مشهدی رفیعی<br><small>کد: 1512</small></div></td><td data-search="زهره عسکری‌پور 1338 لیشمانیا" data-title="Laboratory diagnosis of cutaneous Leishmaniasis based on an in-house ELISA using a new antigen"><div>زهره عسکری‌پور<br><small>کد: 1338</small></div></td><td data-search="آینا عظیم‌زاده تبریزی 1511 لیشمانیا" data-title="Radiologic evaluation of visceral changes in BALB/c mice infected with cutaneous leishmaniasis caused by Leishmania major"><div>آینا عظیم‌زاده تبریزی<br><small>کد: 1511</small></div></td><td data-search="فاطمه درزی 1539 لیشمانیا" data-title="Induction of a Th1 immune response against - leishmaniasis infection by a kinetoplast-associated gene knockout Leishmania major strain"><div>فاطمه درزی<br><small>کد: 1539</small></div></td><td data-search="دکتر مهدی محبعلی 1651 لیشمانیا" data-title="Present status of visceral leishmaniasis in the Islamic Republic of Iran"><div>دکتر مهدی محبعلی<br><small>کد: 1651</small></div></td><td data-search="شمسی نورپیشه قدسی 1277 لیشمانیا" data-title="IL-33 and its association with visceral leishmaniasis in the hamsters Infected with Leishmania infantum"><div>شمسی نورپیشه قدسی<br><small>کد: 1277</small></div></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><th>نماتود‌های گوارشی و خونی</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td data-search="حسن برجی 1637 نماتود‌های گوارشی و خونی" data-title="Using salivary anti- CarLA IgA as a tool to manage gastrointestinal nematode in ruminants"><div>حسن برجی<br><small>کد: 1637</small></div></td><td data-search="فرشید حمیدی 1296 نماتود‌های گوارشی و خونی" data-title="Effects of some parasitic infections on the physiology of central feeding behavior and energy balance in birds"><div>فرشید حمیدی<br><small>کد: 1296</small></div></td><td data-search="علی صالحی 1282 نماتود‌های گوارشی و خونی" data-title="Evaluation of the Efficacy and Economic Viability of Targeted Selective Treatment for Parasite Control in Afshari Sheep"><div>علی صالحی<br><small>کد: 1282</small></div></td><td data-search="امین بخشانی 1602 نماتود‌های گوارشی و خونی" data-title="Effects of Toxocara cati larvae and somatic antigens of adult worms in experimental asthmatic Mice"><div>امین بخشانی<br><small>کد: 1602</small></div></td><td data-search="فاطمه منشوری 1397 نماتود‌های گوارشی و خونی" data-title="Prevalence of Dirofilaria immitis and Dirofilaria repens in Dogs from Gilan Province, Iran: A GIS-Based Epidemiological Study"><div>فاطمه منشوری<br><small>کد: 1397</small></div></td><td data-search="نیایش محمدی 1259 نماتود‌های گوارشی و خونی" data-title="Using PCR and High-Resolution Melting (HRM) Analysis for Dirofilariasis Diagnosis"><div>نیایش محمدی<br><small>کد: 1259</small></div></td><td data-search="محمد رضا خوش‌وقت 1614 نماتود‌های گوارشی و خونی" data-title="The identification of Trichinella species among wild carnivores in the northern, northeastern, and northwest provinces of iran"><div>محمد رضا خوش‌وقت<br><small>کد: 1614</small></div></td><td data-search="حسن یزدانفر 1641 نماتود‌های گوارشی و خونی" data-title="Investigation of soil contamination in Mashhad public park with Toxocara species eggs during the years 1402-1403"><div>حسن یزدانفر<br><small>کد: 1641</small></div></td></tr></tbody>
+            </table>
+        </div>
+    </section>
+    
+    <section class="schedule-block">
+        <h2>2</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th></th><th colspan="7">چهارشنبه</th></tr><tr><th>نام پانل</th><th>10:30-10:45</th><th>10:45-11</th><th>11:15-11:30</th><th>11:40-11:30</th><th>11:40-11:50</th><th>11:50-12</th><th>11-11:15</th></tr></thead>
+                <tbody><tr><th>تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)</th><td data-search="پرویز شایان 1486 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Introduction to molecular detection tools for differential diagnosis of hemoprotozoan parasites, Theileria sp, and Babesia sp."><div>پرویز شایان<br><small>کد: 1486</small></div></td><td data-search="عباسعلی اسکندریان 1299 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Development of A Triplex Nested PCR for Simultaneous Diagnosis of Plasmodium, Babesia, and Toxoplasma in Blood Samples of Domestic and Wild Animal for Treatment and Screening in Blood Transfusion"><div>عباسعلی اسکندریان<br><small>کد: 1299</small></div></td><td data-search="محمود احمدی همدانی 1264 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Comparative evaluation of HALP Score - between PCR-confirmed Theileria-infected and healthy sheep in Semnan, Iran"><div>محمود احمدی همدانی<br><small>کد: 1264</small></div></td><td data-search="مریم نظربیگی 1229 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Molecular detection of Anaplasma, Babesia, and Theileria species from sheep in the west of Iran"><div>مریم نظربیگی<br><small>کد: 1229</small></div></td><td data-search="سید امیرسهراب طباطبایی 1275 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="A Study on the Frequency of Anaplasma platys Infection in Shelter Dogs in the Mashhad area Iran, Using Microscopic and Molecular Methods"><div>سید امیرسهراب طباطبایی<br><small>کد: 1275</small></div></td><td data-search="جمیل بنی شیبانی 1321 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Investigation of the possibility of Theileria annulata resistance to buparvacone in treated cows against theileriosis in Roshtkhar area, Khorasan Razavi Province"><div>جمیل بنی شیبانی<br><small>کد: 1321</small></div></td><td data-search="سید رضا حسینی 1404 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Investigation of Leucocytozoonosis in poultry: epidemiological analysis, biology, economic consequences, and control strategies"><div>سید رضا حسینی<br><small>کد: 1404</small></div></td></tr></tbody>
+            </table>
+        </div>
+    </section>
+    
+        </div>
+        
+        <div id="panelViewContainer" style="display: none;">
+            
+    <section class="schedule-block">
+        <h2>تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th></th><th colspan="7">چهارشنبه</th></tr><tr><th>سالن</th><th>10:30-10:45</th><th>10:45-11</th><th>11:15-11:30</th><th>11:40-11:30</th><th>11:40-11:50</th><th>11:50-12</th><th>11-11:15</th></tr></thead>
+                <tbody><tr><th>2</th><td data-search="پرویز شایان 1486 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Introduction to molecular detection tools for differential diagnosis of hemoprotozoan parasites, Theileria sp, and Babesia sp."><div>پرویز شایان<br><small>کد: 1486</small></div></td><td data-search="عباسعلی اسکندریان 1299 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Development of A Triplex Nested PCR for Simultaneous Diagnosis of Plasmodium, Babesia, and Toxoplasma in Blood Samples of Domestic and Wild Animal for Treatment and Screening in Blood Transfusion"><div>عباسعلی اسکندریان<br><small>کد: 1299</small></div></td><td data-search="محمود احمدی همدانی 1264 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Comparative evaluation of HALP Score - between PCR-confirmed Theileria-infected and healthy sheep in Semnan, Iran"><div>محمود احمدی همدانی<br><small>کد: 1264</small></div></td><td data-search="مریم نظربیگی 1229 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Molecular detection of Anaplasma, Babesia, and Theileria species from sheep in the west of Iran"><div>مریم نظربیگی<br><small>کد: 1229</small></div></td><td data-search="سید امیرسهراب طباطبایی 1275 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="A Study on the Frequency of Anaplasma platys Infection in Shelter Dogs in the Mashhad area Iran, Using Microscopic and Molecular Methods"><div>سید امیرسهراب طباطبایی<br><small>کد: 1275</small></div></td><td data-search="جمیل بنی شیبانی 1321 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Investigation of the possibility of Theileria annulata resistance to buparvacone in treated cows against theileriosis in Roshtkhar area, Khorasan Razavi Province"><div>جمیل بنی شیبانی<br><small>کد: 1321</small></div></td><td data-search="سید رضا حسینی 1404 تک‌یاخته‌های خونی (تیلریا، بابزیا، اناپلاسما، لوکوسیتوزون)" data-title="Investigation of Leucocytozoonosis in poultry: epidemiological analysis, biology, economic consequences, and control strategies"><div>سید رضا حسینی<br><small>کد: 1404</small></div></td></tr></tbody>
+            </table>
+        </div>
+    </section>
+    
+    <section class="schedule-block">
+        <h2>لیشمانیا</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th></th><th colspan="8">پنجشنبه</th></tr><tr><th>سالن</th><th>8:15-8:30</th><th>8:30-8:45</th><th>8:45-9</th><th>9:15-9:25</th><th>9:25-9:35</th><th>9:35-9:45</th><th>8-8:15</th><th>9-9:15</th></tr></thead>
+                <tbody><tr><th>1</th><td data-search="محمد زینلی 1546 لیشمانیا" data-title="Epidemiological Status of Cutaneous Leishmaniasis in Iran"><div>محمد زینلی<br><small>کد: 1546</small></div></td><td data-search="علیرضا سازمند 1530 لیشمانیا" data-title="Canine leishmaniosis in Iran: it is not only Leishmania infantum"><div>علیرضا سازمند<br><small>کد: 1530</small></div></td><td data-search="سیامک مشهدی رفیعی 1512 لیشمانیا" data-title="A preliminary study of canine Leishmaniasis in Tehran province was referred to the Iranian pet hospital from 2015-2025"><div>سیامک مشهدی رفیعی<br><small>کد: 1512</small></div></td><td data-search="زهره عسکری‌پور 1338 لیشمانیا" data-title="Laboratory diagnosis of cutaneous Leishmaniasis based on an in-house ELISA using a new antigen"><div>زهره عسکری‌پور<br><small>کد: 1338</small></div></td><td data-search="آینا عظیم‌زاده تبریزی 1511 لیشمانیا" data-title="Radiologic evaluation of visceral changes in BALB/c mice infected with cutaneous leishmaniasis caused by Leishmania major"><div>آینا عظیم‌زاده تبریزی<br><small>کد: 1511</small></div></td><td data-search="فاطمه درزی 1539 لیشمانیا" data-title="Induction of a Th1 immune response against - leishmaniasis infection by a kinetoplast-associated gene knockout Leishmania major strain"><div>فاطمه درزی<br><small>کد: 1539</small></div></td><td data-search="دکتر مهدی محبعلی 1651 لیشمانیا" data-title="Present status of visceral leishmaniasis in the Islamic Republic of Iran"><div>دکتر مهدی محبعلی<br><small>کد: 1651</small></div></td><td data-search="شمسی نورپیشه قدسی 1277 لیشمانیا" data-title="IL-33 and its association with visceral leishmaniasis in the hamsters Infected with Leishmania infantum"><div>شمسی نورپیشه قدسی<br><small>کد: 1277</small></div></td></tr></tbody>
+            </table>
+        </div>
+    </section>
+    
+    <section class="schedule-block">
+        <h2>نماتود‌های گوارشی و خونی</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th></th><th colspan="8">چهارشنبه</th></tr><tr><th>سالن</th><th>10:30-10:45</th><th>10:45-11</th><th>11:25-11:15</th><th>11:25-11:35</th><th>11:35-11:45</th><th>11:45-11:55</th><th>11:55-12:05</th><th>11-11:15</th></tr></thead>
+                <tbody><tr><th>1</th><td data-search="حسن برجی 1637 نماتود‌های گوارشی و خونی" data-title="Using salivary anti- CarLA IgA as a tool to manage gastrointestinal nematode in ruminants"><div>حسن برجی<br><small>کد: 1637</small></div></td><td data-search="فرشید حمیدی 1296 نماتود‌های گوارشی و خونی" data-title="Effects of some parasitic infections on the physiology of central feeding behavior and energy balance in birds"><div>فرشید حمیدی<br><small>کد: 1296</small></div></td><td data-search="علی صالحی 1282 نماتود‌های گوارشی و خونی" data-title="Evaluation of the Efficacy and Economic Viability of Targeted Selective Treatment for Parasite Control in Afshari Sheep"><div>علی صالحی<br><small>کد: 1282</small></div></td><td data-search="امین بخشانی 1602 نماتود‌های گوارشی و خونی" data-title="Effects of Toxocara cati larvae and somatic antigens of adult worms in experimental asthmatic Mice"><div>امین بخشانی<br><small>کد: 1602</small></div></td><td data-search="فاطمه منشوری 1397 نماتود‌های گوارشی و خونی" data-title="Prevalence of Dirofilaria immitis and Dirofilaria repens in Dogs from Gilan Province, Iran: A GIS-Based Epidemiological Study"><div>فاطمه منشوری<br><small>کد: 1397</small></div></td><td data-search="نیایش محمدی 1259 نماتود‌های گوارشی و خونی" data-title="Using PCR and High-Resolution Melting (HRM) Analysis for Dirofilariasis Diagnosis"><div>نیایش محمدی<br><small>کد: 1259</small></div></td><td data-search="محمد رضا خوش‌وقت 1614 نماتود‌های گوارشی و خونی" data-title="The identification of Trichinella species among wild carnivores in the northern, northeastern, and northwest provinces of iran"><div>محمد رضا خوش‌وقت<br><small>کد: 1614</small></div></td><td data-search="حسن یزدانفر 1641 نماتود‌های گوارشی و خونی" data-title="Investigation of soil contamination in Mashhad public park with Toxocara species eggs during the years 1402-1403"><div>حسن یزدانفر<br><small>کد: 1641</small></div></td></tr></tbody>
+            </table>
+        </div>
+    </section>
+    
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ... (تمام کدهای قبلی برای تعویض نما و جستجو بدون تغییر باقی می‌مانند) ...
+    const viewByHallBtn = document.getElementById('viewByHallBtn');
+    const viewByPanelBtn = document.getElementById('viewByPanelBtn');
+    const hallViewContainer = document.getElementById('hallViewContainer');
+    const panelViewContainer = document.getElementById('panelViewContainer');
+    const searchInput = document.getElementById('searchInput');
+    const searchMessage = document.getElementById('searchMessage');
+
+    viewByHallBtn.addEventListener('click', () => {
+        hallViewContainer.style.display = 'block'; panelViewContainer.style.display = 'none';
+        viewByHallBtn.classList.add('active'); viewByPanelBtn.classList.remove('active');
+        performSearch();
+    });
+    viewByPanelBtn.addEventListener('click', () => {
+        panelViewContainer.style.display = 'block'; hallViewContainer.style.display = 'none';
+        viewByPanelBtn.classList.add('active'); viewByHallBtn.classList.remove('active');
+        performSearch();
+    });
+    function convertPersianToEnglish(str) {
+        const persian=["۱","۲","۳","۴","۵","۶","۷","۸","۹","۰"], english=["1","2","3","4","5","6","7","8","9","0"];
+        for(let i=0;i<10;i++) str=str.replace(new RegExp(persian[i],"g"),english[i]);
+        return str;
+    }
+    function performSearch() {
+        const query = convertPersianToEnglish(searchInput.value.toLowerCase().trim());
+        document.querySelectorAll('td.highlight').forEach(cell=>cell.classList.remove('highlight'));
+        const activeContainer = hallViewContainer.style.display !== 'none' ? hallViewContainer : panelViewContainer;
+        const allCells = activeContainer.querySelectorAll('tbody td');
+        let foundCount = 0;
+        if (!query) {
+            allCells.forEach(cell => { cell.style.opacity = '1'; });
+            searchMessage.textContent = ''; return;
+        }
+        allCells.forEach(cell => {
+            const cellText = cell.dataset.search ? cell.dataset.search.toLowerCase() : cell.textContent.toLowerCase();
+            if (cellText.includes(query)) {
+                cell.classList.add('highlight'); cell.style.opacity = '1'; foundCount++;
+            } else {
+                cell.style.opacity = '0.2';
+            }
+        });
+        if (foundCount > 0) {
+            searchMessage.textContent = `${foundCount} مورد یافت شد.`; searchMessage.style.color = 'green';
+        } else {
+            searchMessage.textContent = 'هیچ موردی یافت نشد.'; searchMessage.style.color = 'red';
+        }
+    }
+    searchInput.addEventListener('keyup', performSearch);
+    
+    // --- === منطق جدید و کامل برای مودال === ---
+    const modal = document.getElementById('lectureModal');
+    const modalTitle = document.getElementById('modalArticleTitle');
+    const closeButton = document.querySelector('.close-button');
+
+    // تابع برای باز کردن مودال
+    function openModal(title) {
+        modalTitle.textContent = title;
+        modal.style.display = 'block';
+    }
+
+    // تابع برای بستن مودال
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    // رویداد کلیک روی دکمه بستن
+    closeButton.addEventListener('click', closeModal);
+
+    // رویداد کلیک روی پس‌زمینه تیره برای بستن مودال
+    window.addEventListener('click', function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    });
+    
+    // رویداد کلیک روی سلول‌های جدول
+    document.querySelectorAll('.table-wrapper').forEach(wrapper => {
+        wrapper.addEventListener('click', function(event) {
+            const clickedCell = event.target.closest('td');
+            
+            if (clickedCell && clickedCell.dataset.title) {
+                const title = clickedCell.dataset.title;
+                // به جای alert، مودال را باز می‌کنیم
+                openModal(title);
+            }
+        });
+    });
+});
+</script>
+
+
+
+    <div id="lectureModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>عنوان مقاله</h2>
+            <p id="modalArticleTitle"></p>
+        </div>
+    </div>
+
+
+</body>
+</html>
